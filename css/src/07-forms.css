@@ -1,0 +1,54 @@
+/* ============================================================
+   SOFI · FORMULARIOS
+   ============================================================ */
+.form-card {
+  background: var(--c-white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: span 2; }
+.form-group label { font-size: 12px; font-weight: 600; color: var(--c-primary); }
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 9px 12px;
+  border: 1.5px solid var(--c-border);
+  border-radius: var(--radius);
+  font-size: 13px;
+  color: var(--c-text);
+  background: var(--c-white);
+  transition: .2s border;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { border-color: var(--c-primary); }
+.form-group .hint { font-size: 11px; color: var(--c-muted); }
+.form-group .err { font-size: 11px; color: var(--c-error); }
+.form-group input.invalid,
+.form-group select.invalid,
+.form-group textarea.invalid { border-color: var(--c-error); }
+
+.form-actions {
+  display: flex; gap: 10px; justify-content: flex-end;
+  margin-top: 16px; padding-top: 16px;
+  border-top: 1px solid var(--c-border);
+  flex-wrap: wrap;
+}
+
+/* Fila de detalle de solo lectura (vistas "Detalle…") */
+.detail-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid var(--c-border);
+  gap: 12px;
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-row .dr-label { font-size: 12px; color: var(--c-muted); flex-shrink: 0; }
+.detail-row .dr-value { font-size: 13px; font-weight: 600; text-align: right; }
+
+@media (max-width: 900px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .form-group.full { grid-column: span 1; }
+}

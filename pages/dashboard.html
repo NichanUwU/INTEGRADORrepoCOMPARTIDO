@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOFI · Dashboard</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <div id="login-screen" style="display:none"></div>
+  <div id="app-shell">
+    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()" aria-hidden="true"></div>
+    <nav class="sidebar" id="sidebar" aria-label="Navegación principal">
+      <div class="sidebar-logo"><div class="sidebar-logo-text">SOFI<span>.</span></div></div>
+      <div class="sidebar-role-badge" id="sb-role-badge">Directivo</div>
+      <div class="sidebar-nav" id="sb-nav"></div>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar" id="sb-avatar">DG</div>
+          <div class="sidebar-user-info">
+            <span class="sidebar-user-name" id="sb-name">Dir. González</span>
+            <span class="sidebar-user-role" id="sb-role">Directivo</span>
+          </div>
+        </div>
+        <button type="button" class="sidebar-logout" onclick="doLogout()">⬅ Cerrar sesión</button>
+      </div>
+    </nav>
+
+    <div class="main-content">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0">
+          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Abrir menú">☰</button>
+          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Dashboard</span></div>
+        </div>
+        <div class="topbar-actions">
+          <button type="button" class="topbar-btn" onclick="window.location.href='design-system.html'">🎨 Diseño</button>
+          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif">3</span></button>
+          <button type="button" class="topbar-btn">⚙ Configuración</button>
+        </div>
+      </div>
+      <main class="page-content" id="page-content"></main>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
+  <script src="../js/app.js"></script>
+</body>
+</html>

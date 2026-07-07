@@ -1,0 +1,26 @@
+/* ============================================================
+   SOFI · PÁGINA DE SISTEMA DE DISEÑO (/design-system view)
+   ============================================================ */
+.ds-section { margin-bottom: 40px; }
+.ds-section-title {
+  font-size: 12px; font-weight: 700; color: var(--c-primary);
+  letter-spacing: 1px; text-transform: uppercase;
+  margin-bottom: 16px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--c-border);
+}
+.ds-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.ds-swatch { display: flex; flex-direction: column; gap: 6px; }
+.ds-swatch-color { height: 64px; border-radius: var(--radius); box-shadow: var(--shadow); }
+.ds-swatch-name { font-size: 12px; font-weight: 600; color: var(--c-primary); }
+.ds-swatch-code { font-size: 11px; color: var(--c-muted); font-family: monospace; }
+
+.ds-type-row { padding: 12px 0; border-bottom: 1px solid var(--c-border); }
+.ds-type-row:last-child { border-bottom: none; }
+.ds-type-meta { font-size: 11px; color: var(--c-muted); margin-top: 4px; }
+
+.ds-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.ds-spacing-item { display: flex; align-items: center; gap: 8px; }
+.ds-spacing-box { background: var(--c-accent); border-radius: 2px; }
+.ds-spacing-label { font-size: 11px; color: var(--c-muted); }
+
+.ds-card-demo { max-width: 520px; }

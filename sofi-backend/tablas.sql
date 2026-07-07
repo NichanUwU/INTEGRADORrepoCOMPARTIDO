@@ -1,0 +1,156 @@
+CREATE DATABASE IF NOT EXISTS sofi_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE sofi_db;
+
+CREATE TABLE DESARROLLO (
+    IdDesarrollo INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(150) NOT NULL,
+    Ubicacion VARCHAR(255) NOT NULL,
+    Fecha_inicio TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE MANZANA (
+    IdManzana INT AUTO_INCREMENT PRIMARY KEY,
+    Numero INT NOT NULL,
+    Calles_Colindantes VARCHAR(255),
+    IdDesarrollo INT NOT NULL,
+    CONSTRAINT fk_manzana_desarrollo 
+        FOREIGN KEY (IdDesarrollo) REFERENCES DESARROLLO(IdDesarrollo)
+        ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE LOTE (
+    IdLote INT AUTO_INCREMENT PRIMARY KEY,
+    Numero INT NOT NULL,
+    Medidas VARCHAR(100) NOT NULL,
+    Precio DECIMAL(12, 2) NOT NULL,
+    Estado VARCHAR(50) NOT NULL DEFAULT 'Disponible',
+    IdManzana INT NOT NULL,
+    CONSTRAINT fk_lote_manzana 
+        FOREIGN KEY (IdManzana) REFERENCES MANZANA(IdManzana)
+        ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- NUEVA TABLA: Colindancias específicas por cada Lote
+CREATE TABLE COLINDANCIA (
+    IdColindancia INT AUTO_INCREMENT PRIMARY KEY,
+    Norte VARCHAR(255),
+    Sur VARCHAR(255),
+    Este VARCHAR(255),
+    Oeste VARCHAR(255),
+    IdLote INT NOT NULL UNIQUE, -- UNIQUE garantiza que un lote no tenga colindancias duplicadas
+    CONSTRAINT fk_colindancia_lote 
+        FOREIGN KEY (IdLote) REFERENCES LOTE(IdLote)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE CLIENTE (
+    IdCliente INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(100) NOT NULL,
+    Apellidos VARCHAR(100) NOT NULL,
+    Direccion VARCHAR(150) NOT NULL,
+    Casa_Apartamento VARCHAR(50),
+    Codigo_Postal VARCHAR(10) NOT NULL,
+    Ciudad VARCHAR(100) NOT NULL,
+    Estado VARCHAR(100) NOT NULL,
+    Telefono VARCHAR(20) NOT NULL,
+    INE VARCHAR(50) NOT NULL UNIQUE,
+    CURP VARCHAR(50) NOT NULL UNIQUE
+) ENGINE=InnoDB;
+
+CREATE TABLE TESTIGO (
+    IdTestigo INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(100) NOT NULL,
+    Apellidos VARCHAR(100) NOT NULL,
+    Direccion VARCHAR(150),
+    Casa_Apartamento VARCHAR(50),
+    Codigo_Postal VARCHAR(10),
+    Ciudad VARCHAR(100),
+    Estado VARCHAR(100),
+    Telefono VARCHAR(20),
+    IdCliente INT NOT NULL,
+    CONSTRAINT fk_testigo_cliente 
+        FOREIGN KEY (IdCliente) REFERENCES CLIENTE(IdCliente)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE EMPLEADO (
+    IdEmpleado INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(100) NOT NULL,
+    Apellidos VARCHAR(100) NOT NULL,
+    Direccion VARCHAR(150),
+    Casa_Apartamento VARCHAR(50),
+    Codigo_Postal VARCHAR(10),
+    Ciudad VARCHAR(100),
+    Estado VARCHAR(100),
+    Telefono VARCHAR(20),
+    Cargo VARCHAR(50) NOT NULL,
+    Email VARCHAR(150) NOT NULL UNIQUE
+) ENGINE=InnoDB;
+
+CREATE TABLE USUARIO (
+    IdUsuario INT AUTO_INCREMENT PRIMARY KEY,
+    NombreUsuario VARCHAR(50) NOT NULL UNIQUE,
+    Contrasena VARCHAR(255) NOT NULL,
+    Rol VARCHAR(50) NOT NULL,
+    IdEmpleado INT NOT NULL UNIQUE, 
+    CONSTRAINT fk_usuario_empleado 
+        FOREIGN KEY (IdEmpleado) REFERENCES EMPLEADO(IdEmpleado)
+        ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE CONTRATO (
+    IdContrato INT AUTO_INCREMENT PRIMARY KEY,
+    Plantilla VARCHAR(100),
+    Fecha DATE NOT NULL,
+    Hora TIME NOT NULL,
+    TipoPago VARCHAR(100) NOT NULL,
+    MontoFijo DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    IdCliente INT NOT NULL,
+    IdEmpleado INT NOT NULL,
+    IdLote INT NOT NULL UNIQUE,
+    CONSTRAINT fk_contrato_cliente 
+        FOREIGN KEY (IdCliente) REFERENCES CLIENTE(IdCliente)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_contrato_empleado 
+        FOREIGN KEY (IdEmpleado) REFERENCES EMPLEADO(IdEmpleado)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_contrato_lote 
+        FOREIGN KEY (IdLote) REFERENCES LOTE(IdLote)
+        ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE CREDITO_CLIENTE (
+    IdCredito INT AUTO_INCREMENT PRIMARY KEY,
+    IdContrato INT NOT NULL UNIQUE,
+    PagosTotal INT NOT NULL,
+    PagosRealizados INT NOT NULL DEFAULT 0,
+    FechaInicio DATE NOT NULL,
+    FechaProximoPago DATE NOT NULL,
+    Estado VARCHAR(50) NOT NULL DEFAULT 'Activo',
+    CONSTRAINT fk_credito_contrato 
+        FOREIGN KEY (IdContrato) REFERENCES CONTRATO(IdContrato)
+        ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE PAGO (
+    IdPago INT AUTO_INCREMENT PRIMARY KEY,
+    Monto DECIMAL(12, 2) NOT NULL,
+    FechaPago TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FechaCompromiso DATE NOT NULL,
+    IdCliente INT NOT NULL,
+    IdContrato INT NOT NULL,
+    IdCredito INT NOT NULL,
+    CONSTRAINT fk_pago_cliente 
+        FOREIGN KEY (IdCliente) REFERENCES CLIENTE(IdCliente)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_pago_contrato 
+        FOREIGN KEY (IdContrato) REFERENCES CONTRATO(IdContrato)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_pago_credito 
+        FOREIGN KEY (IdCredito) REFERENCES CREDITO_CLIENTE(IdCredito)
+        ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_lote_estado ON LOTE(Estado);
+CREATE INDEX idx_contrato_fecha ON CONTRATO(Fecha);
+CREATE INDEX idx_pago_fecha ON PAGO(FechaPago);

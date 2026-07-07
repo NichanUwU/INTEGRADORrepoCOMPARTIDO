@@ -1,0 +1,40 @@
+/* ============================================================
+   SOFI · DESIGN TOKENS
+   Software Operativo para Fincas e Inmuebles
+   Variables centrales de color, tipografía, radios y sombras.
+   Cambiar un valor aquí actualiza todo el sistema.
+   ============================================================ */
+:root {
+  /* Color */
+  --c-primary:   #0F3B5C;  /* Navy — marca, sidebar, textos fuertes */
+  --c-accent:    #50A746;  /* Verde — acciones positivas, CTA */
+  --c-light-bg:  #EEF5E6;  /* Verde muy claro — fondos suaves */
+  --c-white:     #FFFFFF;
+  --c-text:      #0F3B5C;
+  --c-muted:     #6B8FAF;  /* Texto secundario / metadatos */
+  --c-border:    #D6E4F0;
+  --c-error:     #D94040;
+  --c-warn:      #E09B30;
+  --c-success:   #50A746;
+  --c-surface:   #F5F8FC;  /* Fondo del área de contenido */
+
+  /* Chips (estado) */
+  --chip-green-bg:#E8F7E8; --chip-green-fg:#2E7D32;
+  --chip-red-bg:  #FDECEA; --chip-red-fg:  #C62828;
+  --chip-blue-bg: #E3F2FD; --chip-blue-fg: #1565C0;
+  --chip-warn-bg: #FFF3E0; --chip-warn-fg: #E65100;
+  --chip-gray-bg: #F5F5F5; --chip-gray-fg: #616161;
+
+  /* Layout */
+  --c-sidebar-w: 220px;
+  --radius:      8px;
+  --radius-sm:   6px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --shadow:      0 2px 12px rgba(15,59,92,.10);
+  --shadow-lg:   0 20px 60px rgba(0,0,0,.25);
+
+  /* Tipografía */
+  --font-display:'Istok Web', Georgia, 'Times New Roman', serif;  /* Cifras, KPIs, logotipo */
+  --font-ui:     'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; /* Interfaz general */
+}
