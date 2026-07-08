@@ -3,6 +3,7 @@ package com.sofi.controllers;
 import io.javalin.http.Context;
 import com.sofi.database.DatabaseConnection;
 import java.sql.*;
+import java.util.HashMap;
 import java.util.Map;
 
 public class UsuarioController {
@@ -23,20 +24,24 @@ public class UsuarioController {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    Map<String, Object> usuarioLogueado = Map.of(
-                        "IdUsuario", rs.getInt("IdUsuario"),
-                        "NombreUsuario", rs.getString("NombreUsuario"),
-                        "Rol", rs.getString("Rol"),
-                        "Empleado", rs.getString("NombreEmpleado"),
-                        "status", "success"
-                    );
+                    Map<String, Object> usuarioLogueado = new HashMap<String, Object>();
+                    usuarioLogueado.put("IdUsuario", rs.getInt("IdUsuario"));
+                    usuarioLogueado.put("NombreUsuario", rs.getString("NombreUsuario"));
+                    usuarioLogueado.put("Rol", rs.getString("Rol"));
+                    usuarioLogueado.put("Empleado", rs.getString("NombreEmpleado"));
+                    usuarioLogueado.put("status", "success");
                     ctx.json(usuarioLogueado);
                 } else {
-                    ctx.status(401).json(Map.of("status", "error", "mensaje", "Credenciales incorrectas"));
+                    Map<String, Object> response = new HashMap<String, Object>();
+                    response.put("status", "error");
+                    response.put("mensaje", "Credenciales incorrectas");
+                    ctx.status(401).json(response);
                 }
             }
         } catch (Exception e) {
-            ctx.status(500).json(Map.of("error", e.getMessage()));
+            Map<String, Object> response = new HashMap<String, Object>();
+            response.put("error", e.getMessage());
+            ctx.status(500).json(response);
         }
     }
 }

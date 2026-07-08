@@ -30,7 +30,9 @@ public class ContratoController {
             }
             ctx.json(contratos);
         } catch (Exception e) {
-            ctx.status(500).json(Map.of("error", e.getMessage()));
+            Map<String, Object> response = new HashMap<String, Object>();
+            response.put("error", e.getMessage());
+            ctx.status(500).json(response);
         }
     }
 }

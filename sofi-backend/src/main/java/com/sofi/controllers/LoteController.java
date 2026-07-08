@@ -31,7 +31,9 @@ public class LoteController {
             ctx.json(lotes);
 
         } catch (Exception e) {
-            ctx.status(500).json(Map.of("error", e.getMessage()));
+            Map<String, Object> response = new HashMap<String, Object>();
+            response.put("error", e.getMessage());
+            ctx.status(500).json(response);
         }
     }
 
@@ -50,10 +52,14 @@ public class LoteController {
             pstmt.setInt(5, Integer.parseInt(body.get("IdManzana").toString()));
 
             pstmt.executeUpdate();
-            ctx.status(21).json(Map.of("mensaje", "Lote registrado con éxito"));
+            Map<String, Object> response = new HashMap<String, Object>();
+            response.put("mensaje", "Lote registrado con éxito");
+            ctx.status(201).json(response);
 
         } catch (Exception e) {
-            ctx.status(500).json(Map.of("error", e.getMessage()));
+            Map<String, Object> response = new HashMap<String, Object>();
+            response.put("error", e.getMessage());
+            ctx.status(500).json(response);
         }
     }
 }

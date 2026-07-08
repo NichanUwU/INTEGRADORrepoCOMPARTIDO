@@ -31,7 +31,9 @@ public class ClienteController {
             ctx.json(clientes);
 
         } catch (Exception e) {
-            ctx.status(500).json(Map.of("error", e.getMessage()));
+            Map<String, Object> response = new HashMap<String, Object>();
+            response.put("error", e.getMessage());
+            ctx.status(500).json(response);
         }
     }
 
@@ -51,10 +53,14 @@ public class ClienteController {
             pstmt.setString(5, body.get("CURP"));
 
             pstmt.executeUpdate();
-            ctx.status(21).json(Map.of("mensaje", "Cliente registrado con éxito"));
+            Map<String, Object> response = new HashMap<String, Object>();
+            response.put("mensaje", "Cliente registrado con éxito");
+            ctx.status(201).json(response);
 
         } catch (Exception e) {
-            ctx.status(500).json(Map.of("error", e.getMessage()));
+            Map<String, Object> response = new HashMap<String, Object>();
+            response.put("error", e.getMessage());
+            ctx.status(500).json(response);
         }
     }
 }

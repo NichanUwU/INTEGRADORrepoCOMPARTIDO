@@ -24,7 +24,9 @@ public class DesarrolloController {
             }
             ctx.json(desarrollos);
         } catch (Exception e) {
-            ctx.status(500).json(Map.of("error", e.getMessage()));
+            Map<String, Object> response = new HashMap<String, Object>();
+            response.put("error", e.getMessage());
+            ctx.status(500).json(response);
         }
     }
 
@@ -36,9 +38,13 @@ public class DesarrolloController {
             pstmt.setString(1, body.get("Nombre"));
             pstmt.setString(2, body.get("Ubicacion"));
             pstmt.executeUpdate();
-            ctx.status(201).json(Map.of("mensaje", "Desarrollo creado con éxito"));
+            Map<String, Object> response = new HashMap<String, Object>();
+            response.put("mensaje", "Desarrollo creado con éxito");
+            ctx.status(201).json(response);
         } catch (Exception e) {
-            ctx.status(500).json(Map.of("error", e.getMessage()));
+            Map<String, Object> response = new HashMap<String, Object>();
+            response.put("error", e.getMessage());
+            ctx.status(500).json(response);
         }
     }
 }

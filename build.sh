@@ -26,21 +26,4 @@ for f in 01-tokens.css 02-base.css 03-login.css 04-shell.css \
 done
 
 # ---- JS ----
-cat > js/app.js << 'HEADER'
-/* ============================================================
-   SOFI — Software Operativo para Fincas e Inmuebles
-   app.js (compilado)
-
-   Generado concatenando los módulos editables en js/src/
-   en orden. Edita los archivos en js/src/ y corre build.sh.
-   ============================================================ */
-
-HEADER
-for f in 01-core.js 02-views-directivo.js 03-views-vendedor.js \
-         04-views-asistente.js 05-helpers.js 06-design-system.js; do
-  printf "\n" >> js/app.js
-  cat "js/src/$f" >> js/app.js
-  printf "\n" >> js/app.js
-done
-
-echo "✓ Compilado: css/styles.css y js/app.js"
+echo "✓ JS compartido listo: js/app.js usa el flujo funcional para las páginas HTML reales."

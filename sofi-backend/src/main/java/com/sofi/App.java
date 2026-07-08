@@ -1,16 +1,23 @@
 package com.sofi;
 
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 import com.sofi.controllers.*;
 
 public class App {
     public static void main(String[] args) {
         
-        Javalin app = Javalin.create(config -> {
-            config.bundledPlugins.enableCors(cors -> {
-                cors.addRule(it -> it.anyHost());
-            });
-        }).start(3000);
+        Javalin app = Javalin.create().start(3000);
+
+        app.before(ctx -> {
+            ctx.header("Access-Control-Allow-Origin", "*");
+            ctx.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            ctx.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        });
+
+        app.options("/*", ctx -> {
+            ctx.status(204).result("");
+        });
 
         // --- ENDPOINTS DE SOFI ---
 
