@@ -9,40 +9,159 @@
 <body>
   <div id="login-screen" style="display:none"></div>
   <div id="app-shell">
-    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()" aria-hidden="true"></div>
-    <nav class="sidebar" id="sidebar" aria-label="Navegación principal">
+    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()"></div>
+    <nav class="sidebar" id="sidebar">
       <div class="sidebar-logo"><div class="sidebar-logo-text">SOFI<span>.</span></div></div>
-      <div class="sidebar-role-badge" id="sb-role-badge">Directivo</div>
+      <div class="sidebar-role-badge" id="sb-role-badge"></div>
       <div class="sidebar-nav" id="sb-nav"></div>
       <div class="sidebar-footer">
         <div class="sidebar-user">
-          <div class="sidebar-avatar" id="sb-avatar">DG</div>
+          <div class="sidebar-avatar" id="sb-avatar"></div>
           <div class="sidebar-user-info">
-            <span class="sidebar-user-name" id="sb-name">Dir. González</span>
-            <span class="sidebar-user-role" id="sb-role">Directivo</span>
+            <span class="sidebar-user-name" id="sb-name"></span>
+            <span class="sidebar-user-role" id="sb-role"></span>
           </div>
         </div>
-        <button type="button" class="sidebar-logout" onclick="doLogout()">⬅ Cerrar sesión</button>
+        <button type="button" class="sidebar-logout" onclick="doLogout()">Cerrar sesión</button>
       </div>
     </nav>
 
     <div class="main-content">
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0">
-          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Abrir menú">☰</button>
+          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
           <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Lotes</span></div>
         </div>
         <div class="topbar-actions">
-          <button type="button" class="topbar-btn" onclick="window.location.href='design-system.html'">🎨 Diseño</button>
-          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif">3</span></button>
+          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
           <button type="button" class="topbar-btn">⚙ Configuración</button>
         </div>
       </div>
-      <main class="page-content" id="page-content"></main>
+
+      <main class="page-content" id="page-content">
+        <div class="section-header">
+          <div class="section-title">Gestión de Lotes</div>
+          <button class="btn-accent" onclick="abrirModal('crear-lote-modal')">Nuevo Lote</button>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <input class="search-input" placeholder="Buscar lote…" style="max-width:240px">
+            <select class="filter-select"><option>Todos los Desarrollos</option></select>
+            <select class="filter-select"><option>Todos los Estatus</option><option>Disponible</option><option>Vendido</option><option>Reservado</option></select>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Desarrollo</th>
+                <th>Núm. Lote</th>
+                <th>Superficie</th>
+                <th>Precio</th>
+                <th>Norte</th>
+                <th>Sur</th>
+                <th>Este</th>
+                <th>Oeste</th>
+                <th>Estatus</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-lotes-body"></tbody>
+          </table>
+          <div class="table-pagination">
+            <span id="lotes-paginacion">Cargando...</span>
+            <div style="display:flex;gap:4px" id="lotes-paginas"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL CREAR LOTE -->
+  <div id="crear-lote-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:720px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">Nuevo Lote</div>
+        <button onclick="cerrarModal('crear-lote-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <form id="form-crear-lote" onsubmit="event.preventDefault(); guardarLoteModal();">
+        <div class="form-grid">
+          <div class="form-group"><label>Desarrollo *</label>
+            <select id="lote-desarrollo" required>
+              <option value="">Seleccionar…</option>
+              <option value="1">Las Palmas Residencial</option>
+              <option value="2">Vista del Lago</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Número de Lote *</label><input id="lote-numero" type="text" placeholder="Ej. A-12" required></div>
+          <div class="form-group"><label>Superficie (m²) *</label><input id="lote-medidas" type="number" placeholder="120" min="1" required></div>
+          <div class="form-group"><label>Precio de Lista *</label><input id="lote-precio" type="number" placeholder="350000" min="0" required></div>
+          <div class="form-group"><label>Estatus *</label>
+            <select id="lote-estado" required>
+              <option value="Disponible">Disponible</option>
+              <option value="Vendido">Vendido</option>
+              <option value="Reservado">Reservado</option>
+            </select>
+          </div>
+          <div class="form-group full"><label>Colindancias</label></div>
+          <div class="form-group"><label>Norte</label><input id="lote-norte" placeholder="Descripción del colindante"></div>
+          <div class="form-group"><label>Sur</label><input id="lote-sur" placeholder="Descripción del colindante"></div>
+          <div class="form-group"><label>Este</label><input id="lote-este" placeholder="Descripción del colindante"></div>
+          <div class="form-group"><label>Oeste</label><input id="lote-oeste" placeholder="Descripción del colindante"></div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('crear-lote-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Guardar Lote</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR LOTE -->
+  <div id="editar-lote-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:720px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">Editar Lote</div>
+        <button onclick="cerrarModal('editar-lote-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <form id="form-editar-lote" onsubmit="event.preventDefault(); actualizarLoteModal();">
+        <input type="hidden" id="edit-lote-id">
+        <div class="form-grid">
+          <div class="form-group"><label>Desarrollo *</label>
+            <select id="edit-lote-desarrollo" required>
+              <option value="">Seleccionar…</option>
+              <option value="1">Las Palmas Residencial</option>
+              <option value="2">Vista del Lago</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Número de Lote *</label><input id="edit-lote-numero" type="text" placeholder="Ej. A-12" required></div>
+          <div class="form-group"><label>Superficie (m²) *</label><input id="edit-lote-medidas" type="number" placeholder="120" min="1" required></div>
+          <div class="form-group"><label>Precio de Lista *</label><input id="edit-lote-precio" type="number" placeholder="350000" min="0" required></div>
+          <div class="form-group"><label>Estatus *</label>
+            <select id="edit-lote-estado" required>
+              <option value="Disponible">Disponible</option>
+              <option value="Vendido">Vendido</option>
+              <option value="Reservado">Reservado</option>
+            </select>
+          </div>
+          <div class="form-group full"><label>Colindancias</label></div>
+          <div class="form-group"><label>Norte</label><input id="edit-lote-norte" placeholder="Descripción del colindante"></div>
+          <div class="form-group"><label>Sur</label><input id="edit-lote-sur" placeholder="Descripción del colindante"></div>
+          <div class="form-group"><label>Este</label><input id="edit-lote-este" placeholder="Descripción del colindante"></div>
+          <div class="form-group"><label>Oeste</label><input id="edit-lote-oeste" placeholder="Descripción del colindante"></div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('editar-lote-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Actualizar Lote</button>
+        </div>
+      </form>
     </div>
   </div>
 
   <div id="modal-root"></div>
-  <script src="../js/app.js"></script>
+  <script src="../js/core/config.js"></script>
+  <script src="../js/utils/helpers.js"></script>
+  <script src="../js/core/app.js"></script>
+  <script src="../js/modules/lotes.js"></script>
 </body>
 </html>

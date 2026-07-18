@@ -9,40 +9,163 @@
 <body>
   <div id="login-screen" style="display:none"></div>
   <div id="app-shell">
-    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()" aria-hidden="true"></div>
-    <nav class="sidebar" id="sidebar" aria-label="Navegación principal">
+    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()"></div>
+    <nav class="sidebar" id="sidebar">
       <div class="sidebar-logo"><div class="sidebar-logo-text">SOFI<span>.</span></div></div>
-      <div class="sidebar-role-badge" id="sb-role-badge">Directivo</div>
+      <div class="sidebar-role-badge" id="sb-role-badge"></div>
       <div class="sidebar-nav" id="sb-nav"></div>
       <div class="sidebar-footer">
         <div class="sidebar-user">
-          <div class="sidebar-avatar" id="sb-avatar">DG</div>
+          <div class="sidebar-avatar" id="sb-avatar"></div>
           <div class="sidebar-user-info">
-            <span class="sidebar-user-name" id="sb-name">Dir. González</span>
-            <span class="sidebar-user-role" id="sb-role">Directivo</span>
+            <span class="sidebar-user-name" id="sb-name"></span>
+            <span class="sidebar-user-role" id="sb-role"></span>
           </div>
         </div>
-        <button type="button" class="sidebar-logout" onclick="doLogout()">⬅ Cerrar sesión</button>
+        <button type="button" class="sidebar-logout" onclick="doLogout()">Cerrar sesión</button>
       </div>
     </nav>
 
     <div class="main-content">
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0">
-          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Abrir menú">☰</button>
+          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
           <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Flujo de Efectivo</span></div>
         </div>
         <div class="topbar-actions">
-          <button type="button" class="topbar-btn" onclick="window.location.href='design-system.html'">🎨 Diseño</button>
-          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif">3</span></button>
+          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
           <button type="button" class="topbar-btn">⚙ Configuración</button>
         </div>
       </div>
-      <main class="page-content" id="page-content"></main>
+
+      <main class="page-content" id="page-content">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Ingresos del Mes</div>
+            <div class="kpi-value" id="ingresos-mes">$0</div>
+            <div class="kpi-trend trend-up" id="trend-ingresos">Cargando...</div>
+          </div>
+          <div class="kpi-card" style="border-left-color:var(--c-error)">
+            <div class="kpi-label">Egresos del Mes</div>
+            <div class="kpi-value" id="egresos-mes">$0</div>
+            <div class="kpi-trend trend-down" id="trend-egresos">Cargando...</div>
+          </div>
+          <div class="kpi-card" style="border-left-color:var(--c-accent)">
+            <div class="kpi-label">Flujo Neto</div>
+            <div class="kpi-value" id="flujo-neto">$0</div>
+            <div class="kpi-trend trend-up" id="trend-flujo">Cargando...</div>
+          </div>
+          <div class="kpi-card" style="border-left-color:var(--c-warn)">
+            <div class="kpi-label">Pagos Atrasados</div>
+            <div class="kpi-value" id="pagos-atrasados">0</div>
+            <div class="kpi-trend trend-down" id="trend-pagos">Cargando...</div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <div class="section-title">Movimientos de Flujo</div>
+          <button class="btn-accent" onclick="abrirModal('registrar-pago-modal')">Registrar Pago</button>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <input class="search-input" placeholder="Buscar movimiento…" style="max-width:220px">
+            <select class="filter-select"><option>Todos los tipos</option><option>Ingreso</option><option>Egreso</option></select>
+            <select class="filter-select"><option>Todos los estatus</option><option>Pagado</option><option>Atrasado</option></select>
+            <input type="date" class="filter-select">
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Concepto</th>
+                <th>Fecha</th>
+                <th>Monto</th>
+                <th>Tipo</th>
+                <th>Estatus</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-flujo-body"></tbody>
+          </table>
+          <div class="table-pagination">
+            <span id="flujo-paginacion">Cargando...</span>
+            <div style="display:flex;gap:4px" id="flujo-paginas"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       MODAL REGISTRAR PAGO
+       ============================================================ -->
+  <div id="registrar-pago-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:480px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">💰 Registrar Pago</div>
+        <button onclick="cerrarModal('registrar-pago-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <form id="form-registrar-pago" onsubmit="event.preventDefault(); confirmarPago();">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Selecciona un Cliente *</label>
+            <select id="pago-cliente" required>
+              <option value="">Seleccionar cliente…</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Monto a Registrar *</label>
+            <input id="pago-monto" type="number" placeholder="0.00" min="0.01" step="0.01" required>
+          </div>
+          <div class="form-group full">
+            <label>Concepto</label>
+            <input id="pago-concepto" type="text" placeholder="Ej. Mensualidad Junio 2025">
+          </div>
+          <div class="form-group full" style="font-size:12px;color:var(--c-muted);">
+            <span>💡 El pago se registrará con la fecha de hoy y estatus "Pagado"</span>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('registrar-pago-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Registrar Pago</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       MODAL CONFIRMAR PAGO
+       ============================================================ -->
+  <div id="confirmar-pago-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:420px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">⚠ Confirmar Pago</div>
+        <button onclick="cerrarModal('confirmar-pago-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <div style="text-align:center;padding:16px 0;">
+        <div style="font-size:48px;margin-bottom:12px;">💰</div>
+        <p style="font-size:16px;font-weight:600;color:var(--c-primary);" id="confirm-cliente">Cliente</p>
+        <p style="font-size:14px;color:var(--c-muted);margin:4px 0;">Monto a registrar:</p>
+        <p style="font-size:28px;font-weight:700;color:var(--c-accent);" id="confirm-monto">$0.00</p>
+        <p style="font-size:12px;color:var(--c-muted);margin-top:4px;" id="confirm-concepto">Concepto</p>
+      </div>
+      <div class="form-actions" style="justify-content:center;">
+        <button class="btn-outline" onclick="cerrarModal('confirmar-pago-modal')">Cancelar</button>
+        <button class="btn-accent" onclick="registrarPagoConfirmado()">✅ Confirmar y Guardar</button>
+      </div>
     </div>
   </div>
 
   <div id="modal-root"></div>
-  <script src="../js/app.js"></script>
+
+  <!-- ============================================================
+       SCRIPTS - SOLO LOS MÓDULOS NECESARIOS
+       ============================================================ -->
+  <script src="../js/core/config.js"></script>
+  <script src="../js/utils/helpers.js"></script>
+  <script src="../js/core/app.js"></script>
+  <script src="../js/modules/flujo.js"></script>
 </body>
 </html>

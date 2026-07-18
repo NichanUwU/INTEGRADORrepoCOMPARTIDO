@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "desarrollo": "Las Palmas Residencial",
+    "desarrollo_id": 1,
+    "numero": "A-01",
+    "medidas": 120,
+    "precio": 380000,
+    "estatus": "Disponible",
+    "colindancias": {
+      "norte": "Calle Principal",
+      "sur": "Lote A-02",
+      "este": "Area Verde",
+      "oeste": "Calle Secundaria"
+    }
+  },
+  {
+    "id": 2,
+    "desarrollo": "Las Palmas Residencial",
+    "desarrollo_id": 1,
+    "numero": "A-02",
+    "medidas": 135,
+    "precio": 420000,
+    "estatus": "Vendido",
+    "colindancias": {
+      "norte": "Lote A-01",
+      "sur": "Calle Principal",
+      "este": "Lote A-03",
+      "oeste": "Area Verde"
+    }
+  },
+  {
+    "id": 3,
+    "desarrollo": "Vista del Lago",
+    "desarrollo_id": 2,
+    "numero": "B-01",
+    "medidas": 98,
+    "precio": 295000,
+    "estatus": "Reservado",
+    "colindancias": {
+      "norte": "Calle del Lago",
+      "sur": "Lote B-02",
+      "este": "Area Comun",
+      "oeste": "Calle Principal"
+    }
+  },
+  {
+    "id": 4,
+    "desarrollo": "El Encino",
+    "desarrollo_id": 3,
+    "numero": "C-01",
+    "medidas": 200,
+    "precio": 680000,
+    "estatus": "Disponible",
+    "colindancias": {
+      "norte": "Calle del Bosque",
+      "sur": "Lote C-02",
+      "este": "Area Verde",
+      "oeste": "Calle Secundaria"
+    }
+  },
+  {
+    "id": 5,
+    "desarrollo": "Las Palmas Residencial",
+    "desarrollo_id": 1,
+    "numero": "A-03",
+    "medidas": 110,
+    "precio": 355000,
+    "estatus": "Vendido",
+    "colindancias": {
+      "norte": "Lote A-02",
+      "sur": "Calle Principal",
+      "este": "Lote A-04",
+      "oeste": "Calle Secundaria"
+    }
+  },
+  {
+    "id": 6,
+    "desarrollo": "Bosques Norte",
+    "desarrollo_id": 4,
+    "numero": "D-01",
+    "medidas": 150,
+    "precio": 510000,
+    "estatus": "Disponible",
+    "colindancias": {
+      "norte": "Calle del Bosque",
+      "sur": "Lote D-02",
+      "este": "Area Comun",
+      "oeste": "Calle Principal"
+    }
+  }
+]

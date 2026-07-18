@@ -1,0 +1,67 @@
+[
+  {
+    "id": "CON-0051",
+    "cliente": "Juan Hernandez Lopez",
+    "cliente_id": 1,
+    "lote": "A-01",
+    "desarrollo": "Las Palmas Residencial",
+    "vendedor": "M. Rodriguez",
+    "fecha": "2025-01-12",
+    "monto_total": 380000,
+    "plazo_meses": 36,
+    "pago_mensual": 10556,
+    "estatus": "Activo"
+  },
+  {
+    "id": "CON-0052",
+    "cliente": "Maria Garcia Torres",
+    "cliente_id": 2,
+    "lote": "B-01",
+    "desarrollo": "Vista del Lago",
+    "vendedor": "L. Garcia",
+    "fecha": "2025-02-18",
+    "monto_total": 295000,
+    "plazo_meses": 24,
+    "pago_mensual": 12292,
+    "estatus": "Activo"
+  },
+  {
+    "id": "CON-0053",
+    "cliente": "Roberto Dominguez Sanchez",
+    "cliente_id": 3,
+    "lote": "C-01",
+    "desarrollo": "El Encino",
+    "vendedor": "M. Rodriguez",
+    "fecha": "2025-03-05",
+    "monto_total": 680000,
+    "plazo_meses": 48,
+    "pago_mensual": 14167,
+    "estatus": "Atrasado"
+  },
+  {
+    "id": "CON-0054",
+    "cliente": "Ana Perez Villanueva",
+    "cliente_id": 4,
+    "lote": "A-02",
+    "desarrollo": "Las Palmas Residencial",
+    "vendedor": "P. Torres",
+    "fecha": "2025-04-22",
+    "monto_total": 420000,
+    "plazo_meses": 36,
+    "pago_mensual": 11667,
+    "estatus": "Activo"
+  },
+  {
+    "id": "CON-0055",
+    "cliente": "Luis Sanchez Mora",
+    "cliente_id": 5,
+    "lote": "D-01",
+    "desarrollo": "Bosques Norte",
+    "vendedor": "R. Sanchez",
+    "fecha": "2025-05-01",
+    "monto_total": 510000,
+    "plazo_meses": 60,
+    "pago_mensual": 8500,
+    "estatus": "Liquidado"
+  }
+]

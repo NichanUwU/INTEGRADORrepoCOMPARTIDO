@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOFI · Detalle Desarrollo</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <div id="login-screen" style="display:none"></div>
+  <div id="app-shell">
+    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()"></div>
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-logo"><div class="sidebar-logo-text">SOFI<span>.</span></div></div>
+      <div class="sidebar-role-badge" id="sb-role-badge"></div>
+      <div class="sidebar-nav" id="sb-nav"></div>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar" id="sb-avatar"></div>
+          <div class="sidebar-user-info">
+            <span class="sidebar-user-name" id="sb-name"></span>
+            <span class="sidebar-user-role" id="sb-role"></span>
+          </div>
+        </div>
+        <button type="button" class="sidebar-logout" onclick="doLogout()">Cerrar sesión</button>
+      </div>
+    </nav>
+
+    <div class="main-content">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0">
+          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Detalle Desarrollo</span></div>
+        </div>
+        <div class="topbar-actions">
+          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
+          <button type="button" class="topbar-btn">⚙ Configuración</button>
+        </div>
+      </div>
+
+      <main class="page-content" id="page-content">
+        <div class="section-header">
+          <div>
+            <div class="section-title" id="detalle-nombre">Cargando...</div>
+            <p style="font-size:12px;color:var(--c-muted);" id="detalle-ubicacion">📍 Cargando ubicación...</p>
+            <p style="font-size:13px;color:var(--c-muted);margin-top:4px;" id="detalle-descripcion"></p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-accent btn-sm" onclick="abrirModal('crear-manzana-modal')">+ Nueva Manzana</button>
+            <button class="btn-outline btn-sm" onclick="window.location.href='desarrollos.html'">← Volver</button>
+          </div>
+        </div>
+
+        <div id="manzanas-container" style="margin-top:20px;"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL CREAR MANZANA -->
+  <div id="crear-manzana-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:680px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">Nueva Manzana</div>
+        <button onclick="cerrarModal('crear-manzana-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <form id="form-crear-manzana" onsubmit="event.preventDefault(); guardarManzanaModal();">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Desarrollo *</label>
+            <select id="manzana-desarrollo" required>
+              <option value="">Seleccionar desarrollo…</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Número de Manzana *</label>
+            <input id="manzana-numero" type="number" placeholder="1" min="1" required>
+          </div>
+          <div class="form-group full">
+            <label>Calles Colindantes</label>
+            <input id="manzana-calles" type="text" placeholder="Ej. Calle Principal y Calle Secundaria">
+          </div>
+          <div class="form-group full">
+            <label>Número de Lotes que tendrá esta Manzana *</label>
+            <input id="manzana-cantidad-lotes" type="number" placeholder="Ej. 10" min="1" required>
+            <span class="hint">Los lotes se crearán automáticamente con números correlativos</span>
+          </div>
+        </div>
+
+        <div id="vista-previa-lotes" style="margin-top:16px;padding:16px;background:var(--c-light-bg);border-radius:var(--radius);display:none;">
+          <div style="font-weight:600;font-size:13px;margin-bottom:8px;">Vista previa de lotes:</div>
+          <div id="lista-lotes-preview" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('crear-manzana-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Crear Manzana y Lotes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
+
+  <!-- ============================================================
+       SCRIPTS - SOLO LOS MÓDULOS NECESARIOS
+       ============================================================ -->
+  <script src="../js/core/config.js"></script>
+  <script src="../js/utils/helpers.js"></script>
+  <script src="../js/core/app.js"></script>
+  <script src="../js/modules/desarrollos.js"></script>
+</body>
+</html>

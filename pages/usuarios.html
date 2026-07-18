@@ -9,40 +9,133 @@
 <body>
   <div id="login-screen" style="display:none"></div>
   <div id="app-shell">
-    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()" aria-hidden="true"></div>
-    <nav class="sidebar" id="sidebar" aria-label="Navegación principal">
+    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()"></div>
+    <nav class="sidebar" id="sidebar">
       <div class="sidebar-logo"><div class="sidebar-logo-text">SOFI<span>.</span></div></div>
-      <div class="sidebar-role-badge" id="sb-role-badge">Directivo</div>
+      <div class="sidebar-role-badge" id="sb-role-badge"></div>
       <div class="sidebar-nav" id="sb-nav"></div>
       <div class="sidebar-footer">
         <div class="sidebar-user">
-          <div class="sidebar-avatar" id="sb-avatar">DG</div>
+          <div class="sidebar-avatar" id="sb-avatar"></div>
           <div class="sidebar-user-info">
-            <span class="sidebar-user-name" id="sb-name">Dir. González</span>
-            <span class="sidebar-user-role" id="sb-role">Directivo</span>
+            <span class="sidebar-user-name" id="sb-name"></span>
+            <span class="sidebar-user-role" id="sb-role"></span>
           </div>
         </div>
-        <button type="button" class="sidebar-logout" onclick="doLogout()">⬅ Cerrar sesión</button>
+        <button type="button" class="sidebar-logout" onclick="doLogout()">Cerrar sesión</button>
       </div>
     </nav>
 
     <div class="main-content">
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0">
-          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Abrir menú">☰</button>
+          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
           <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Usuarios</span></div>
         </div>
         <div class="topbar-actions">
-          <button type="button" class="topbar-btn" onclick="window.location.href='design-system.html'">🎨 Diseño</button>
-          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif">3</span></button>
+          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
           <button type="button" class="topbar-btn">⚙ Configuración</button>
         </div>
       </div>
-      <main class="page-content" id="page-content"></main>
+
+      <main class="page-content" id="page-content">
+        <div class="section-header">
+          <div class="section-title">Usuarios del Sistema</div>
+          <button class="btn-accent" onclick="abrirModal('crear-usuario-modal')">Nuevo Usuario</button>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <input class="search-input" placeholder="Buscar usuario…" style="max-width:240px">
+            <select class="filter-select"><option>Todos los roles</option><option>Directivo</option><option>Vendedor</option><option>Asistente</option></select>
+            <select class="filter-select"><option>Todos los estatus</option><option>Activo</option><option>Inactivo</option></select>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Apellidos</th>
+                <th>Correo</th>
+                <th>Rol</th>
+                <th>Empleado ID</th>
+                <th>Estatus</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-usuarios-body"></tbody>
+          </table>
+          <div class="table-pagination">
+            <span id="usuarios-paginacion">Cargando...</span>
+            <div style="display:flex;gap:4px" id="usuarios-paginas"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL CREAR USUARIO -->
+  <div id="crear-usuario-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:600px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">Nuevo Usuario</div>
+        <button onclick="cerrarModal('crear-usuario-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <form id="form-crear-usuario" onsubmit="event.preventDefault(); guardarUsuarioModal();">
+        <div class="form-grid">
+          <div class="form-group full"><label>Nombre Completo *</label><input id="usu-nombre" type="text" placeholder="Nombre completo" required></div>
+          <div class="form-group"><label>Correo Electrónico *</label><input id="usu-email" type="email" placeholder="correo@sofi.mx" required></div>
+          <div class="form-group"><label>Contraseña *</label><input id="usu-password" type="password" placeholder="Mín. 8 caracteres" required></div>
+          <div class="form-group"><label>Rol *</label>
+            <select id="usu-rol" required>
+              <option value="">Seleccionar…</option>
+              <option value="Directivo">Directivo</option>
+              <option value="Vendedor">Vendedor</option>
+              <option value="Asistente">Asistente</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('crear-usuario-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Crear Usuario</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR USUARIO -->
+  <div id="editar-usuario-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:600px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">Editar Usuario</div>
+        <button onclick="cerrarModal('editar-usuario-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <form id="form-editar-usuario" onsubmit="event.preventDefault(); actualizarUsuarioModal();">
+        <input type="hidden" id="edit-usuario-id">
+        <div class="form-grid">
+          <div class="form-group full"><label>Nombre Completo *</label><input id="edit-usu-nombre" type="text" placeholder="Nombre completo" required></div>
+          <div class="form-group"><label>Correo Electrónico *</label><input id="edit-usu-email" type="email" placeholder="correo@sofi.mx" required></div>
+          <div class="form-group"><label>Rol *</label>
+            <select id="edit-usu-rol" required>
+              <option value="">Seleccionar…</option>
+              <option value="Directivo">Directivo</option>
+              <option value="Vendedor">Vendedor</option>
+              <option value="Asistente">Asistente</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('editar-usuario-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Actualizar Usuario</button>
+        </div>
+      </form>
     </div>
   </div>
 
   <div id="modal-root"></div>
-  <script src="../js/app.js"></script>
+  <script src="../js/core/config.js"></script>
+  <script src="../js/utils/helpers.js"></script>
+  <script src="../js/core/app.js"></script>
+  <script src="../js/modules/usuarios.js"></script>
 </body>
 </html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOFI · Detalle Lote</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <div id="login-screen" style="display:none"></div>
+  <div id="app-shell">
+    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()"></div>
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-logo"><div class="sidebar-logo-text">SOFI<span>.</span></div></div>
+      <div class="sidebar-role-badge" id="sb-role-badge"></div>
+      <div class="sidebar-nav" id="sb-nav"></div>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar" id="sb-avatar"></div>
+          <div class="sidebar-user-info">
+            <span class="sidebar-user-name" id="sb-name"></span>
+            <span class="sidebar-user-role" id="sb-role"></span>
+          </div>
+        </div>
+        <button type="button" class="sidebar-logout" onclick="doLogout()">Cerrar sesión</button>
+      </div>
+    </nav>
+
+    <div class="main-content">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0">
+          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Detalle Lote</span></div>
+        </div>
+        <div class="topbar-actions">
+          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
+          <button type="button" class="topbar-btn">⚙ Configuración</button>
+        </div>
+      </div>
+
+      <main class="page-content" id="page-content">
+        <div class="section-header">
+          <div>
+            <div class="section-title" id="lote-nombre">Lote A-01 · Las Palmas Residencial</div>
+            <p style="font-size:12px;color:var(--c-muted)" id="lote-info">ID: L-001 · 120 m²</p>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-outline btn-sm" onclick="window.history.back()">← Regresar</button>
+            <button class="btn-accent btn-sm">✏ Editar</button>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="form-card">
+            <div class="chart-title" style="margin-bottom:12px">Datos del Lote</div>
+            <div id="lote-detalle"></div>
+          </div>
+          <div class="form-card">
+            <div class="chart-title" style="margin-bottom:12px">Acciones</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <button class="btn-accent" onclick="navigateTo('crear-contrato')">📄 Generar Contrato</button>
+              <button class="btn-outline">💲 Simular Financiamiento</button>
+              <button class="btn-outline">📷 Ver Plano</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
+  <script src="../js/core/config.js"></script>
+  <script src="../js/utils/helpers.js"></script>
+  <script src="../js/core/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const params = new URLSearchParams(window.location.search);
+      const loteId = parseInt(params.get('id')) || 1;
+
+      fetch('../json/lotes-data.json')
+        .then(r => r.json())
+        .then(data => {
+          const lote = data.find(l => l.id === loteId) || data[0];
+          
+          document.getElementById('lote-nombre').textContent = `Lote ${lote.numero || 'N/A'} · ${lote.desarrollo || 'Sin desarrollo'}`;
+          document.getElementById('lote-info').textContent = `ID: L-${lote.id || 'N/A'} · ${lote.medidas || 0} m²`;
+
+          const detalle = document.getElementById('lote-detalle');
+          detalle.innerHTML = `
+            <div class="detail-row"><span class="dr-label">ID Lote</span><span class="dr-value">${lote.id || 'N/A'}</span></div>
+            <div class="detail-row"><span class="dr-label">Desarrollo</span><span class="dr-value">${lote.desarrollo || 'N/A'}</span></div>
+            <div class="detail-row"><span class="dr-label">Número</span><span class="dr-value">${lote.numero || 'N/A'}</span></div>
+            <div class="detail-row"><span class="dr-label">Superficie</span><span class="dr-value">${lote.medidas || 0} m²</span></div>
+            <div class="detail-row"><span class="dr-label">Precio de Lista</span><span class="dr-value">$${new Intl.NumberFormat('es-MX').format(lote.precio || 0)}</span></div>
+            <div class="detail-row"><span class="dr-label">Estatus</span><span class="dr-value"><span class="chip ${lote.estatus === 'Disponible' ? 'chip-green' : lote.estatus === 'Vendido' ? 'chip-red' : 'chip-warn'}">${lote.estatus || 'Desconocido'}</span></span></div>
+          `;
+        })
+        .catch(() => {
+          document.getElementById('lote-nombre').textContent = 'Error cargando datos';
+        });
+    });
+  </script>
+</body>
+</html>

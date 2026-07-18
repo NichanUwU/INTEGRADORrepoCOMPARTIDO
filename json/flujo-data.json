@@ -1,0 +1,86 @@
+{
+  "resumen": {
+    "ingresos_mes": 2400000,
+    "egresos_mes": 810000,
+    "flujo_neto": 1590000,
+    "pagos_atrasados": 284000
+  },
+  "tendencias": {
+    "ingresos": "▲ 18% vs mes anterior",
+    "egresos": "▲ 5% vs mes anterior",
+    "flujo": "Balance positivo",
+    "pagos": "17 contratos"
+  },
+  "movimientos": [
+    {
+      "id": "F-001",
+      "contrato": "CON-0051",
+      "cliente": "Juan Hernandez",
+      "fecha": "2025-06-12",
+      "concepto": "Mensualidad Junio",
+      "tipo": "Ingreso",
+      "monto": 10556,
+      "estatus": "Pagado"
+    },
+    {
+      "id": "F-002",
+      "contrato": "CON-0052",
+      "cliente": "Maria Garcia",
+      "fecha": "2025-06-18",
+      "concepto": "Mensualidad Junio",
+      "tipo": "Ingreso",
+      "monto": 8194,
+      "estatus": "Pagado"
+    },
+    {
+      "id": "F-003",
+      "contrato": "CON-0053",
+      "cliente": "Roberto Dominguez",
+      "fecha": "2025-06-05",
+      "concepto": "Mensualidad Junio",
+      "tipo": "Ingreso",
+      "monto": 14167,
+      "estatus": "Atrasado"
+    },
+    {
+      "id": "F-004",
+      "contrato": "GASTO",
+      "cliente": "-",
+      "fecha": "2025-06-10",
+      "concepto": "Mantenimiento Las Palmas",
+      "tipo": "Egreso",
+      "monto": 25000,
+      "estatus": "Pagado"
+    },
+    {
+      "id": "F-005",
+      "contrato": "CON-0054",
+      "cliente": "Ana Perez",
+      "fecha": "2025-06-22",
+      "concepto": "Enganche",
+      "tipo": "Ingreso",
+      "monto": 42000,
+      "estatus": "Pagado"
+    },
+    {
+      "id": "F-006",
+      "contrato": "CON-0055",
+      "cliente": "Luis Sanchez",
+      "fecha": "2025-06-01",
+      "concepto": "Mensualidad Junio",
+      "tipo": "Ingreso",
+      "monto": 8500,
+      "estatus": "Pagado"
+    },
+    {
+      "id": "F-007",
+      "contrato": "GASTO",
+      "cliente": "-",
+      "fecha": "2025-06-15",
+      "concepto": "Pago de nomina",
+      "tipo": "Egreso",
+      "monto": 180000,
+      "estatus": "Pagado"
+    }
+  ]
+}

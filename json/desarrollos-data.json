@@ -1,0 +1,69 @@
+[
+  {
+    "id": 1,
+    "nombre": "Las Palmas Residencial",
+    "ubicacion": "Queretaro, Qro.",
+    "estatus": "Activo",
+    "descripcion": "Desarrollo residencial con areas verdes y seguridad 24/7.",
+    "fecha_inicio": "2025-01-15",
+    "manzanas": [
+      {
+        "id": 1,
+        "numero": 1,
+        "calles": "Calle Principal y Calle Secundaria",
+        "lotes": [
+          { "id": 1, "numero": "A-01", "medidas": "120 m²", "precio": 380000, "estatus": "Disponible" },
+          { "id": 2, "numero": "A-02", "medidas": "135 m²", "precio": 420000, "estatus": "Vendido" },
+          { "id": 3, "numero": "A-03", "medidas": "110 m²", "precio": 355000, "estatus": "Vendido" }
+        ]
+      },
+      {
+        "id": 2,
+        "numero": 2,
+        "calles": "Calle del Bosque y Calle del Lago",
+        "lotes": [
+          { "id": 4, "numero": "B-01", "medidas": "98 m²", "precio": 295000, "estatus": "Reservado" },
+          { "id": 5, "numero": "B-02", "medidas": "105 m²", "precio": 320000, "estatus": "Disponible" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "nombre": "Vista del Lago",
+    "ubicacion": "Guadalajara, Jal.",
+    "estatus": "Activo",
+    "descripcion": "Vistas privilegiadas al lago, cerca del centro.",
+    "fecha_inicio": "2025-02-20",
+    "manzanas": [
+      {
+        "id": 3,
+        "numero": 1,
+        "calles": "Calle del Lago y Calle Principal",
+        "lotes": [
+          { "id": 6, "numero": "C-01", "medidas": "200 m²", "precio": 680000, "estatus": "Disponible" },
+          { "id": 7, "numero": "C-02", "medidas": "180 m²", "precio": 620000, "estatus": "Disponible" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "nombre": "El Encino",
+    "ubicacion": "CDMX",
+    "estatus": "Activo",
+    "descripcion": "Zona boscosa en las afueras de la CDMX.",
+    "fecha_inicio": "2025-03-01",
+    "manzanas": [
+      {
+        "id": 4,
+        "numero": 1,
+        "calles": "Calle del Encino",
+        "lotes": [
+          { "id": 8, "numero": "D-01", "medidas": "150 m²", "precio": 510000, "estatus": "Disponible" },
+          { "id": 9, "numero": "D-02", "medidas": "140 m²", "precio": 480000, "estatus": "Vendido" }
+        ]
+      }
+    ]
+  }
+]

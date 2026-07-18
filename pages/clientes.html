@@ -9,40 +9,163 @@
 <body>
   <div id="login-screen" style="display:none"></div>
   <div id="app-shell">
-    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()" aria-hidden="true"></div>
-    <nav class="sidebar" id="sidebar" aria-label="Navegación principal">
+    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()"></div>
+    <nav class="sidebar" id="sidebar">
       <div class="sidebar-logo"><div class="sidebar-logo-text">SOFI<span>.</span></div></div>
-      <div class="sidebar-role-badge" id="sb-role-badge">Directivo</div>
+      <div class="sidebar-role-badge" id="sb-role-badge"></div>
       <div class="sidebar-nav" id="sb-nav"></div>
       <div class="sidebar-footer">
         <div class="sidebar-user">
-          <div class="sidebar-avatar" id="sb-avatar">DG</div>
+          <div class="sidebar-avatar" id="sb-avatar"></div>
           <div class="sidebar-user-info">
-            <span class="sidebar-user-name" id="sb-name">Dir. González</span>
-            <span class="sidebar-user-role" id="sb-role">Directivo</span>
+            <span class="sidebar-user-name" id="sb-name"></span>
+            <span class="sidebar-user-role" id="sb-role"></span>
           </div>
         </div>
-        <button type="button" class="sidebar-logout" onclick="doLogout()">⬅ Cerrar sesión</button>
+        <button type="button" class="sidebar-logout" onclick="doLogout()">Cerrar sesión</button>
       </div>
     </nav>
 
     <div class="main-content">
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0">
-          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Abrir menú">☰</button>
+          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
           <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Clientes</span></div>
         </div>
         <div class="topbar-actions">
-          <button type="button" class="topbar-btn" onclick="window.location.href='design-system.html'">🎨 Diseño</button>
-          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif">3</span></button>
+          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
           <button type="button" class="topbar-btn">⚙ Configuración</button>
         </div>
       </div>
-      <main class="page-content" id="page-content"></main>
+
+      <main class="page-content" id="page-content">
+        <div class="section-header">
+          <div class="section-title">Clientes</div>
+          <button class="btn-accent" onclick="abrirModal('crear-cliente-modal')">Nuevo Cliente</button>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <input class="search-input" placeholder="Buscar por nombre, INE o CURP…" style="max-width:280px">
+            <select class="filter-select"><option>Todos</option></select>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Apellidos</th>
+                <th>Teléfono</th>
+                <th>Ciudad</th>
+                <th>Estado</th>
+                <th>INE</th>
+                <th>CURP</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-clientes-body"></tbody>
+          </table>
+          <div class="table-pagination">
+            <span id="clientes-paginacion">Cargando...</span>
+            <div style="display:flex;gap:4px" id="clientes-paginas"></div>
+          </div>
+        </div>
+      </main>
     </div>
   </div>
 
+  <!-- MODAL CREAR CLIENTE (oculto por defecto) -->
+  <div id="crear-cliente-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:720px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">Nuevo Cliente</div>
+        <button onclick="cerrarModal('crear-cliente-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <form id="form-crear-cliente" onsubmit="event.preventDefault(); guardarClienteModal();">
+        <div class="form-grid">
+          <div class="form-group"><label>Nombre *</label><input id="cli-nombre" type="text" placeholder="Juan" required></div>
+          <div class="form-group"><label>Apellidos *</label><input id="cli-apellidos" type="text" placeholder="Hernández López" required></div>
+          <div class="form-group full"><label>Dirección *</label><input id="cli-direccion" type="text" placeholder="Calle y número" required></div>
+          <div class="form-group"><label>Casa / Apartamento</label><input id="cli-casa" type="text" placeholder="Casa 12 o Apto 3B"></div>
+          <div class="form-group"><label>Código Postal *</label><input id="cli-cp" type="text" placeholder="76000" required></div>
+          <div class="form-group"><label>Ciudad *</label><input id="cli-ciudad" type="text" placeholder="Querétaro" required></div>
+          <div class="form-group"><label>Estado *</label><input id="cli-estado" type="text" placeholder="Querétaro" required></div>
+          <div class="form-group"><label>Teléfono *</label><input id="cli-telefono" type="tel" placeholder="442-100-0000" required></div>
+          <div class="form-group"><label>INE *</label><input id="cli-ine" type="text" placeholder="1234567890" required></div>
+          <div class="form-group"><label>CURP *</label><input id="cli-curp" type="text" placeholder="HELG000101HQRNPN05" required></div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('crear-cliente-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Guardar Cliente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR CLIENTE (oculto por defecto)-->
+
+  <div id="editar-cliente-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:720px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">Editar Cliente</div>
+        <button onclick="cerrarModal('editar-cliente-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <form id="form-editar-cliente" onsubmit="event.preventDefault(); actualizarClienteModal();">
+        <input type="hidden" id="edit-cliente-id">
+        <div class="form-grid">
+          <div class="form-group"><label>Nombre *</label><input id="edit-cli-nombre" type="text" placeholder="Juan" required></div>
+          <div class="form-group"><label>Apellidos *</label><input id="edit-cli-apellidos" type="text" placeholder="Hernández López" required></div>
+          <div class="form-group full"><label>Dirección *</label><input id="edit-cli-direccion" type="text" placeholder="Calle y número" required></div>
+          <div class="form-group"><label>Casa / Apartamento</label><input id="edit-cli-casa" type="text" placeholder="Casa 12 o Apto 3B"></div>
+          <div class="form-group"><label>Código Postal *</label><input id="edit-cli-cp" type="text" placeholder="76000" required></div>
+          <div class="form-group"><label>Ciudad *</label><input id="edit-cli-ciudad" type="text" placeholder="Querétaro" required></div>
+          <div class="form-group"><label>Estado *</label><input id="edit-cli-estado" type="text" placeholder="Querétaro" required></div>
+          <div class="form-group"><label>Teléfono *</label><input id="edit-cli-telefono" type="tel" placeholder="442-100-0000" required></div>
+          <div class="form-group"><label>INE *</label><input id="edit-cli-ine" type="text" placeholder="1234567890" required></div>
+          <div class="form-group"><label>CURP *</label><input id="edit-cli-curp" type="text" placeholder="HELG000101HQRNPN05" required></div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('editar-cliente-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Actualizar Cliente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="editar-cliente-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:720px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">Editar Cliente</div>
+        <button onclick="cerrarModal('editar-cliente-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <form id="form-editar-cliente" onsubmit="event.preventDefault(); actualizarClienteModal();">
+        <input type="hidden" id="edit-cliente-id">
+        <div class="form-grid">
+          <div class="form-group"><label>Nombre *</label><input id="edit-cli-nombre" type="text" placeholder="Juan" required></div>
+          <div class="form-group"><label>Apellidos *</label><input id="edit-cli-apellidos" type="text" placeholder="Hernández López" required></div>
+          <div class="form-group full"><label>Dirección *</label><input id="edit-cli-direccion" type="text" placeholder="Calle y número" required></div>
+          <div class="form-group"><label>Casa / Apartamento</label><input id="edit-cli-casa" type="text" placeholder="Casa 12 o Apto 3B"></div>
+          <div class="form-group"><label>Código Postal *</label><input id="edit-cli-cp" type="text" placeholder="76000" required></div>
+          <div class="form-group"><label>Ciudad *</label><input id="edit-cli-ciudad" type="text" placeholder="Querétaro" required></div>
+          <div class="form-group"><label>Estado *</label><input id="edit-cli-estado" type="text" placeholder="Querétaro" required></div>
+          <div class="form-group"><label>Teléfono *</label><input id="edit-cli-telefono" type="tel" placeholder="442-100-0000" required></div>
+          <div class="form-group"><label>INE *</label><input id="edit-cli-ine" type="text" placeholder="1234567890" required></div>
+          <div class="form-group"><label>CURP *</label><input id="edit-cli-curp" type="text" placeholder="HELG000101HQRNPN05" required></div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('editar-cliente-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Borrar Cliente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+
   <div id="modal-root"></div>
-  <script src="../js/app.js"></script>
+  <script src="../js/core/config.js"></script>
+  <script src="../js/utils/helpers.js"></script>
+  <script src="../js/core/app.js"></script>
+  <script src="../js/modules/clientes.js"></script>
 </body>
 </html>

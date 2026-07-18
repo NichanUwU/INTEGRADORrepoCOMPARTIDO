@@ -1,0 +1,42 @@
+ESTRUCTURA DEL PROYECTO SOFI-BACKEND
+====================================
+
+sofi-backend/
+├── pom.xml
+├── tablas.sql
+├── src/
+│   └── main/
+│       └── java/
+│           └── com/
+│               └── sofi/
+│                   ├── App.java
+│                   ├── controllers/
+│                   │   ├── ClienteController.java
+│                   │   ├── ColindanciaController.java
+│                   │   ├── ContratoController.java
+│                   │   ├── DesarrolloController.java
+│                   │   ├── EmpleadoController.java
+│                   │   ├── LoteController.java
+│                   │   ├── ManzanaController.java
+│                   │   ├── PagoController.java
+│                   │   └── UsuarioController.java
+│                   └── database/
+│                       └── DatabaseConnection.java
+└── target/
+    ├── archive-tmp/
+    ├── classes/
+    │   └── com/
+    │       └── sofi/
+    │           ├── controllers/
+    │           └── database/
+    ├── generated-sources/
+    │   └── annotations/
+    ├── maven-archiver/
+    │   └── pom.properties
+    ├── maven-status/
+    │   └── maven-compiler-plugin/
+    │       └── compile/
+    │           └── default-compile/
+    │               ├── createdFiles.lst
+    │               └── inputFiles.lst
+    └── test-classes/

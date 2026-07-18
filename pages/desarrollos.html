@@ -9,40 +9,118 @@
 <body>
   <div id="login-screen" style="display:none"></div>
   <div id="app-shell">
-    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()" aria-hidden="true"></div>
-    <nav class="sidebar" id="sidebar" aria-label="Navegación principal">
+    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()"></div>
+    <nav class="sidebar" id="sidebar">
       <div class="sidebar-logo"><div class="sidebar-logo-text">SOFI<span>.</span></div></div>
-      <div class="sidebar-role-badge" id="sb-role-badge">Directivo</div>
+      <div class="sidebar-role-badge" id="sb-role-badge"></div>
       <div class="sidebar-nav" id="sb-nav"></div>
       <div class="sidebar-footer">
         <div class="sidebar-user">
-          <div class="sidebar-avatar" id="sb-avatar">DG</div>
+          <div class="sidebar-avatar" id="sb-avatar"></div>
           <div class="sidebar-user-info">
-            <span class="sidebar-user-name" id="sb-name">Dir. González</span>
-            <span class="sidebar-user-role" id="sb-role">Directivo</span>
+            <span class="sidebar-user-name" id="sb-name"></span>
+            <span class="sidebar-user-role" id="sb-role"></span>
           </div>
         </div>
-        <button type="button" class="sidebar-logout" onclick="doLogout()">⬅ Cerrar sesión</button>
+        <button type="button" class="sidebar-logout" onclick="doLogout()">Cerrar sesión</button>
       </div>
     </nav>
 
     <div class="main-content">
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0">
-          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Abrir menú">☰</button>
+          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
           <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Desarrollos</span></div>
         </div>
         <div class="topbar-actions">
-          <button type="button" class="topbar-btn" onclick="window.location.href='design-system.html'">🎨 Diseño</button>
-          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif">3</span></button>
+          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
           <button type="button" class="topbar-btn">⚙ Configuración</button>
         </div>
       </div>
-      <main class="page-content" id="page-content"></main>
+
+      <main class="page-content" id="page-content">
+        <div class="section-header">
+          <div class="section-title">Desarrollos Inmobiliarios</div>
+          <button class="btn-accent" onclick="abrirModal('crear-desarrollo-modal')">Nuevo Desarrollo</button>
+        </div>
+        <div id="desarrollos-container" class="desarrollos-grid"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL CREAR DESARROLLO -->
+  <div id="crear-desarrollo-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:680px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">Nuevo Desarrollo</div>
+        <button onclick="cerrarModal('crear-desarrollo-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <form id="form-crear-desarrollo" onsubmit="event.preventDefault(); guardarDesarrolloModal();">
+        <div class="form-grid">
+          <div class="form-group full"><label>Nombre del Proyecto *</label>
+            <input id="dev-nombre" type="text" placeholder="Ej. Las Palmas Residencial" required>
+          </div>
+          <div class="form-group"><label>Ubicación *</label>
+            <input id="dev-ubicacion" type="text" placeholder="Ciudad, Estado" required>
+          </div>
+          <div class="form-group"><label>Estatus</label>
+            <select id="dev-estatus">
+              <option value="Activo">Activo</option>
+              <option value="Preventa">Preventa</option>
+              <option value="Cerrado">Cerrado</option>
+            </select>
+          </div>
+          <div class="form-group full"><label>Descripción</label>
+            <textarea id="dev-descripcion" rows="3" placeholder="Describe el desarrollo…" style="resize:vertical;"></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('crear-desarrollo-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Guardar Desarrollo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR DESARROLLO -->
+  <div id="editar-desarrollo-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:680px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">Editar Desarrollo</div>
+        <button onclick="cerrarModal('editar-desarrollo-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <form id="form-editar-desarrollo" onsubmit="event.preventDefault(); actualizarDesarrolloModal();">
+        <input type="hidden" id="edit-desarrollo-id">
+        <div class="form-grid">
+          <div class="form-group full"><label>Nombre del Proyecto *</label>
+            <input id="edit-dev-nombre" type="text" placeholder="Ej. Las Palmas Residencial" required>
+          </div>
+          <div class="form-group"><label>Ubicación *</label>
+            <input id="edit-dev-ubicacion" type="text" placeholder="Ciudad, Estado" required>
+          </div>
+          <div class="form-group"><label>Estatus</label>
+            <select id="edit-dev-estatus">
+              <option value="Activo">Activo</option>
+              <option value="Preventa">Preventa</option>
+              <option value="Cerrado">Cerrado</option>
+            </select>
+          </div>
+          <div class="form-group full"><label>Descripción</label>
+            <textarea id="edit-dev-descripcion" rows="3" placeholder="Describe el desarrollo…" style="resize:vertical;"></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('editar-desarrollo-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Actualizar Desarrollo</button>
+        </div>
+      </form>
     </div>
   </div>
 
   <div id="modal-root"></div>
-  <script src="../js/app.js"></script>
+  <script src="../js/core/config.js"></script>
+  <script src="../js/utils/helpers.js"></script>
+  <script src="../js/core/app.js"></script>
+  <script src="../js/modules/desarrollos.js"></script>
 </body>
 </html>

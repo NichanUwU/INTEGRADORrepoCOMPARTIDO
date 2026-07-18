@@ -1,0 +1,49 @@
+{
+  "kpis": {
+    "clientes": 248,
+    "lotes": 260,
+    "contratos": 142,
+    "desarrollos": 6
+  },
+  "tendencias": {
+    "clientes": "▲ 12% vs mes anterior",
+    "lotes": "▲ 8 nuevos este mes",
+    "contratos": "▼ 3 contratos vencidos",
+    "desarrollos": "2 en preventa"
+  },
+  "distribucionLotes": {
+    "labels": ["Disponibles", "Vendidos", "Reservados"],
+    "datos": [150, 80, 30],
+    "colors": ["#50A746", "#D94040", "#E09B30"]
+  },
+  "clientesVsMorosos": {
+    "meses": ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul"],
+    "alDia": [180, 195, 170, 210, 190, 230, 220],
+    "morosos": [380, 28, 25, 35, 32, 40, 38]
+  },
+  "ventasMensuales": {
+    "meses": ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul"],
+    "datos": [12, 15, 18, 22, 20, 28, 25]
+  },
+  "vendedores": [
+    { "nombre": "M. Rodriguez", "ventas": "$580K", "porcentaje": 95 },
+    { "nombre": "L. Garcia", "ventas": "$430K", "porcentaje": 70 },
+    { "nombre": "R. Sanchez", "ventas": "$390K", "porcentaje": 63 },
+    { "nombre": "P. Torres", "ventas": "$310K", "porcentaje": 50 },
+    { "nombre": "A. Mendoza", "ventas": "$220K", "porcentaje": 36 }
+  ],
+  "alertas": [
+    { "titulo": "Pago atrasado", "descripcion": "Cliente: J. Hernandez · $8,500 vencido el 01/Jun", "tipo": "error" },
+    { "titulo": "Contrato por vencer", "descripcion": "C-0241 · L. Perez vence en 5 dias", "tipo": "warn" },
+    { "titulo": "Pago atrasado", "descripcion": "Cliente: R. Dominguez · $12,200 vencido", "tipo": "error" },
+    { "titulo": "Documento faltante", "descripcion": "Expediente incompleto: CURP de A. Torres", "tipo": "warn" }
+  ],
+  "desarrollos": [
+    { "nombre": "Las Palmas Residencial", "ubicacion": "Queretaro", "disponibles": 32, "vendidos": 68 },
+    { "nombre": "Vista del Lago", "ubicacion": "Guadalajara", "disponibles": 20, "vendidos": 40 },
+    { "nombre": "El Encino", "ubicacion": "CDMX", "disponibles": 15, "vendidos": 25 },
+    { "nombre": "Bosques Norte", "ubicacion": "Leon, Gto.", "disponibles": 45, "vendidos": 45 },
+    { "nombre": "Hacienda San Jose", "ubicacion": "Monterrey, NL", "disponibles": 80, "vendidos": 0 },
+    { "nombre": "Jardines del Sur", "ubicacion": "Puebla, Pue.", "disponibles": 0, "vendidos": 55 }
+  ]
+}

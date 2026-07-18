@@ -9,40 +9,178 @@
 <body>
   <div id="login-screen" style="display:none"></div>
   <div id="app-shell">
-    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()" aria-hidden="true"></div>
-    <nav class="sidebar" id="sidebar" aria-label="Navegación principal">
+    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()"></div>
+    <nav class="sidebar" id="sidebar">
       <div class="sidebar-logo"><div class="sidebar-logo-text">SOFI<span>.</span></div></div>
-      <div class="sidebar-role-badge" id="sb-role-badge">Directivo</div>
+      <div class="sidebar-role-badge" id="sb-role-badge"></div>
       <div class="sidebar-nav" id="sb-nav"></div>
       <div class="sidebar-footer">
         <div class="sidebar-user">
-          <div class="sidebar-avatar" id="sb-avatar">DG</div>
+          <div class="sidebar-avatar" id="sb-avatar"></div>
           <div class="sidebar-user-info">
-            <span class="sidebar-user-name" id="sb-name">Dir. González</span>
-            <span class="sidebar-user-role" id="sb-role">Directivo</span>
+            <span class="sidebar-user-name" id="sb-name"></span>
+            <span class="sidebar-user-role" id="sb-role"></span>
           </div>
         </div>
-        <button type="button" class="sidebar-logout" onclick="doLogout()">⬅ Cerrar sesión</button>
+        <button type="button" class="sidebar-logout" onclick="doLogout()">Cerrar sesión</button>
       </div>
     </nav>
 
     <div class="main-content">
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0">
-          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Abrir menú">☰</button>
+          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
           <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Contratos</span></div>
         </div>
         <div class="topbar-actions">
-          <button type="button" class="topbar-btn" onclick="window.location.href='design-system.html'">🎨 Diseño</button>
-          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif">3</span></button>
+          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
           <button type="button" class="topbar-btn">⚙ Configuración</button>
         </div>
       </div>
-      <main class="page-content" id="page-content"></main>
+
+      <main class="page-content" id="page-content">
+        <div class="section-header">
+          <div class="section-title">Contratos</div>
+          <button class="btn-accent" onclick="abrirModal('crear-contrato-modal')">Nuevo Contrato</button>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <input class="search-input" placeholder="Buscar contrato…" style="max-width:240px">
+            <select class="filter-select"><option>Todos los Desarrollos</option></select>
+            <select class="filter-select"><option>Todos los estados</option><option>Activo</option><option>Vencido</option><option>Liquidado</option></select>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Lote</th>
+                <th>Vendedor</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Tipo Pago</th>
+                <th>Monto</th>
+                <th>Estatus</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-contratos-body"></tbody>
+          </table>
+          <div class="table-pagination">
+            <span id="contratos-paginacion">Cargando...</span>
+            <div style="display:flex;gap:4px" id="contratos-paginas"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL CREAR CONTRATO -->
+  <div id="crear-contrato-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:720px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">Nuevo Contrato</div>
+        <button onclick="cerrarModal('crear-contrato-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <form id="form-crear-contrato" onsubmit="event.preventDefault(); guardarContratoModal();">
+        <div class="form-grid">
+          <div class="form-group"><label>Cliente *</label>
+            <select id="ctr-cliente" required>
+              <option value="">Seleccionar…</option>
+              <option value="1">Juan Hernández López</option>
+              <option value="2">María García Torres</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Lote *</label>
+            <select id="ctr-lote" required>
+              <option value="">Seleccionar…</option>
+              <option value="1">A-01 · Las Palmas · $380K</option>
+              <option value="6">D-01 · Bosques · $510K</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Vendedor *</label>
+            <select id="ctr-vendedor" required>
+              <option value="">Seleccionar…</option>
+              <option value="1">M. Rodríguez</option>
+              <option value="2">L. García</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Fecha *</label><input id="ctr-fecha" type="date" required></div>
+          <div class="form-group"><label>Hora *</label><input id="ctr-hora" type="time" required></div>
+          <div class="form-group"><label>Tipo de Pago *</label>
+            <select id="ctr-tipopago" required>
+              <option value="">Seleccionar…</option>
+              <option value="Contado">Contado</option>
+              <option value="Parcial">Parcial</option>
+              <option value="Financiamiento">Financiamiento</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Monto Fijo *</label><input id="ctr-monto" type="number" placeholder="0.00" required></div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('crear-contrato-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Crear Contrato</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR CONTRATO -->
+  <div id="editar-contrato-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:720px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">Editar Contrato</div>
+        <button onclick="cerrarModal('editar-contrato-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <form id="form-editar-contrato" onsubmit="event.preventDefault(); actualizarContratoModal();">
+        <input type="hidden" id="edit-contrato-id">
+        <div class="form-grid">
+          <div class="form-group"><label>Cliente *</label>
+            <select id="edit-ctr-cliente" required>
+              <option value="">Seleccionar…</option>
+              <option value="1">Juan Hernández López</option>
+              <option value="2">María García Torres</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Lote *</label>
+            <select id="edit-ctr-lote" required>
+              <option value="">Seleccionar…</option>
+              <option value="1">A-01 · Las Palmas · $380K</option>
+              <option value="6">D-01 · Bosques · $510K</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Vendedor *</label>
+            <select id="edit-ctr-vendedor" required>
+              <option value="">Seleccionar…</option>
+              <option value="1">M. Rodríguez</option>
+              <option value="2">L. García</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Fecha *</label><input id="edit-ctr-fecha" type="date" required></div>
+          <div class="form-group"><label>Hora *</label><input id="edit-ctr-hora" type="time" required></div>
+          <div class="form-group"><label>Tipo de Pago *</label>
+            <select id="edit-ctr-tipopago" required>
+              <option value="">Seleccionar…</option>
+              <option value="Contado">Contado</option>
+              <option value="Parcial">Parcial</option>
+              <option value="Financiamiento">Financiamiento</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Monto Fijo *</label><input id="edit-ctr-monto" type="number" placeholder="0.00" required></div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('editar-contrato-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Actualizar Contrato</button>
+        </div>
+      </form>
     </div>
   </div>
 
   <div id="modal-root"></div>
-  <script src="../js/app.js"></script>
+  <script src="../js/core/config.js"></script>
+  <script src="../js/utils/helpers.js"></script>
+  <script src="../js/core/app.js"></script>
+  <script src="../js/modules/contratos.js"></script>
 </body>
 </html>

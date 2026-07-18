@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1,
+    "nombre": "Juan Hernandez Lopez",
+    "rfc": "HELJ801234AB1",
+    "curp": "HELJ801234HQRNPN03",
+    "telefono": "442-100-2000",
+    "email": "juan.hernandez@email.com",
+    "direccion": "Av. Tecnologico 120, Col. Centro, Queretaro, Qro. 76000",
+    "estado_civil": "Casado",
+    "estado": "Activo"
+  },
+  {
+    "id": 2,
+    "nombre": "Maria Garcia Torres",
+    "rfc": "GATM920315CD2",
+    "curp": "GATM920315MDFRRN05",
+    "telefono": "33-9000-1234",
+    "email": "maria.garcia@email.com",
+    "direccion": "Calle Loma 45, Col. Jardin, Guadalajara, Jal. 44100",
+    "estado_civil": "Soltera",
+    "estado": "Activo"
+  },
+  {
+    "id": 3,
+    "nombre": "Roberto Dominguez Sanchez",
+    "rfc": "DORR780501EF3",
+    "curp": "DORR780501HDFSNN06",
+    "telefono": "55-4000-5678",
+    "email": "roberto.dominguez@email.com",
+    "direccion": "Av. Reforma 234, Col. Juarez, CDMX 06600",
+    "estado_civil": "Divorciado",
+    "estado": "Activo"
+  },
+  {
+    "id": 4,
+    "nombre": "Ana Perez Villanueva",
+    "rfc": "PEVA850922GH4",
+    "curp": "PEVA850922MDFRRN08",
+    "telefono": "81-2345-6789",
+    "email": "ana.perez@email.com",
+    "direccion": "Blvd. Constitucion 567, Col. Centro, Monterrey, NL 64000",
+    "estado_civil": "Casada",
+    "estado": "Activo"
+  },
+  {
+    "id": 5,
+    "nombre": "Luis Sanchez Mora",
+    "rfc": "SAML940710IJ5",
+    "curp": "SAML940710HDFRNN09",
+    "telefono": "222-100-3456",
+    "email": "luis.sanchez@email.com",
+    "direccion": "Calle 5 de Mayo 89, Col. Centro, Puebla, Pue. 72000",
+    "estado_civil": "Soltero",
+    "estado": "Inactivo"
+  }
+]

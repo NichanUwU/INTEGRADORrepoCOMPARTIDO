@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "nombre": "Dir. Gonzalez",
+    "email": "gonzalez@sofi.mx",
+    "rol": "Directivo",
+    "estatus": "Activo"
+  },
+  {
+    "id": 2,
+    "nombre": "M. Rodriguez",
+    "email": "rodriguez@sofi.mx",
+    "rol": "Vendedor",
+    "estatus": "Activo"
+  },
+  {
+    "id": 3,
+    "nombre": "L. Garcia",
+    "email": "garcia@sofi.mx",
+    "rol": "Vendedor",
+    "estatus": "Activo"
+  },
+  {
+    "id": 4,
+    "nombre": "A. Perez",
+    "email": "aperez@sofi.mx",
+    "rol": "Asistente",
+    "estatus": "Activo"
+  },
+  {
+    "id": 5,
+    "nombre": "R. Sanchez",
+    "email": "rsanchez@sofi.mx",
+    "rol": "Vendedor",
+    "estatus": "Inactivo"
+  }
+]
