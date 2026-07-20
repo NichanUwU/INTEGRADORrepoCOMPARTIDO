@@ -34,13 +34,6 @@ if [ -f $PID_FILE ]; then
     rm $PID_FILE
 fi
 
-# Detener cualquier otra instancia previa del backend en el puerto 8080/8081
-for pid in $(ps -ef | grep 'sofi-backend-1.0-SNAPSHOT-jar-with-dependencies.jar' | grep -v grep | awk '{print $2}'); do
-    echo "⏹️  Deteniendo instancia previa (PID: $pid)..."
-    kill $pid 2>/dev/null || true
-done
-sleep 2
-
 # 3. Iniciar el backend
 echo "🔄 Iniciando backend..."
 java -jar $BACKEND_DIR/target/$TARGET_JAR > $LOGS_DIR/backend.log 2>&1 &

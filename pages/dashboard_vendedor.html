@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOFI · Dashboard Vendedor</title>
+  <link rel="stylesheet" href="../css/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- PANTALLA DE CARGA -->
+  <div id="loading-screen" style="position:fixed;inset:0;background:#0F3B5C;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px;">
+    <div style="font-family:var(--font-display);font-size:32px;font-weight:700;color:#fff;">SOFI<span style="color:#50A746;">.</span></div>
+    <div style="color:rgba(255,255,255,0.6);font-size:14px;">Cargando...</div>
+  </div>
+
+  <!-- PANTALLA DE ERROR DE SESIÓN -->
+  <div id="session-error" style="display:none;position:fixed;inset:0;background:#0F3B5C;display:none;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:24px;padding:24px;">
+    <div style="font-size:64px;">🔒</div>
+    <div style="font-family:var(--font-display);font-size:28px;font-weight:700;color:#fff;">Sesión no válida</div>
+    <div style="color:rgba(255,255,255,0.7);font-size:14px;text-align:center;max-width:400px;">Tu sesión ha expirado o no has iniciado sesión correctamente.</div>
+    <button onclick="window.location.href='login.html'" style="background:#50A746;color:#fff;border:none;padding:12px 32px;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:0.2s;">Ir al Login</button>
+  </div>
+
+  <div id="login-screen" style="display:none"></div>
+  <div id="app-shell" style="display:none">
+    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()"></div>
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-logo"><div class="sidebar-logo-text">SOFI<span>.</span></div></div>
+      <div class="sidebar-role-badge" id="sb-role-badge"></div>
+      <div class="sidebar-nav" id="sb-nav"></div>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar" id="sb-avatar"></div>
+          <div class="sidebar-user-info">
+            <span class="sidebar-user-name" id="sb-name"></span>
+            <span class="sidebar-user-role" id="sb-role"></span>
+          </div>
+        </div>
+        <button type="button" class="sidebar-logout" onclick="doLogout()">Cerrar sesión</button>
+      </div>
+    </nav>
+
+    <div class="main-content">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0">
+          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Mi Panel</span></div>
+        </div>
+        <div class="topbar-actions">
+          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
+          <button type="button" class="topbar-btn" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
+        </div>
+      </div>
+
+      <main class="page-content" id="page-content">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Mis Clientes</div>
+            <div class="kpi-value" id="mis-clientes">0</div>
+            <div class="kpi-trend trend-up">Registrados por ti</div>
+          </div>
+          <div class="kpi-card" style="border-left-color:var(--c-primary)">
+            <div class="kpi-label">Lotes Disponibles</div>
+            <div class="kpi-value" id="lotes-disponibles">0</div>
+            <div class="kpi-trend trend-up">Inventario libre</div>
+          </div>
+          <div class="kpi-card" style="border-left-color:var(--c-warn)">
+            <div class="kpi-label">Mis Contratos</div>
+            <div class="kpi-value" id="mis-contratos">0</div>
+            <div class="kpi-trend trend-up">Contratos cerrados</div>
+          </div>
+          <div class="kpi-card" style="border-left-color:#9C27B0">
+            <div class="kpi-label">Mi Meta Mensual</div>
+            <div class="kpi-value" id="meta-mensual">0%</div>
+            <div class="kpi-trend" style="color:var(--c-muted)">Progreso</div>
+          </div>
+        </div>
+
+        <div class="three-col">
+          <div class="chart-card" style="grid-column: span 2">
+            <div class="chart-title">Mis Ventas del Año</div>
+            <div class="chart-area" id="chart-mis-ventas"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Atajos Rápidos</div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;">
+              <button class="btn-accent" style="width:100%" onclick="window.location.href='clientes.html'">+ Registrar Cliente</button>
+              <button class="btn-outline" style="width:100%" onclick="window.location.href='contratos.html'">+ Nuevo Contrato</button>
+              <button class="btn-outline" style="width:100%" onclick="window.location.href='lotes.html'">Ver Inventario</button>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
+
+  <!-- SCRIPTS -->
+  <script src="../js/core/config.js"></script>
+  <script src="../js/utils/helpers.js"></script>
+  <script src="../js/core/app.js"></script>
+  <script src="../js/modules/dashboard_vendedor.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>

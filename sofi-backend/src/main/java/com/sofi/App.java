@@ -2,11 +2,7 @@
 
     import io.javalin.Javalin;
     import io.javalin.http.Context;
-    import io.javalin.http.staticfiles.Location;
     import com.sofi.controllers.*;
-    import java.io.File;
-    import java.nio.file.Files;
-    import java.nio.file.Paths;
 
     public class App {
         public static void main(String[] args) {
@@ -21,36 +17,11 @@
                 port = 8080;
             }
 
-            Javalin app = null;
-            int selectedPort = port;
+            Javalin app = Javalin.create(config -> {
+                config.enableCorsForAllOrigins();
+            }).start(port);
 
-            String frontendPath = Paths.get("").toAbsolutePath().resolve("..").normalize().toString();
-            for (int candidate = port; candidate <= port + 10; candidate++) {
-                try {
-                    app = Javalin.create(config -> config.addStaticFiles(frontendPath, Location.EXTERNAL)).start(candidate);
-                    selectedPort = candidate;
-                    break;
-                } catch (Exception e) {
-                    if (candidate == port + 10) {
-                        throw new RuntimeException("No se pudo iniciar el servidor en ningún puerto disponible", e);
-                    }
-                }
-            }
-
-            System.out.println("HOLA TILIN SOFI iniciado en http://localhost:" + selectedPort);
-
-            app.before(ctx -> {
-                ctx.header("Access-Control-Allow-Origin", "*");
-                ctx.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-                ctx.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
-
-                if (ctx.method().equals("OPTIONS")) {
-                    ctx.status(204).result("");
-                }
-            });
-
-            app.options("/*", ctx -> ctx.status(204));
-            app.get("/", ctx -> ctx.redirect("/index.html"));
+            System.out.println("HOLA TILIN SOFI iniciado en http://localhost:" + port);
 
             // AUTENTICACIÓN
             app.post("/api/login", UsuarioController::login);
@@ -87,8 +58,10 @@
 
             // CONTRATOS
             app.get("/api/contratos", ContratoController::obtenerTodos);
-            app.get("/api/contratos/cliente/{clienteId}", ContratoController::obtenerPorCliente);
             app.get("/api/contratos/{id}", ContratoController::obtenerPorId);
+            app.get("/api/contratos/{id}/generar", ContratoController::generarDocumento);
+            app.get("/api/contratos/{id}/datos-impresion", ContratoController::obtenerDatosImpresion);
+            app.get("/api/contratos/cliente/{clienteId}", ContratoController::obtenerPorCliente);
             app.post("/api/contratos", ContratoController::crear);
             app.put("/api/contratos/{id}", ContratoController::actualizar);
             app.delete("/api/contratos/{id}", ContratoController::eliminar);
@@ -104,39 +77,9 @@
 
             // EMPLEADOS
             app.get("/api/empleados", EmpleadoController::obtenerTodos);
-
-            // FRONTEND ESTÁTICO
-            app.get("/*", ctx -> {
-                String requestPath = ctx.path();
-                if (requestPath.equals("/")) {
-                    requestPath = "/index.html";
-                }
-                String normalizedPath = requestPath.startsWith("/") ? requestPath.substring(1) : requestPath;
-                normalizedPath = normalizedPath.replace("/", File.separator);
-                String filePath = Paths.get(frontendPath, normalizedPath).toString();
-
-                if (Files.isDirectory(Paths.get(filePath))) {
-                    filePath = Paths.get(filePath, "index.html").toString();
-                }
-
-                if (!Files.exists(Paths.get(filePath))) {
-                    ctx.status(404).result("Not found");
-                    return;
-                }
-
-                String contentType = "application/octet-stream";
-                if (filePath.endsWith(".html")) contentType = "text/html";
-                else if (filePath.endsWith(".css")) contentType = "text/css";
-                else if (filePath.endsWith(".js")) contentType = "application/javascript";
-                else if (filePath.endsWith(".json")) contentType = "application/json";
-                else if (filePath.endsWith(".svg")) contentType = "image/svg+xml";
-                else if (filePath.endsWith(".png")) contentType = "image/png";
-                else if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg")) contentType = "image/jpeg";
-                else if (filePath.endsWith(".woff")) contentType = "font/woff";
-                else if (filePath.endsWith(".woff2")) contentType = "font/woff2";
-
-                ctx.contentType(contentType).result(Files.readAllBytes(Paths.get(filePath)));
-            });
+            app.post("/api/empleados", EmpleadoController::crear);
+            app.put("/api/empleados/{id}", EmpleadoController::actualizar);
+            app.delete("/api/empleados/{id}", EmpleadoController::eliminar);
 
             System.out.println("   Todos los endpoints registrados correctamente");
             System.out.println("   Endpoints disponibles:");

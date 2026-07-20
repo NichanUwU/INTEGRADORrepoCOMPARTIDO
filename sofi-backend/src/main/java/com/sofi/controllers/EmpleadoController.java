@@ -5,52 +5,9 @@ import com.sofi.database.DatabaseConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class EmpleadoController {
-
-    public static List<Map<String, Object>> obtenerEmpleadosFallback() {
-        ArrayList<Map<String, Object>> empleados = new ArrayList<>();
-
-        Map<String, Object> director = new HashMap<>();
-        director.put("IdEmpleado", 1);
-        director.put("Nombre", "Dir.");
-        director.put("Apellidos", "González");
-        director.put("Email", "gonzalez@sofi.mx");
-        director.put("Cargo", "Director");
-        director.put("Estatus", "Activo");
-        empleados.add(director);
-
-        Map<String, Object> vendedor1 = new HashMap<>();
-        vendedor1.put("IdEmpleado", 2);
-        vendedor1.put("Nombre", "M.");
-        vendedor1.put("Apellidos", "Rodríguez");
-        vendedor1.put("Email", "rodriguez@sofi.mx");
-        vendedor1.put("Cargo", "Vendedor");
-        vendedor1.put("Estatus", "Activo");
-        empleados.add(vendedor1);
-
-        Map<String, Object> vendedor2 = new HashMap<>();
-        vendedor2.put("IdEmpleado", 3);
-        vendedor2.put("Nombre", "L.");
-        vendedor2.put("Apellidos", "García");
-        vendedor2.put("Email", "garcia@sofi.mx");
-        vendedor2.put("Cargo", "Vendedor");
-        vendedor2.put("Estatus", "Activo");
-        empleados.add(vendedor2);
-
-        Map<String, Object> asistente = new HashMap<>();
-        asistente.put("IdEmpleado", 4);
-        asistente.put("Nombre", "A.");
-        asistente.put("Apellidos", "Pérez");
-        asistente.put("Email", "aperez@sofi.mx");
-        asistente.put("Cargo", "Asistente");
-        asistente.put("Estatus", "Activo");
-        empleados.add(asistente);
-
-        return empleados;
-    }
 
     // GET /api/empleados
     public static void obtenerTodos(Context ctx) {
@@ -69,13 +26,151 @@ public class EmpleadoController {
                 empleado.put("Email", rs.getString("Email"));
                 empleado.put("Cargo", rs.getString("Cargo"));
                 empleado.put("Estatus", rs.getString("Estatus"));
+                empleado.put("Direccion", rs.getString("Direccion"));
+                empleado.put("Casa_Apartamento", rs.getString("Casa_Apartamento"));
+                empleado.put("Codigo_Postal", rs.getString("Codigo_Postal"));
+                empleado.put("Ciudad", rs.getString("Ciudad"));
+                empleado.put("Estado", rs.getString("Estado"));
+                empleado.put("Telefono", rs.getString("Telefono"));
                 empleados.add(empleado);
             }
             ctx.json(empleados);
 
         } catch (Exception e) {
-            System.err.println("No se pudo consultar EMPLEADO, usando datos de respaldo: " + e.getMessage());
-            ctx.json(obtenerEmpleadosFallback());
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            ctx.status(500).json(response);
+        }
+    }
+
+    // POST /api/empleados
+    public static void crear(Context ctx) {
+        try {
+            Map<String, Object> bodyObj = ctx.bodyAsClass(Map.class);
+            Map<String, String> body = new java.util.HashMap<>();
+            if (bodyObj != null) {
+                for (Map.Entry<String, Object> e : bodyObj.entrySet()) {
+                    if (e.getValue() != null) body.put(e.getKey(), String.valueOf(e.getValue()));
+                }
+            }
+            String nombre = body.get("Nombre");
+            String apellidos = body.get("Apellidos");
+            String email = body.get("Email");
+            String cargo = body.get("Cargo");
+            String direccion = body.get("Direccion");
+            String casa = body.get("Casa_Apartamento");
+            String cp = body.get("Codigo_Postal");
+            String ciudad = body.get("Ciudad");
+            String estado = body.get("Estado");
+            String telefono = body.get("Telefono");
+
+            String sql = "INSERT INTO EMPLEADO (Nombre, Apellidos, Email, Cargo, Direccion, Casa_Apartamento, Codigo_Postal, Ciudad, Estado, Telefono, Estatus) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Activo')";
+            
+            try (Connection conn = DatabaseConnection.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                
+                pstmt.setString(1, nombre);
+                pstmt.setString(2, apellidos);
+                pstmt.setString(3, email);
+                pstmt.setString(4, cargo);
+                pstmt.setString(5, direccion);
+                pstmt.setString(6, casa);
+                pstmt.setString(7, cp);
+                pstmt.setString(8, ciudad);
+                pstmt.setString(9, estado);
+                pstmt.setString(10, telefono);
+                
+                pstmt.executeUpdate();
+                
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        Map<String, Object> response = new HashMap<>();
+                        response.put("IdEmpleado", rs.getInt(1));
+                        response.put("mensaje", "Empleado creado con éxito");
+                        ctx.status(201).json(response);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            ctx.status(500).json(response);
+        }
+    }
+
+    // PUT /api/empleados/{id}
+    public static void actualizar(Context ctx) {
+        int id = Integer.parseInt(ctx.pathParam("id"));
+        try {
+            Map<String, Object> bodyObj = ctx.bodyAsClass(Map.class);
+            Map<String, String> body = new java.util.HashMap<>();
+            if (bodyObj != null) {
+                for (Map.Entry<String, Object> e : bodyObj.entrySet()) {
+                    if (e.getValue() != null) body.put(e.getKey(), String.valueOf(e.getValue()));
+                }
+            }
+            String nombre = body.get("Nombre");
+            String apellidos = body.get("Apellidos");
+            String email = body.get("Email");
+            String cargo = body.get("Cargo");
+            String direccion = body.get("Direccion");
+            String casa = body.get("Casa_Apartamento");
+            String cp = body.get("Codigo_Postal");
+            String ciudad = body.get("Ciudad");
+            String estado = body.get("Estado");
+            String telefono = body.get("Telefono");
+            String estatus = body.get("Estatus");
+            
+            String sql = "UPDATE EMPLEADO SET Nombre = ?, Apellidos = ?, Email = ?, Cargo = ?, Direccion = ?, Casa_Apartamento = ?, Codigo_Postal = ?, Ciudad = ?, Estado = ?, Telefono = ?, Estatus = ? WHERE IdEmpleado = ?";
+            
+            try (Connection conn = DatabaseConnection.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                
+                pstmt.setString(1, nombre);
+                pstmt.setString(2, apellidos);
+                pstmt.setString(3, email);
+                pstmt.setString(4, cargo);
+                pstmt.setString(5, direccion);
+                pstmt.setString(6, casa);
+                pstmt.setString(7, cp);
+                pstmt.setString(8, ciudad);
+                pstmt.setString(9, estado);
+                pstmt.setString(10, telefono);
+                pstmt.setString(11, estatus);
+                pstmt.setInt(12, id);
+                
+                pstmt.executeUpdate();
+                
+                Map<String, Object> response = new HashMap<>();
+                response.put("mensaje", "Empleado actualizado con éxito");
+                ctx.json(response);
+            }
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            ctx.status(500).json(response);
+        }
+    }
+
+    // DELETE /api/empleados/{id} (Soft Delete)
+    public static void eliminar(Context ctx) {
+        int id = Integer.parseInt(ctx.pathParam("id"));
+        String sql = "UPDATE EMPLEADO SET Estatus = 'Inactivo' WHERE IdEmpleado = ?";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, id);
+            pstmt.executeUpdate();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("mensaje", "Empleado dado de baja exitosamente");
+            ctx.json(response);
+            
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            ctx.status(500).json(response);
         }
     }
 }

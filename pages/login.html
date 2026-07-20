@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SOFI · Login</title>
+  <title>SOFI Login</title>
   <link rel="stylesheet" href="../css/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="login-screen">
@@ -25,7 +26,7 @@
         <button type="submit" class="btn-primary">Ingresar al sistema</button>
       </form>
 
-      <p class="login-footnote">v2.4.1 © 2025 SOFI Inmobiliaria</p>
+      <p class="login-footnote">v2.4.1  2025 SOFI Inmobiliaria</p>
     </div>
   </div>
 
@@ -49,12 +50,12 @@
     <div class="main-content">
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0">
-          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Dashboard</span></div>
+          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">?</button>
+          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">·</span><span class="current">Dashboard</span></div>
         </div>
         <div class="topbar-actions">
-          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
-          <button type="button" class="topbar-btn">⚙ Configuración</button>
+          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">?? Alertas <span class="badge-notif" id="notif-count">0</span></button>
+          <button type="button" class="topbar-btn" onclick="window.location.href='configuracion.html'">? Configuración</button>
         </div>
       </div>
       <main class="page-content" id="page-content"></main>
@@ -65,5 +66,6 @@
   <script src="../js/core/config.js"></script>
   <script src="../js/utils/helpers.js"></script>
   <script src="../js/core/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>

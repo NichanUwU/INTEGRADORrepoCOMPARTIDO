@@ -1,0 +1,180 @@
+/* ============================================================
+   SOFI · APP SHELL (sidebar + topbar + área de contenido)
+   ============================================================ */
+#app-shell {
+  display: none;
+  min-height: 100vh;
+}
+#app-shell.visible { display: flex; }
+
+/* ---- SIDEBAR ---- */
+.sidebar {
+  width: var(--c-sidebar-w);
+  background: var(--c-primary);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.sidebar-logo {
+  padding: 24px 20px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.sidebar-logo-text {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--c-white);
+}
+.sidebar-logo-text span { color: var(--c-accent); }
+
+.sidebar-role-badge {
+  margin: 12px 16px;
+  background: rgba(80,167,70,.2);
+  border: 1px solid var(--c-accent);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-accent);
+  text-align: center;
+}
+
+.sidebar-nav { padding: 8px 0; flex: 1; overflow-y: auto; }
+
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,.4);
+  padding: 12px 20px 4px;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: rgba(255,255,255,.75);
+  font-size: 13px;
+  cursor: pointer;
+  transition: .15s all;
+  border-left: 3px solid transparent;
+}
+.nav-item:hover { background: rgba(255,255,255,.08); color: var(--c-white); }
+.nav-item.active { background: rgba(80,167,70,.15); color: var(--c-white); border-left-color: var(--c-accent); }
+.nav-item .nav-icon { font-size: 17px; width: 20px; text-align: center; flex-shrink: 0; }
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,.1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sidebar-user { display: flex; align-items: center; gap: 10px; }
+.sidebar-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px; color: var(--c-white);
+}
+.sidebar-user-info { display: flex; flex-direction: column; }
+.sidebar-user-name { font-size: 12px; font-weight: 600; color: var(--c-white); }
+.sidebar-user-role { font-size: 10px; color: rgba(255,255,255,.5); }
+.sidebar-logout {
+  font-size: 11px; color: rgba(255,255,255,.5);
+  cursor: pointer; padding: 4px 0; transition: .15s;
+  background: none; border: none; text-align: left;
+}
+.sidebar-logout:hover { color: var(--c-error); }
+
+/* Botón hamburguesa — solo visible en móvil */
+.sidebar-toggle {
+  display: none;
+  width: 36px; height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--c-border);
+  align-items: center; justify-content: center;
+  font-size: 16px; color: var(--c-primary);
+  flex-shrink: 0;
+}
+
+/* Fondo oscuro detrás del sidebar móvil abierto */
+.sidebar-scrim {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.4);
+  z-index: 99;
+  display: none;
+}
+.sidebar-scrim.visible { display: block; }
+
+/* ---- MAIN CONTENT ---- */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--c-surface);
+  overflow: hidden;
+  min-width: 0;
+}
+
+.topbar {
+  background: var(--c-white);
+  padding: 0 28px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--c-border);
+  flex-shrink: 0;
+  gap: 12px;
+}
+.breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--c-muted); min-width: 0; }
+.breadcrumb span.sep { color: var(--c-border); }
+.breadcrumb span.current {
+  color: var(--c-primary); font-weight: 600;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.topbar-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.topbar-btn {
+  background: none;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  font-size: 13px;
+  color: var(--c-primary);
+  display: flex; align-items: center; gap: 6px;
+}
+.topbar-btn:hover { background: var(--c-light-bg); }
+.badge-notif {
+  background: var(--c-error); color: #fff;
+  border-radius: 50%; font-size: 10px; font-weight: 700;
+  width: 16px; height: 16px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+.page-content { flex: 1; overflow-y: auto; padding: 28px; }
+
+/* ---- RESPONSIVE SHELL ---- */
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    transform: translateX(-100%);
+    transition: transform .2s ease;
+    z-index: 100;
+  }
+  .sidebar.open { transform: translateX(0); box-shadow: var(--shadow-lg); }
+  .topbar { padding: 0 16px; }
+  .page-content { padding: 16px; }
+}

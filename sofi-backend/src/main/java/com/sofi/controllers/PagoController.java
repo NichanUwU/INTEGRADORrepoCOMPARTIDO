@@ -9,45 +9,34 @@ import java.util.Map;
 
 public class PagoController {
 
-    private static boolean tieneColumna(Connection conn, String tabla, String columna) throws SQLException {
-        try (ResultSet rs = conn.getMetaData().getColumns(null, null, tabla, columna)) {
-            return rs.next();
-        }
-    }
-
     // GET /api/pagos
     public static void obtenerTodos(Context ctx) {
+        String sql = "SELECT p.*, cl.Nombre AS ClienteNombre, cl.Apellidos AS ClienteApellidos, c.Folio AS ContratoFolio " +
+                     "FROM PAGO p " +
+                     "JOIN CLIENTE cl ON p.IdCliente = cl.IdCliente " +
+                     "JOIN CONTRATO c ON p.IdContrato = c.IdContrato";
+
         ArrayList<Map<String, Object>> pagos = new ArrayList<>();
 
-        try (Connection conn = DatabaseConnection.getConnection()) {
-            boolean conFolio = tieneColumna(conn, "CONTRATO", "Folio");
-            StringBuilder sql = new StringBuilder("SELECT p.*, cl.Nombre AS ClienteNombre, cl.Apellidos AS ClienteApellidos");
-            if (conFolio) {
-                sql.append(", c.Folio AS ContratoFolio");
-            }
-            sql.append(" FROM PAGO p JOIN CLIENTE cl ON p.IdCliente = cl.IdCliente JOIN CONTRATO c ON p.IdContrato = c.IdContrato");
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
-            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql.toString())) {
-                while (rs.next()) {
-                    Map<String, Object> pago = new HashMap<>();
-                    pago.put("IdPago", rs.getInt("IdPago"));
-                    pago.put("Monto", rs.getBigDecimal("Monto"));
-                    pago.put("FechaPago", rs.getDate("FechaPago"));
-                    pago.put("FechaCompromiso", rs.getDate("FechaCompromiso"));
-                    pago.put("MetodoPago", rs.getString("MetodoPago"));
-                    pago.put("Referencia", rs.getString("Referencia"));
-                    pago.put("Observaciones", rs.getString("Observaciones"));
-                    pago.put("Estatus", rs.getString("Estatus"));
-                    pago.put("Cliente", rs.getString("ClienteNombre") + " " + rs.getString("ClienteApellidos"));
-                    if (conFolio) {
-                        pago.put("ContratoFolio", rs.getString("ContratoFolio"));
-                    } else {
-                        pago.put("ContratoFolio", "");
-                    }
-                    pagos.add(pago);
-                }
-                ctx.json(pagos);
+            while (rs.next()) {
+                Map<String, Object> pago = new HashMap<>();
+                pago.put("IdPago", rs.getInt("IdPago"));
+                pago.put("Monto", rs.getBigDecimal("Monto"));
+                pago.put("FechaPago", rs.getDate("FechaPago"));
+                pago.put("FechaCompromiso", rs.getDate("FechaCompromiso"));
+                pago.put("MetodoPago", rs.getString("MetodoPago"));
+                pago.put("Referencia", rs.getString("Referencia"));
+                pago.put("Observaciones", rs.getString("Observaciones"));
+                pago.put("Estatus", rs.getString("Estatus"));
+                pago.put("Cliente", rs.getString("ClienteNombre") + " " + rs.getString("ClienteApellidos"));
+                pago.put("ContratoFolio", rs.getString("ContratoFolio"));
+                pagos.add(pago);
             }
+            ctx.json(pagos);
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
@@ -58,7 +47,7 @@ public class PagoController {
 
     // POST /api/pagos
     public static void crear(Context ctx) {
-        Map<String, String> body = ctx.bodyAsClass(Map.class);
+        Map<String, Object> bodyObj = ctx.bodyAsClass(Map.class); Map<String, String> body = new java.util.HashMap<>(); if(bodyObj != null) { for(Map.Entry<String, Object> e : bodyObj.entrySet()) { if(e.getValue() != null) body.put(e.getKey(), String.valueOf(e.getValue())); } }
         String sql = "INSERT INTO PAGO (Monto, FechaPago, FechaCompromiso, MetodoPago, Referencia, Observaciones, Estatus, IdCliente, IdContrato) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -76,7 +65,7 @@ public class PagoController {
 
             pstmt.executeUpdate();
             Map<String, Object> response = new HashMap<>();
-            response.put("mensaje", "Pago registrado con éxito");
+            response.put("mensaje", "Pago registrado con Ã©xito");
             ctx.status(201).json(response);
 
         } catch (Exception e) {
@@ -86,3 +75,4 @@ public class PagoController {
         }
     }
 }
+

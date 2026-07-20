@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SOFI · Lotes</title>
+  <title>SOFI Â· Lotes</title>
   <link rel="stylesheet" href="../css/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="login-screen" style="display:none"></div>
@@ -34,21 +35,26 @@
         </div>
         <div class="topbar-actions">
           <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
-          <button type="button" class="topbar-btn">⚙ Configuración</button>
+          <button type="button" class="topbar-btn" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
         </div>
       </div>
 
       <main class="page-content" id="page-content">
         <div class="section-header">
           <div class="section-title">Gestión de Lotes</div>
-          <button id="btn-crear-lote" class="btn-accent" onclick="abrirModal('crear-lote-modal')">Nuevo Lote</button>
+          <button class="btn-outline" style="margin-right:12px;" onclick="if(window.exportCurrentTable) window.exportCurrentTable()"> Exportar CSV</button><button id="btn-nuevo-lote" class="btn-accent" onclick="abrirModal('crear-lote-modal')">Nuevo Lote</button>
         </div>
 
         <div class="table-wrap">
           <div class="table-toolbar">
-            <input class="search-input" placeholder="Buscar lote…" style="max-width:240px">
-            <select class="filter-select"><option>Todos los Desarrollos</option></select>
-            <select class="filter-select"><option>Todos los Estatus</option><option>Disponible</option><option>Vendido</option><option>Reservado</option></select>
+            <input id="search-lote" class="search-input" placeholder="Buscar lote" style="max-width:240px" oninput="filtrarLotes()">
+            <select id="filter-desarrollo" class="filter-select" onchange="filtrarLotes()"><option value="">Todos los Desarrollos</option></select>
+            <select id="filter-estatus" class="filter-select" onchange="filtrarLotes()">
+              <option value="">Todos los Estatus</option>
+              <option value="Disponible">Disponible</option>
+              <option value="Vendido">Vendido</option>
+              <option value="Reservado">Reservado</option>
+            </select>
           </div>
           <table>
             <thead>
@@ -82,19 +88,22 @@
     <div class="modal-box" style="max-width:720px;max-height:90vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <div class="modal-title">Nuevo Lote</div>
-        <button onclick="cerrarModal('crear-lote-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+        <button onclick="cerrarModal('crear-lote-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">X</button>
       </div>
       <form id="form-crear-lote" onsubmit="event.preventDefault(); guardarLoteModal();">
         <div class="form-grid">
           <div class="form-group"><label>Desarrollo *</label>
-            <select id="lote-desarrollo" required>
+            <select id="lote-desarrollo" required onchange="cargarManzanasDesarrollo(this.value, 'lote-manzana')">
               <option value="">Seleccionar…</option>
-              <option value="1">Las Palmas Residencial</option>
-              <option value="2">Vista del Lago</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Manzana *</label>
+            <select id="lote-manzana" required>
+              <option value="">Seleccione un desarrollo primero</option>
             </select>
           </div>
           <div class="form-group"><label>Número de Lote *</label><input id="lote-numero" type="text" placeholder="Ej. A-12" required></div>
-          <div class="form-group"><label>Superficie (m²) *</label><input id="lote-medidas" type="number" placeholder="120" min="1" required></div>
+          <div class="form-group"><label>Superficie (mÂ²) *</label><input id="lote-medidas" type="number" placeholder="120" min="1" required></div>
           <div class="form-group"><label>Precio de Lista *</label><input id="lote-precio" type="number" placeholder="350000" min="0" required></div>
           <div class="form-group"><label>Estatus *</label>
             <select id="lote-estado" required>
@@ -122,20 +131,23 @@
     <div class="modal-box" style="max-width:720px;max-height:90vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <div class="modal-title">Editar Lote</div>
-        <button onclick="cerrarModal('editar-lote-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+        <button onclick="cerrarModal('editar-lote-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">X</button>
       </div>
       <form id="form-editar-lote" onsubmit="event.preventDefault(); actualizarLoteModal();">
         <input type="hidden" id="edit-lote-id">
         <div class="form-grid">
           <div class="form-group"><label>Desarrollo *</label>
-            <select id="edit-lote-desarrollo" required>
+            <select id="edit-lote-desarrollo" required onchange="cargarManzanasDesarrollo(this.value, 'edit-lote-manzana')">
               <option value="">Seleccionar…</option>
-              <option value="1">Las Palmas Residencial</option>
-              <option value="2">Vista del Lago</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Manzana *</label>
+            <select id="edit-lote-manzana" required>
+              <option value="">Seleccione un desarrollo primero</option>
             </select>
           </div>
           <div class="form-group"><label>Número de Lote *</label><input id="edit-lote-numero" type="text" placeholder="Ej. A-12" required></div>
-          <div class="form-group"><label>Superficie (m²) *</label><input id="edit-lote-medidas" type="number" placeholder="120" min="1" required></div>
+          <div class="form-group"><label>Superficie (mÂ²) *</label><input id="edit-lote-medidas" type="number" placeholder="120" min="1" required></div>
           <div class="form-group"><label>Precio de Lista *</label><input id="edit-lote-precio" type="number" placeholder="350000" min="0" required></div>
           <div class="form-group"><label>Estatus *</label>
             <select id="edit-lote-estado" required>
@@ -161,8 +173,8 @@
   <div id="modal-root"></div>
   <script src="../js/core/config.js"></script>
   <script src="../js/utils/helpers.js"></script>
-  <script src="../js/core/permissions.js"></script>
   <script src="../js/core/app.js"></script>
   <script src="../js/modules/lotes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>

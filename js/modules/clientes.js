@@ -1,7 +1,15 @@
 // CRUD CLIENTES
 
 function cargarClientes() {
-  fetchApi('/clientes')
+  let url = '/clientes';
+  try {
+    const user = JSON.parse(localStorage.getItem('sofi-user') || '{}');
+    if ((user.Rol || user.role || '').toLowerCase().trim() === 'vendedor' && user.IdEmpleado) {
+      url += '?IdEmpleado=' + user.IdEmpleado;
+    }
+  } catch(e) {}
+
+  fetchApi(url)
     .then(function(data) {
       renderClientes(data);
     })
@@ -15,17 +23,15 @@ function cargarClientes() {
 }
 
 function renderClientes(data) {
+  window.exportCurrentTable = () => window.exportToCSV ? window.exportToCSV(data, 'clientes.csv') : null;
   var tbody = document.getElementById('tabla-clientes-body');
   if (!tbody) return;
   
   if (!Array.isArray(data) || data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center">No hay clientes registrados.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9"><div style="display:flex;flex-direction:column;align-items:center;padding:40px 0;color:var(--c-muted);"><div style="font-size:48px;margin-bottom:16px;">ðŸ‘¥</div><div style="font-size:16px;font-weight:600;color:var(--c-primary);">No hay clientes registrados</div><div style="font-size:14px;margin-top:8px;">Haz clic en Nuevo Cliente para comenzar.</div></div></td></tr>';
     return;
   }
   
-  var canEdit = typeof window.canPerformAction === 'function' ? window.canPerformAction('editar_cliente') : true;
-  var canDelete = typeof window.canPerformAction === 'function' ? window.canPerformAction('eliminar_cliente') : true;
-
   var html = '';
   for (var i = 0; i < data.length; i++) {
     var c = data[i];
@@ -38,15 +44,14 @@ function renderClientes(data) {
     html += '<td>' + (c.Estado || '') + '</td>';
     html += '<td style="font-size:12px;font-family:monospace">' + (c.INE || '') + '</td>';
     html += '<td style="font-size:12px;font-family:monospace">' + (c.CURP || '') + '</td>';
+    var role = 'invitado';
+    try { var user = JSON.parse(localStorage.getItem('sofi-user') || '{}'); role = (user.role || user.Rol || '').toLowerCase().trim(); } catch(e) {}
     html += '<td style="display:flex;gap:6px;flex-wrap:wrap;">';
-    if (canEdit) {
-      html += '<button class="btn-outline btn-sm" onclick="abrirModalEditarCliente(' + c.IdCliente + ')">✏ Editar</button>';
+    if (role === 'directivo' || role === 'vendedor' || role === 'admin' || role === 'administrador') {
+        html += '<button class="btn-outline btn-sm" onclick="abrirModalEditarCliente(' + c.IdCliente + ')">✏️ Editar</button>';
     }
-    if (canDelete) {
-      html += '<button class="btn-danger btn-sm" onclick="eliminarCliente(' + c.IdCliente + ')">🗑 Eliminar</button>';
-    }
-    if (!canEdit && !canDelete) {
-      html += '<span style="color:var(--c-muted);font-size:12px;">Sin permisos</span>';
+    if (role === 'directivo' || role === 'admin' || role === 'administrador') {
+        html += '<button class="btn-danger btn-sm" onclick="eliminarCliente(' + c.IdCliente + ')">🗑️ Eliminar</button>';
     }
     html += '</td>';
     html += '</tr>';
@@ -58,11 +63,6 @@ function renderClientes(data) {
 }
 
 function guardarClienteModal() {
-  if (!window.canPerformAction || !window.canPerformAction('crear_cliente')) {
-    showToast('No tienes permiso para crear clientes', 'error');
-    return;
-  }
-
   var nombre = document.getElementById('cli-nombre');
   var apellidos = document.getElementById('cli-apellidos');
   var direccion = document.getElementById('cli-direccion');
@@ -94,6 +94,13 @@ function guardarClienteModal() {
     CURP: curp.value.trim()
   };
 
+  try {
+    const user = JSON.parse(localStorage.getItem('sofi-user') || '{}');
+    if (user.IdEmpleado) {
+      payload.IdEmpleado = user.IdEmpleado;
+    }
+  } catch(e) {}
+
   fetchApi('/clientes', {
     method: 'POST',
     body: JSON.stringify(payload)
@@ -109,11 +116,6 @@ function guardarClienteModal() {
 }
 
 function abrirModalEditarCliente(id) {
-  if (!window.canPerformAction || !window.canPerformAction('editar_cliente')) {
-    showToast('No tienes permiso para editar clientes', 'error');
-    return;
-  }
-
   fetchApi('/clientes/' + id)
     .then(function(cliente) {
       document.getElementById('edit-cliente-id').value = cliente.IdCliente;
@@ -135,11 +137,6 @@ function abrirModalEditarCliente(id) {
 }
 
 function actualizarClienteModal() {
-  if (!window.canPerformAction || !window.canPerformAction('editar_cliente')) {
-    showToast('No tienes permiso para actualizar clientes', 'error');
-    return;
-  }
-
   var id = parseInt(document.getElementById('edit-cliente-id').value);
   var nombre = document.getElementById('edit-cli-nombre');
   var apellidos = document.getElementById('edit-cli-apellidos');
@@ -187,18 +184,13 @@ function actualizarClienteModal() {
 }
 
 function eliminarCliente(id) {
-  if (!window.canPerformAction || !window.canPerformAction('eliminar_cliente')) {
-    showToast('No tienes permiso para eliminar clientes', 'error');
-    return;
-  }
-
-  if (!confirm('¿Eliminar este cliente?')) return;
+  if (!confirm('Ã‚¿Eliminar este cliente?')) return;
   
   fetchApi('/clientes/' + id, {
     method: 'DELETE'
   })
     .then(function() {
-      showToast('✅ Cliente eliminado', 'success');
+      showToast('âœ… Cliente eliminado', 'success');
       cargarClientes();
     })
     .catch(function(error) {

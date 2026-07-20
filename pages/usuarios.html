@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SOFI · Usuarios</title>
+  <title>SOFI· Usuarios</title>
   <link rel="stylesheet" href="../css/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="login-screen" style="display:none"></div>
@@ -34,19 +35,19 @@
         </div>
         <div class="topbar-actions">
           <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
-          <button type="button" class="topbar-btn">⚙ Configuración</button>
+          <button type="button" class="topbar-btn" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
         </div>
       </div>
 
       <main class="page-content" id="page-content">
         <div class="section-header">
           <div class="section-title">Usuarios del Sistema</div>
-          <button id="btn-crear-usuario" class="btn-accent" onclick="abrirModal('crear-usuario-modal')">Nuevo Usuario</button>
+          <button class="btn-outline" style="margin-right:12px;" onclick="if(window.exportCurrentTable) window.exportCurrentTable()">Exportar CSV</button><button class="btn-accent" onclick="abrirModalCrearUsuario()">Nuevo Usuario</button>
         </div>
 
         <div class="table-wrap">
           <div class="table-toolbar">
-            <input class="search-input" placeholder="Buscar usuario…" style="max-width:240px">
+            <input class="search-input" placeholder="Buscar usuarioâ€¦" style="max-width:240px">
             <select class="filter-select"><option>Todos los roles</option><option>Directivo</option><option>Vendedor</option><option>Asistente</option></select>
             <select class="filter-select"><option>Todos los estatus</option><option>Activo</option><option>Inactivo</option></select>
           </div>
@@ -57,6 +58,7 @@
                 <th>Nombre</th>
                 <th>Apellidos</th>
                 <th>Correo</th>
+                <th>Teléfono</th>
                 <th>Rol</th>
                 <th>Empleado ID</th>
                 <th>Estatus</th>
@@ -79,12 +81,16 @@
     <div class="modal-box" style="max-width:600px;max-height:90vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <div class="modal-title">Nuevo Usuario</div>
-        <button onclick="cerrarModal('crear-usuario-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+        <button onclick="cerrarModal('crear-usuario-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">âœ•</button>
       </div>
       <form id="form-crear-usuario" onsubmit="event.preventDefault(); guardarUsuarioModal();">
         <div class="form-grid">
-          <div class="form-group full"><label>Nombre Completo *</label><input id="usu-nombre" type="text" placeholder="Nombre completo" required></div>
-          <div class="form-group"><label>Correo Electrónico *</label><input id="usu-email" type="email" placeholder="correo@sofi.mx" required></div>
+          <div class="form-group full"><label>Empleado Asignado *</label>
+            <select id="usu-empleado-id" required>
+              <option value="">Cargando empleados…</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Nombre de Usuario (Correo) *</label><input id="usu-email" type="email" placeholder="correo@sofi.mx" required></div>
           <div class="form-group"><label>Contraseña *</label><input id="usu-password" type="password" placeholder="Mín. 8 caracteres" required></div>
           <div class="form-group"><label>Rol *</label>
             <select id="usu-rol" required>
@@ -108,13 +114,15 @@
     <div class="modal-box" style="max-width:600px;max-height:90vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <div class="modal-title">Editar Usuario</div>
-        <button onclick="cerrarModal('editar-usuario-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+        <button onclick="cerrarModal('editar-usuario-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">âœ•</button>
       </div>
       <form id="form-editar-usuario" onsubmit="event.preventDefault(); actualizarUsuarioModal();">
         <input type="hidden" id="edit-usuario-id">
         <div class="form-grid">
-          <div class="form-group full"><label>Nombre Completo *</label><input id="edit-usu-nombre" type="text" placeholder="Nombre completo" required></div>
-          <div class="form-group"><label>Correo Electrónico *</label><input id="edit-usu-email" type="email" placeholder="correo@sofi.mx" required></div>
+          <div class="form-group full"><label>Empleado Asignado</label>
+            <input id="edit-usu-empleado" type="text" disabled style="background:#f5f5f5">
+          </div>
+          <div class="form-group"><label>Nombre de Usuario (Correo) *</label><input id="edit-usu-email" type="email" placeholder="correo@sofi.mx" required></div>
           <div class="form-group"><label>Rol *</label>
             <select id="edit-usu-rol" required>
               <option value="">Seleccionar…</option>
@@ -135,8 +143,8 @@
   <div id="modal-root"></div>
   <script src="../js/core/config.js"></script>
   <script src="../js/utils/helpers.js"></script>
-  <script src="../js/core/permissions.js"></script>
   <script src="../js/core/app.js"></script>
   <script src="../js/modules/usuarios.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>

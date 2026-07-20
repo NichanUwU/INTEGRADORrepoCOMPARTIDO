@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SOFI · Contratos</title>
   <link rel="stylesheet" href="../css/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="login-screen" style="display:none"></div>
@@ -34,21 +35,26 @@
         </div>
         <div class="topbar-actions">
           <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
-          <button type="button" class="topbar-btn">⚙ Configuración</button>
+          <button type="button" class="topbar-btn" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
         </div>
       </div>
 
       <main class="page-content" id="page-content">
         <div class="section-header">
           <div class="section-title">Contratos</div>
-          <button id="btn-crear-contrato" class="btn-accent" onclick="abrirModal('crear-contrato-modal')">Nuevo Contrato</button>
+          <button class="btn-outline" style="margin-right:12px;" onclick="if(window.exportCurrentTable) window.exportCurrentTable()">Exportar CSV</button><button class="btn-accent" onclick="abrirModal('crear-contrato-modal')">Nuevo Contrato</button>
         </div>
 
         <div class="table-wrap">
           <div class="table-toolbar">
-            <input class="search-input" placeholder="Buscar contrato…" style="max-width:240px">
-            <select class="filter-select"><option>Todos los Desarrollos</option></select>
-            <select class="filter-select"><option>Todos los estados</option><option>Activo</option><option>Vencido</option><option>Liquidado</option></select>
+            <input id="search-contrato" class="search-input" placeholder="Buscar contrato..." style="max-width:240px" oninput="filtrarContratos()">
+            <select id="filter-contrato-desarrollo" class="filter-select" onchange="filtrarContratos()"><option value="">Todos los Desarrollos</option></select>
+            <select id="filter-contrato-estatus" class="filter-select" onchange="filtrarContratos()">
+              <option value="">Todos los estados</option>
+              <option value="Activo">Activo</option>
+              <option value="Vencido">Vencido</option>
+              <option value="Liquidado">Liquidado</option>
+            </select>
           </div>
           <table>
             <thead>
@@ -81,42 +87,39 @@
     <div class="modal-box" style="max-width:720px;max-height:90vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <div class="modal-title">Nuevo Contrato</div>
-        <button onclick="cerrarModal('crear-contrato-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+        <button onclick="cerrarModal('crear-contrato-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">âœ•</button>
       </div>
       <form id="form-crear-contrato" onsubmit="event.preventDefault(); guardarContratoModal();">
         <div class="form-grid">
           <div class="form-group"><label>Cliente *</label>
             <select id="ctr-cliente" required>
-              <option value="">Seleccionar…</option>
-              <option value="1">Juan Hernández López</option>
-              <option value="2">María García Torres</option>
+              <option value="">Seleccionarâ€¦</option>
             </select>
           </div>
           <div class="form-group"><label>Lote *</label>
-            <select id="ctr-lote" required>
-              <option value="">Seleccionar…</option>
-              <option value="1">A-01 · Las Palmas · $380K</option>
-              <option value="6">D-01 · Bosques · $510K</option>
+            <select id="ctr-lote" onchange="seleccionarLotePrecio('crear')" required>
+              <option value="">Seleccionarâ€¦</option>
             </select>
           </div>
           <div class="form-group"><label>Vendedor *</label>
             <select id="ctr-vendedor" required>
-              <option value="">Seleccionar…</option>
-              <option value="1">M. Rodríguez</option>
-              <option value="2">L. García</option>
+              <option value="">Seleccionarâ€¦</option>
             </select>
           </div>
           <div class="form-group"><label>Fecha *</label><input id="ctr-fecha" type="date" required></div>
           <div class="form-group"><label>Hora *</label><input id="ctr-hora" type="time" required></div>
           <div class="form-group"><label>Tipo de Pago *</label>
-            <select id="ctr-tipopago" required>
-              <option value="">Seleccionar…</option>
+            <select id="ctr-tipopago" onchange="toggleFinanciamientoFields('crear')" required>
+              <option value="">Seleccionarâ€¦</option>
               <option value="Contado">Contado</option>
               <option value="Parcial">Parcial</option>
               <option value="Financiamiento">Financiamiento</option>
             </select>
           </div>
-          <div class="form-group"><label>Monto Fijo *</label><input id="ctr-monto" type="number" placeholder="0.00" required></div>
+          <div class="form-group"><label>Monto Fijo *</label><input id="ctr-monto" type="number" placeholder="0.00" oninput="recalcularMensualidad('crear')" required></div>
+          <div class="form-group financiamiento-field" style="display:none;"><label>Enganche</label><input id="ctr-enganche" type="number" placeholder="0.00" value="0" oninput="recalcularMensualidad('crear')"></div>
+          <div class="form-group financiamiento-field" style="display:none;"><label>Plazo (Meses)</label><input id="ctr-plazo" type="number" placeholder="0" value="0" oninput="recalcularMensualidad('crear')"></div>
+          <div class="form-group financiamiento-field" style="display:none;"><label>Mensualidad</label><input id="ctr-mensualidad" type="number" placeholder="0.00" value="0" readonly></div>
         </div>
         <div class="form-actions">
           <button type="button" class="btn-outline" onclick="cerrarModal('crear-contrato-modal')">Cancelar</button>
@@ -131,43 +134,40 @@
     <div class="modal-box" style="max-width:720px;max-height:90vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <div class="modal-title">Editar Contrato</div>
-        <button onclick="cerrarModal('editar-contrato-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+        <button onclick="cerrarModal('editar-contrato-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">âœ•</button>
       </div>
       <form id="form-editar-contrato" onsubmit="event.preventDefault(); actualizarContratoModal();">
         <input type="hidden" id="edit-contrato-id">
         <div class="form-grid">
           <div class="form-group"><label>Cliente *</label>
             <select id="edit-ctr-cliente" required>
-              <option value="">Seleccionar…</option>
-              <option value="1">Juan Hernández López</option>
-              <option value="2">María García Torres</option>
+              <option value="">Seleccionarâ€¦</option>
             </select>
           </div>
           <div class="form-group"><label>Lote *</label>
-            <select id="edit-ctr-lote" required>
-              <option value="">Seleccionar…</option>
-              <option value="1">A-01 · Las Palmas · $380K</option>
-              <option value="6">D-01 · Bosques · $510K</option>
+            <select id="edit-ctr-lote" onchange="seleccionarLotePrecio('editar')" required>
+              <option value="">Seleccionarâ€¦</option>
             </select>
           </div>
           <div class="form-group"><label>Vendedor *</label>
             <select id="edit-ctr-vendedor" required>
-              <option value="">Seleccionar…</option>
-              <option value="1">M. Rodríguez</option>
-              <option value="2">L. García</option>
+              <option value="">Seleccionarâ€¦</option>
             </select>
           </div>
           <div class="form-group"><label>Fecha *</label><input id="edit-ctr-fecha" type="date" required></div>
           <div class="form-group"><label>Hora *</label><input id="edit-ctr-hora" type="time" required></div>
           <div class="form-group"><label>Tipo de Pago *</label>
-            <select id="edit-ctr-tipopago" required>
-              <option value="">Seleccionar…</option>
+            <select id="edit-ctr-tipopago" onchange="toggleFinanciamientoFields('editar')" required>
+              <option value="">Seleccionarâ€¦</option>
               <option value="Contado">Contado</option>
               <option value="Parcial">Parcial</option>
               <option value="Financiamiento">Financiamiento</option>
             </select>
           </div>
-          <div class="form-group"><label>Monto Fijo *</label><input id="edit-ctr-monto" type="number" placeholder="0.00" required></div>
+          <div class="form-group"><label>Monto Fijo *</label><input id="edit-ctr-monto" type="number" placeholder="0.00" oninput="recalcularMensualidad('editar')" required></div>
+          <div class="form-group edit-financiamiento-field" style="display:none;"><label>Enganche</label><input id="edit-ctr-enganche" type="number" placeholder="0.00" value="0" oninput="recalcularMensualidad('editar')"></div>
+          <div class="form-group edit-financiamiento-field" style="display:none;"><label>Plazo (Meses)</label><input id="edit-ctr-plazo" type="number" placeholder="0" value="0" oninput="recalcularMensualidad('editar')"></div>
+          <div class="form-group edit-financiamiento-field" style="display:none;"><label>Mensualidad</label><input id="edit-ctr-mensualidad" type="number" placeholder="0.00" value="0" readonly></div>
         </div>
         <div class="form-actions">
           <button type="button" class="btn-outline" onclick="cerrarModal('editar-contrato-modal')">Cancelar</button>
@@ -180,8 +180,8 @@
   <div id="modal-root"></div>
   <script src="../js/core/config.js"></script>
   <script src="../js/utils/helpers.js"></script>
-  <script src="../js/core/permissions.js"></script>
   <script src="../js/core/app.js"></script>
   <script src="../js/modules/contratos.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>

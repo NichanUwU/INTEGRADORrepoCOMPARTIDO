@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SOFI · Flujo de Efectivo</title>
   <link rel="stylesheet" href="../css/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="login-screen" style="display:none"></div>
@@ -30,11 +31,11 @@
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0">
           <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Flujo de Efectivo</span></div>
+          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Flujo de Caja</span></div>
         </div>
         <div class="topbar-actions">
           <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
-          <button type="button" class="topbar-btn">⚙ Configuración</button>
+          <button type="button" class="topbar-btn" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
         </div>
       </div>
 
@@ -64,15 +65,23 @@
 
         <div class="section-header">
           <div class="section-title">Movimientos de Flujo</div>
-          <button class="btn-accent" onclick="abrirModal('registrar-pago-modal')">Registrar Pago</button>
+          <button class="btn-outline" style="margin-right:12px;" onclick="if(window.exportCurrentTable) window.exportCurrentTable()">Exportar CSV</button><button class="btn-accent" onclick="abrirModal('registrar-pago-modal')">Registrar Pago</button>
         </div>
 
         <div class="table-wrap">
           <div class="table-toolbar">
-            <input class="search-input" placeholder="Buscar movimiento…" style="max-width:220px">
-            <select class="filter-select"><option>Todos los tipos</option><option>Ingreso</option><option>Egreso</option></select>
-            <select class="filter-select"><option>Todos los estatus</option><option>Pagado</option><option>Atrasado</option></select>
-            <input type="date" class="filter-select">
+            <input id="search-flujo" class="search-input" placeholder="Buscar movimiento…" style="max-width:220px" oninput="filtrarFlujo()">
+            <select id="filter-flujo-tipo" class="filter-select" onchange="filtrarFlujo()">
+              <option value="">Todos los tipos</option>
+              <option value="Ingreso">Ingreso</option>
+              <option value="Egreso">Egreso</option>
+            </select>
+            <select id="filter-flujo-estatus" class="filter-select" onchange="filtrarFlujo()">
+              <option value="">Todos los estatus</option>
+              <option value="Pagado">Pagado</option>
+              <option value="Atrasado">Atrasado</option>
+            </select>
+            <input id="filter-flujo-fecha" type="date" class="filter-select" onchange="filtrarFlujo()">
           </div>
           <table>
             <thead>
@@ -105,7 +114,7 @@
     <div class="modal-box" style="max-width:480px;max-height:90vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <div class="modal-title">💰 Registrar Pago</div>
-        <button onclick="cerrarModal('registrar-pago-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+        <button onclick="cerrarModal('registrar-pago-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✖</button>
       </div>
       <form id="form-registrar-pago" onsubmit="event.preventDefault(); confirmarPago();">
         <div class="form-grid">
@@ -142,7 +151,7 @@
     <div class="modal-box" style="max-width:420px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <div class="modal-title">⚠ Confirmar Pago</div>
-        <button onclick="cerrarModal('confirmar-pago-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+        <button onclick="cerrarModal('confirmar-pago-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✖</button>
       </div>
       <div style="text-align:center;padding:16px 0;">
         <div style="font-size:48px;margin-bottom:12px;">💰</div>
@@ -161,12 +170,12 @@
   <div id="modal-root"></div>
 
   <!-- ============================================================
-       SCRIPTS - SOLO LOS MÓDULOS NECESARIOS
+      <!-- SCRIPTS - SOLO LOS MÓDULOS NECESARIOS -->
        ============================================================ -->
   <script src="../js/core/config.js"></script>
   <script src="../js/utils/helpers.js"></script>
-  <script src="../js/core/permissions.js"></script>
   <script src="../js/core/app.js"></script>
   <script src="../js/modules/flujo.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>

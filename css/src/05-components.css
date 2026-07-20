@@ -1,0 +1,88 @@
+/* ============================================================
+   SOFI · COMPONENTES — KPIs, gráficas, botones, chips
+   ============================================================ */
+
+/* ---- LAYOUT GRIDS ---- */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.two-col   { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; align-items: start; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
+.section-title { font-size: 16px; font-weight: 600; color: var(--c-primary); }
+
+/* ---- KPI CARD ---- */
+.kpi-card {
+  background: var(--c-white);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 6px;
+  border-left: 4px solid var(--c-accent);
+}
+.kpi-label { font-size: 11px; font-weight: 600; color: var(--c-muted); text-transform: uppercase; letter-spacing: .5px; }
+.kpi-value { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--c-primary); }
+.kpi-trend { font-size: 11px; display: flex; align-items: center; gap: 4px; }
+.trend-up   { color: var(--c-success); }
+.trend-down { color: var(--c-error); }
+
+/* ---- CHART CARD ---- */
+.chart-card { background: var(--c-white); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+.chart-title { font-size: 14px; font-weight: 600; color: var(--c-primary); margin-bottom: 16px; }
+.chart-area { height: 180px; position: relative; display: flex; align-items: flex-end; gap: 8px; }
+
+.bar { flex: 1; border-radius: 4px 4px 0 0; position: relative; cursor: pointer; transition: .2s; min-width: 0; }
+.bar:hover { opacity: .8; }
+.bar-label {
+  position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
+  font-size: 10px; color: var(--c-muted); white-space: nowrap;
+}
+
+/* ---- BOTONES ---- */
+.btn-primary {
+  background: var(--c-primary); color: var(--c-white);
+  padding: 12px 24px; border-radius: var(--radius);
+  font-size: 14px; font-weight: 600; width: 100%; transition: .2s background;
+}
+.btn-primary:hover { background: #0a2d47; }
+
+.btn-accent {
+  background: var(--c-accent); color: var(--c-white);
+  padding: 8px 16px; border-radius: var(--radius);
+  font-size: 13px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 6px; transition: .2s;
+}
+.btn-accent:hover { background: #3d8a35; }
+
+.btn-outline {
+  background: none; border: 1.5px solid var(--c-primary); color: var(--c-primary);
+  padding: 8px 16px; border-radius: var(--radius);
+  font-size: 13px; font-weight: 600; transition: .2s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-outline:hover { background: var(--c-light-bg); }
+
+.btn-danger {
+  background: var(--c-error); color: #fff;
+  padding: 8px 16px; border-radius: var(--radius);
+  font-size: 13px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-danger:hover { background: #b93333; }
+
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+
+button:disabled, .btn-accent:disabled, .btn-outline:disabled, .btn-primary:disabled {
+  opacity: .5; cursor: not-allowed; pointer-events: none;
+}
+
+/* ---- CHIP (estado) ---- */
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+.chip-green { background: var(--chip-green-bg); color: var(--chip-green-fg); }
+.chip-red   { background: var(--chip-red-bg);   color: var(--chip-red-fg); }
+.chip-blue  { background: var(--chip-blue-bg);  color: var(--chip-blue-fg); }
+.chip-warn  { background: var(--chip-warn-bg);  color: var(--chip-warn-fg); }
+.chip-gray  { background: var(--chip-gray-bg);  color: var(--chip-gray-fg); }

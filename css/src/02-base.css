@@ -1,0 +1,49 @@
+/* ============================================================
+   SOFI · BASE / RESET
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font-ui);
+  background: var(--c-white);
+  color: var(--c-text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-ui);
+  border: none;
+  outline: none;
+  background: none;
+}
+
+input, select, textarea { font-family: var(--font-ui); outline: none; }
+
+a { text-decoration: none; color: inherit; }
+
+ul, ol { list-style: none; }
+
+img, svg { display: block; max-width: 100%; }
+
+/* Foco visible accesible — no se elimina, solo se restyling */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

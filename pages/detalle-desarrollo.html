@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SOFI · Detalle Desarrollo</title>
   <link rel="stylesheet" href="../css/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="login-screen" style="display:none"></div>
@@ -30,11 +31,11 @@
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0">
           <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Detalle Desarrollo</span></div>
+          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><a href="desarrollos.html">Desarrollos</a><span class="sep">›</span><span class="current">Detalle</span></div>
         </div>
         <div class="topbar-actions">
           <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
-          <button type="button" class="topbar-btn">⚙ Configuración</button>
+          <button type="button" class="topbar-btn" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
         </div>
       </div>
 
@@ -42,7 +43,7 @@
         <div class="section-header">
           <div>
             <div class="section-title" id="detalle-nombre">Cargando...</div>
-            <p style="font-size:12px;color:var(--c-muted);" id="detalle-ubicacion">📍 Cargando ubicación...</p>
+            <p style="font-size:12px;color:var(--c-muted);" id="detalle-ubicacion">📌 Cargando ubicación...</p>
             <p style="font-size:13px;color:var(--c-muted);margin-top:4px;" id="detalle-descripcion"></p>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -61,14 +62,14 @@
     <div class="modal-box" style="max-width:680px;max-height:90vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <div class="modal-title">Nueva Manzana</div>
-        <button onclick="cerrarModal('crear-manzana-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+        <button onclick="cerrarModal('crear-manzana-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">&times;</button>
       </div>
       <form id="form-crear-manzana" onsubmit="event.preventDefault(); guardarManzanaModal();">
         <div class="form-grid">
           <div class="form-group full">
             <label>Desarrollo *</label>
             <select id="manzana-desarrollo" required>
-              <option value="">Seleccionar desarrollo…</option>
+              <option value="">Seleccionar desarrollo...</option>
             </select>
           </div>
           <div class="form-group">
@@ -99,15 +100,86 @@
     </div>
   </div>
 
-  <div id="modal-root"></div>
+  <!-- MODAL EDITAR MANZANA -->
+  <div id="editar-manzana-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:500px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title" id="editar-titulo">Editar Manzana</div>
+        <button onclick="cerrarModal('editar-manzana-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">&times;</button>
+      </div>
+      <form id="form-editar-manzana" onsubmit="event.preventDefault(); actualizarManzanaModal();">
+        <input type="hidden" id="edit-manzana-id">
+        <input type="hidden" id="edit-desarrollo-nombre">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Número de Manzana *</label>
+            <input id="edit-manzana-numero" type="number" min="1" required>
+          </div>
+          <div class="form-group full">
+            <label>Calles Colindantes</label>
+            <input id="edit-manzana-calles" type="text" placeholder="Ej. Calle Principal y Secundaria">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('editar-manzana-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Actualizar Manzana</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
+  <!-- MODAL CREAR LOTE EN MANZANA -->
+  <div id="crear-lote-manzana-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:500px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title" id="crear-lote-titulo">Nuevo Lote</div>
+        <button onclick="cerrarModal('crear-lote-manzana-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">&times;</button>
+      </div>
+      <form id="form-crear-lote-manzana" onsubmit="event.preventDefault(); guardarLoteExtraManzana();">
+        <input type="hidden" id="lote-manzana-id">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Número de Lote *</label>
+            <input id="lote-extra-numero" type="number" min="1" required>
+          </div>
+          <div class="form-group">
+            <label>Medidas</label>
+            <input id="lote-extra-medidas" type="text" placeholder="Ej. 10x20">
+          </div>
+          <div class="form-group">
+            <label>Precio</label>
+            <input id="lote-extra-precio" type="number" placeholder="Ej. 500000">
+          </div>
+          <div class="form-group"><label>Estatus *</label>
+            <select id="lote-extra-estado" required>
+              <option value="Disponible">Disponible</option>
+              <option value="Vendido">Vendido</option>
+              <option value="Reservado">Reservado</option>
+            </select>
+          </div>
+          <div class="form-group full"><label>Colindancias</label></div>
+          <div class="form-group"><label>Norte</label><input id="lote-extra-norte" placeholder="Descripción del colindante"></div>
+          <div class="form-group"><label>Sur</label><input id="lote-extra-sur" placeholder="Descripción del colindante"></div>
+          <div class="form-group"><label>Este</label><input id="lote-extra-este" placeholder="Descripción del colindante"></div>
+          <div class="form-group"><label>Oeste</label><input id="lote-extra-oeste" placeholder="Descripción del colindante"></div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('crear-lote-manzana-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Crear Lote</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
   <!-- ============================================================
-       SCRIPTS - SOLO LOS MÓDULOS NECESARIOS
+      <!-- SCRIPTS - SOLO LOS MÓDULOS NECESARIOS -->
        ============================================================ -->
-  <script src="../js/core/config.js"></script>
-  <script src="../js/utils/helpers.js"></script>
-  <script src="../js/core/permissions.js"></script>
-  <script src="../js/core/app.js"></script>
-  <script src="../js/modules/desarrollos.js"></script>
+  <script src="../js/core/config.js?v=2"></script>
+  <script src="../js/utils/helpers.js?v=2"></script>
+  <script src="../js/core/app.js?v=2"></script>
+  <script src="../js/modules/desarrollos.js?v=2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
+

@@ -3,7 +3,8 @@
 function cargarFlujo() {
   fetchApi('/pagos')
     .then(function(data) {
-      renderFlujo(data);
+      window.allPagos = data || [];
+      filtrarFlujo(); // Applies filters and calls renderFlujo
     })
     .catch(function(error) {
       var tbody = document.getElementById('tabla-flujo-body');
@@ -14,6 +15,44 @@ function cargarFlujo() {
     });
 
   cargarKPIs();
+}
+
+function filtrarFlujo() {
+  if (!window.allPagos) return;
+  
+  var searchQuery = (document.getElementById('search-flujo')?.value || '').toLowerCase();
+  var filterTipo = document.getElementById('filter-flujo-tipo')?.value || '';
+  var filterEstatus = document.getElementById('filter-flujo-estatus')?.value || '';
+  var filterFecha = document.getElementById('filter-flujo-fecha')?.value || ''; // format YYYY-MM-DD
+  
+  var filtrados = window.allPagos.filter(function(p) {
+    var textMatch = true;
+    if (searchQuery) {
+      var searchStr = (p.IdPago + ' ' + (p.Cliente||p.ClienteNombre||'') + ' ' + (p.Concepto||'')).toLowerCase();
+      textMatch = searchStr.includes(searchQuery);
+    }
+    
+    var tipoMatch = true;
+    if (filterTipo) {
+      tipoMatch = (p.Tipo === filterTipo);
+    }
+    
+    var estatusMatch = true;
+    if (filterEstatus) {
+      estatusMatch = (p.Estatus === filterEstatus);
+    }
+    
+    var fechaMatch = true;
+    if (filterFecha) {
+      // p.FechaPago format could be 2024-03-20T00:00:00Z or similar
+      var pDate = p.FechaPago ? p.FechaPago.substring(0, 10) : '';
+      fechaMatch = (pDate === filterFecha);
+    }
+    
+    return textMatch && tipoMatch && estatusMatch && fechaMatch;
+  });
+  
+  renderFlujo(filtrados);
 }
 
 function renderFlujo(pagos) {
@@ -39,8 +78,12 @@ function renderFlujo(pagos) {
     html += '<td style="font-weight:600">$' + new Intl.NumberFormat('es-MX').format(f.Monto || 0) + '</td>';
     html += '<td><span class="chip ' + chipTipo + '">' + (f.Tipo || 'Ingreso') + '</span></td>';
     html += '<td><span class="chip ' + chipEstatus + '">' + (f.Estatus || 'Desconocido') + '</span></td>';
+    var role = 'invitado';
+    try { var user = JSON.parse(localStorage.getItem('sofi-user') || '{}'); role = (user.role || user.Rol || '').toLowerCase().trim(); } catch(e) {}
     html += '<td style="display:flex;gap:6px;flex-wrap:wrap;">';
-    html += '<button class="btn-danger btn-sm" onclick="eliminarPago(' + f.IdPago + ')">🗑 Eliminar</button>';
+    if (role === 'directivo' || role === 'admin' || role === 'administrador') {
+        html += '<button class="btn-danger btn-sm" onclick="eliminarPago(' + f.IdPago + ')">🗑️ Eliminar</button>';
+    }
     html += '</td>';
     html += '</tr>';
   }
@@ -88,7 +131,7 @@ function cargarClientesSelect() {
 
   fetchApi('/clientes')
     .then(function(data) {
-      var html = '<option value="">Seleccionar cliente…</option>';
+      var html = '<option value="">Seleccionar clienteÃ¢â‚¬Â¦</option>';
       for (var i = 0; i < data.length; i++) {
         html += '<option value="' + data[i].IdCliente + '">' + data[i].Nombre + ' ' + data[i].Apellidos + '</option>';
       }
@@ -109,7 +152,7 @@ function confirmarPago() {
     return;
   }
   if (!montoInput.value || parseFloat(montoInput.value) <= 0) {
-    showToast('Ingresa un monto válido', 'error');
+    showToast('Ingresa un monto vÃƒÂ¡lido', 'error');
     return;
   }
 
@@ -127,25 +170,36 @@ function registrarPagoConfirmado() {
   var clienteSelect = document.getElementById('pago-cliente');
   var montoInput = document.getElementById('pago-monto');
   var conceptoInput = document.getElementById('pago-concepto');
+  var idCliente = parseInt(clienteSelect.value);
 
-  var payload = {
-    Monto: parseFloat(montoInput.value),
-    FechaPago: new Date().toISOString().split('T')[0],
-    FechaCompromiso: new Date().toISOString().split('T')[0],
-    MetodoPago: 'Efectivo',
-    Estatus: 'Pagado',
-    IdCliente: parseInt(clienteSelect.value),
-    IdContrato: 1,
-    Concepto: conceptoInput.value.trim() || 'Pago registrado'
-  };
+  // Fetch contracts to find one for this client
+  fetchApi('/contratos')
+    .then(function(contratos) {
+      var idContrato = 1; // default fallback
+      for(var i=0; i<contratos.length; i++) {
+        if(contratos[i].IdCliente === idCliente) {
+          idContrato = contratos[i].IdContrato;
+          break;
+        }
+      }
+      
+      var payload = {
+        Monto: parseFloat(montoInput.value),
+        FechaPago: new Date().toISOString().split('T')[0],
+        FechaCompromiso: new Date().toISOString().split('T')[0],
+        MetodoPago: 'Efectivo',
+        Estatus: 'Pagado',
+        IdCliente: idCliente,
+        IdContrato: idContrato,
+        Concepto: conceptoInput.value.trim() || 'Pago registrado',
+        Tipo: 'Ingreso'
+      };
 
-  fetchApi('/pagos', {
-    method: 'POST',
-    body: JSON.stringify(payload)
-  })
+      return fetchApi('/pagos', { method: 'POST', body: JSON.stringify(payload) });
+    })
     .then(function() {
       cerrarModal('confirmar-pago-modal');
-      showToast('✅ Pago registrado exitosamente', 'success');
+      showToast('âœ… Pago registrado exitosamente', 'success');
       cargarFlujo();
     })
     .catch(function(error) {
@@ -154,13 +208,13 @@ function registrarPagoConfirmado() {
 }
 
 function eliminarPago(id) {
-  if (!confirm('¿Eliminar este pago?')) return;
+  if (!confirm('Ã‚¿Eliminar este pago?')) return;
   
   fetchApi('/pagos/' + id, {
     method: 'DELETE'
   })
     .then(function() {
-      showToast('✅ Pago eliminado', 'success');
+      showToast('âœ… Pago eliminado', 'success');
       cargarFlujo();
     })
     .catch(function(error) {

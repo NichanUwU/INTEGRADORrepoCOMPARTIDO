@@ -2,32 +2,15 @@ package com.sofi.controllers;
 
 import io.javalin.http.Context;
 import com.sofi.database.DatabaseConnection;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
-// En producción usar BCrypt, para escuela usamos SHA-256
+// En producciÃ³n usar BCrypt, para escuela usamos SHA-256
 // NOTA: En un proyecto real, usar BCryptPasswordEncoder
 public class UsuarioController {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    private static Map<String, String> parseBody(Context ctx) {
-        try {
-            Map<String, Object> rawBody = OBJECT_MAPPER.readValue(ctx.body(), new TypeReference<Map<String, Object>>() {});
-            Map<String, String> normalizedBody = new HashMap<>();
-            for (Map.Entry<String, Object> entry : rawBody.entrySet()) {
-                normalizedBody.put(entry.getKey(), entry.getValue() == null ? "" : String.valueOf(entry.getValue()));
-            }
-            return normalizedBody;
-        } catch (Exception e) {
-            return new HashMap<>();
-        }
-    }
-
-    // Hash simple para demo (en producción usar BCrypt)
+    // Hash simple para demo (en producciÃ³n usar BCrypt)
     private static String hashPassword(String password) {
         try {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
@@ -86,70 +69,34 @@ public class UsuarioController {
         return "";
     }
 
-    private static Map<String, Object> loginDemo(String username, String password) {
-        if (password == null || !password.trim().equals("1234")) {
-            return null;
-        }
-
-        String normalizedUsername = username == null ? "" : username.trim().toLowerCase();
-
-        if (normalizedUsername.equals("jose@sofi.mx") || normalizedUsername.equals("admin@sofi.mx") || normalizedUsername.equals("director@sofi.mx") || normalizedUsername.equals("directivo@sofi.mx")) {
-            Map<String, Object> usuarioLogueado = new HashMap<>();
-            usuarioLogueado.put("IdUsuario", 1);
-            usuarioLogueado.put("NombreUsuario", "jose@sofi.mx");
-            usuarioLogueado.put("Rol", "Directivo");
-            usuarioLogueado.put("Empleado", "José");
-            usuarioLogueado.put("status", "success");
-            return usuarioLogueado;
-        }
-
-        if (normalizedUsername.equals("ventas@sofi.mx") || normalizedUsername.equals("vendedor@sofi.mx") || normalizedUsername.equals("vendedor1@sofi.mx")) {
-            Map<String, Object> usuarioLogueado = new HashMap<>();
-            usuarioLogueado.put("IdUsuario", 2);
-            usuarioLogueado.put("NombreUsuario", "ventas@sofi.mx");
-            usuarioLogueado.put("Rol", "Vendedor");
-            usuarioLogueado.put("Empleado", "Vendedor");
-            usuarioLogueado.put("status", "success");
-            return usuarioLogueado;
-        }
-
-        if (normalizedUsername.equals("asistente@sofi.mx")) {
-            Map<String, Object> usuarioLogueado = new HashMap<>();
-            usuarioLogueado.put("IdUsuario", 3);
-            usuarioLogueado.put("NombreUsuario", "asistente@sofi.mx");
-            usuarioLogueado.put("Rol", "Asistente");
-            usuarioLogueado.put("Empleado", "Asistente");
-            usuarioLogueado.put("status", "success");
-            return usuarioLogueado;
-        }
-
-        return null;
-    }
-
     public static void login(Context ctx) {
-        Map<String, String> body = parseBody(ctx);
+        Map<String, Object> bodyObj = ctx.bodyAsClass(Map.class); Map<String, String> body = new java.util.HashMap<>(); if(bodyObj != null) { for(Map.Entry<String, Object> e : bodyObj.entrySet()) { if(e.getValue() != null) body.put(e.getKey(), String.valueOf(e.getValue())); } }
         String username = obtenerUsername(body);
         String password = obtenerPassword(body);
-
-        Map<String, Object> usuarioDemo = loginDemo(username, password);
-        if (usuarioDemo != null) {
-            ctx.json(usuarioDemo);
-            return;
-        }
         
-        String sql = "SELECT u.IdUsuario, u.NombreUsuario, u.Rol, e.Nombre AS NombreEmpleado, u.Contrasena " +
+        String sql = "SELECT u.IdUsuario, u.NombreUsuario, u.Rol, e.Nombre AS NombreEmpleado, u.Contrasena, e.Estatus, e.IdEmpleado " +
                      "FROM USUARIO u JOIN EMPLEADO e ON u.IdEmpleado = e.IdEmpleado " +
-                     "WHERE u.NombreUsuario = ?";
+                     "WHERE u.NombreUsuario = ? OR e.Email = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setString(1, username);
+            pstmt.setString(2, username);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next() && verificarPassword(username, password, rs.getString("Contrasena"))) {
+                    if ("Inactivo".equalsIgnoreCase(rs.getString("Estatus"))) {
+                        Map<String, Object> response = new HashMap<>();
+                        response.put("status", "error");
+                        response.put("mensaje", "Cuenta inactiva (Empleado dado de baja)");
+                        ctx.status(401).json(response);
+                        return;
+                    }
+                    
                     Map<String, Object> usuarioLogueado = new HashMap<>();
                     usuarioLogueado.put("IdUsuario", rs.getInt("IdUsuario"));
+                    usuarioLogueado.put("IdEmpleado", rs.getInt("IdEmpleado"));
                     usuarioLogueado.put("NombreUsuario", rs.getString("NombreUsuario"));
                     usuarioLogueado.put("Rol", rs.getString("Rol"));
                     usuarioLogueado.put("Empleado", rs.getString("NombreEmpleado"));
@@ -171,7 +118,7 @@ public class UsuarioController {
 
     // Crear usuario (POST)
     public static void crear(Context ctx) {
-        Map<String, String> body = parseBody(ctx);
+        Map<String, Object> bodyObj = ctx.bodyAsClass(Map.class); Map<String, String> body = new java.util.HashMap<>(); if(bodyObj != null) { for(Map.Entry<String, Object> e : bodyObj.entrySet()) { if(e.getValue() != null) body.put(e.getKey(), String.valueOf(e.getValue())); } }
         String username = body.get("NombreUsuario");
         String password = body.get("Contrasena");
         String rol = body.get("Rol");
@@ -192,7 +139,7 @@ public class UsuarioController {
             pstmt.executeUpdate();
             
             Map<String, Object> response = new HashMap<>();
-            response.put("mensaje", "Usuario creado con éxito");
+            response.put("mensaje", "Usuario creado con Ã©xito");
             ctx.status(201).json(response);
 
         } catch (Exception e) {
@@ -202,3 +149,4 @@ public class UsuarioController {
         }
     }
 }
+

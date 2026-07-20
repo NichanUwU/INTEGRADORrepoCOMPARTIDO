@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOFI· Usuarios</title>
+  <link rel="stylesheet" href="../css/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="login-screen" style="display:none"></div>
+  <div id="app-shell">
+    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()"></div>
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-logo"><div class="sidebar-logo-text">SOFI<span>.</span></div></div>
+      <div class="sidebar-role-badge" id="sb-role-badge"></div>
+      <div class="sidebar-nav" id="sb-nav"></div>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar" id="sb-avatar"></div>
+          <div class="sidebar-user-info">
+            <span class="sidebar-user-name" id="sb-name"></span>
+            <span class="sidebar-user-role" id="sb-role"></span>
+          </div>
+        </div>
+        <button type="button" class="sidebar-logout" onclick="doLogout()">Cerrar sesión</button>
+      </div>
+    </nav>
+
+    <div class="main-content">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0">
+          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Usuarios</span></div>
+        </div>
+        <div class="topbar-actions">
+          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
+          <button type="button" class="topbar-btn" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
+        </div>
+      </div>
+
+      <main class="page-content" id="page-content">
+        <div class="section-header">
+          <div class="section-title">Plantilla de Personal</div>
+          <button class="btn-outline" style="margin-right:12px;" onclick="if(window.exportCurrentTable) window.exportCurrentTable()">Exportar CSV</button><button class="btn-accent" onclick="abrirModal('crear-empleado-modal')">Nuevo Empleado</button>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <input id="emp-search" class="search-input" placeholder="Buscar empleado..." style="max-width:240px" oninput="filtrarEmpleados()">
+            <select id="emp-filter-cargo" class="filter-select" onchange="filtrarEmpleados()">
+              <option value="">Todos los cargos</option>
+              <option value="Directivo">Directivo</option>
+              <option value="Vendedor">Vendedor</option>
+              <option value="Asistente">Asistente</option>
+            </select>
+            <select id="emp-filter-estatus" class="filter-select" onchange="filtrarEmpleados()">
+              <option value="">Todos los estatus</option>
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre Completo</th>
+                <th>Correo Contacto</th>
+                <th>Cargo</th>
+                <th>Dirección</th>
+                <th>Teléfono</th>
+                <th>Estatus</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-empleados-body"></tbody>
+          </table>
+          <div class="table-pagination">
+            <span id="empleados-paginacion">Cargando...</span>
+            <div style="display:flex;gap:4px" id="empleados-paginas"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL CREAR EMPLEADO -->
+  <div id="crear-empleado-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:600px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">Nuevo Empleado</div>
+        <button onclick="cerrarModal('crear-empleado-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <form id="form-crear-empleado" onsubmit="event.preventDefault(); guardarEmpleadoModal();">
+        <div class="form-grid">
+          <div class="form-group"><label>Nombre(s) *</label><input id="emp-nombre" type="text" placeholder="Juan" required></div>
+          <div class="form-group"><label>Apellidos *</label><input id="emp-apellidos" type="text" placeholder="Pérez" required></div>
+          <div class="form-group"><label>Correo de Contacto *</label><input id="emp-email" type="email" placeholder="correo@sofi.mx" required></div>
+          <div class="form-group"><label>Cargo *</label>
+            <select id="emp-cargo" required>
+              <option value="">Seleccionar…</option>
+              <option value="Directivo">Directivo</option>
+              <option value="Vendedor">Vendedor</option>
+              <option value="Asistente">Asistente</option>
+              <option value="Jefe de Obra">Jefe de Obra</option>
+            </select>
+          </div>
+          <div class="form-group full"><label>Dirección</label><input id="emp-direccion" type="text" placeholder="Calle y número"></div>
+          <div class="form-group"><label>Casa / Apto</label><input id="emp-casa" type="text" placeholder="Interior, torre, etc."></div>
+          <div class="form-group"><label>Código Postal</label><input id="emp-cp" type="text" placeholder="CP"></div>
+          <div class="form-group"><label>Ciudad</label><input id="emp-ciudad" type="text" placeholder="Ciudad"></div>
+          <div class="form-group"><label>Estado</label><input id="emp-estado" type="text" placeholder="Estado"></div>
+          <div class="form-group"><label>Teléfono</label><input id="emp-telefono" type="text" placeholder="10 dígitos"></div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('crear-empleado-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Registrar Empleado</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR EMPLEADO -->
+  <div id="editar-empleado-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:600px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">Editar Empleado</div>
+        <button onclick="cerrarModal('editar-empleado-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <form id="form-editar-empleado" onsubmit="event.preventDefault(); actualizarEmpleadoModal();">
+        <input type="hidden" id="edit-emp-id">
+        <div class="form-grid">
+          <div class="form-group"><label>Nombre(s) *</label><input id="edit-emp-nombre" type="text" placeholder="Juan" required></div>
+          <div class="form-group"><label>Apellidos *</label><input id="edit-emp-apellidos" type="text" placeholder="Pérez" required></div>
+          <div class="form-group"><label>Correo de Contacto *</label><input id="edit-emp-email" type="email" placeholder="correo@sofi.mx" required></div>
+          <div class="form-group"><label>Cargo *</label>
+            <select id="edit-emp-cargo" required>
+              <option value="">Seleccionar…</option>
+              <option value="Directivo">Directivo</option>
+              <option value="Vendedor">Vendedor</option>
+              <option value="Asistente">Asistente</option>
+            </select>
+          </div>
+          <div class="form-group full"><label>Dirección</label><input id="edit-emp-direccion" type="text" placeholder="Calle y número"></div>
+          <div class="form-group"><label>Casa / Apto</label><input id="edit-emp-casa" type="text" placeholder="Interior, torre, etc."></div>
+          <div class="form-group"><label>Código Postal</label><input id="edit-emp-cp" type="text" placeholder="CP"></div>
+          <div class="form-group"><label>Ciudad</label><input id="edit-emp-ciudad" type="text" placeholder="Ciudad"></div>
+          <div class="form-group"><label>Estado</label><input id="edit-emp-estado" type="text" placeholder="Estado"></div>
+          <div class="form-group"><label>Teléfono</label><input id="edit-emp-telefono" type="text" placeholder="10 dígitos"></div>
+          <div class="form-group"><label>Estatus *</label>
+            <select id="edit-emp-estatus" required>
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('editar-empleado-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Actualizar Empleado</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
+  <script src="../js/core/config.js"></script>
+  <script src="../js/utils/helpers.js"></script>
+  <script src="../js/core/app.js"></script>
+  <script src="../js/modules/empleados.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>

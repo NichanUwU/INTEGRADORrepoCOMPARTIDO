@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SOFI · Detalle Lote</title>
+  <title>SOFI Â· Detalle Lote</title>
   <link rel="stylesheet" href="../css/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="login-screen" style="display:none"></div>
@@ -30,23 +31,23 @@
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0">
           <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Detalle Lote</span></div>
+          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><a href="lotes.html">Lotes</a><span class="sep">›</span><span class="current">Detalle</span></div>
         </div>
         <div class="topbar-actions">
           <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
-          <button type="button" class="topbar-btn">⚙ Configuración</button>
+          <button type="button" class="topbar-btn" onclick="window.location.href='configuracion.html'">⚙️ Configuración</button>
         </div>
       </div>
 
       <main class="page-content" id="page-content">
         <div class="section-header">
           <div>
-            <div class="section-title" id="lote-nombre">Lote A-01 · Las Palmas Residencial</div>
-            <p style="font-size:12px;color:var(--c-muted)" id="lote-info">ID: L-001 · 120 m²</p>
+            <div class="section-title" id="lote-nombre">Lote A-01 Â· Las Palmas Residencial</div>
+            <p style="font-size:12px;color:var(--c-muted)" id="lote-info">ID: L-001 Â· 120 mÂ²</p>
           </div>
           <div style="display:flex;gap:8px">
-            <button class="btn-outline btn-sm" onclick="window.history.back()">← Regresar</button>
-            <button class="btn-accent btn-sm">✏ Editar</button>
+            <button class="btn-outline btn-sm" onclick="window.history.back()">â† Regresar</button>
+            <button class="btn-accent btn-sm">âœ Editar</button>
           </div>
         </div>
 
@@ -58,9 +59,9 @@
           <div class="form-card">
             <div class="chart-title" style="margin-bottom:12px">Acciones</div>
             <div style="display:flex;flex-direction:column;gap:10px">
-              <button class="btn-accent" onclick="navigateTo('crear-contrato')">📄 Generar Contrato</button>
-              <button class="btn-outline">💲 Simular Financiamiento</button>
-              <button class="btn-outline">📷 Ver Plano</button>
+              <button class="btn-accent" onclick="navigateTo('crear-contrato')">ðŸ“„ Generar Contrato</button>
+              <button class="btn-outline">ðŸ’² Simular Financiamiento</button>
+              <button class="btn-outline">ðŸ“· Ver Plano</button>
             </div>
           </div>
         </div>
@@ -71,7 +72,6 @@
   <div id="modal-root"></div>
   <script src="../js/core/config.js"></script>
   <script src="../js/utils/helpers.js"></script>
-  <script src="../js/core/permissions.js"></script>
   <script src="../js/core/app.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -83,15 +83,15 @@
         .then(data => {
           const lote = data.find(l => l.id === loteId) || data[0];
           
-          document.getElementById('lote-nombre').textContent = `Lote ${lote.numero || 'N/A'} · ${lote.desarrollo || 'Sin desarrollo'}`;
-          document.getElementById('lote-info').textContent = `ID: L-${lote.id || 'N/A'} · ${lote.medidas || 0} m²`;
+          document.getElementById('lote-nombre').textContent = `Lote ${lote.numero || 'N/A'} Â· ${lote.desarrollo || 'Sin desarrollo'}`;
+          document.getElementById('lote-info').textContent = `ID: L-${lote.id || 'N/A'} Â· ${lote.medidas || 0} mÂ²`;
 
           const detalle = document.getElementById('lote-detalle');
           detalle.innerHTML = `
             <div class="detail-row"><span class="dr-label">ID Lote</span><span class="dr-value">${lote.id || 'N/A'}</span></div>
             <div class="detail-row"><span class="dr-label">Desarrollo</span><span class="dr-value">${lote.desarrollo || 'N/A'}</span></div>
             <div class="detail-row"><span class="dr-label">Número</span><span class="dr-value">${lote.numero || 'N/A'}</span></div>
-            <div class="detail-row"><span class="dr-label">Superficie</span><span class="dr-value">${lote.medidas || 0} m²</span></div>
+            <div class="detail-row"><span class="dr-label">Superficie</span><span class="dr-value">${lote.medidas || 0} mÂ²</span></div>
             <div class="detail-row"><span class="dr-label">Precio de Lista</span><span class="dr-value">$${new Intl.NumberFormat('es-MX').format(lote.precio || 0)}</span></div>
             <div class="detail-row"><span class="dr-label">Estatus</span><span class="dr-value"><span class="chip ${lote.estatus === 'Disponible' ? 'chip-green' : lote.estatus === 'Vendido' ? 'chip-red' : 'chip-warn'}">${lote.estatus || 'Desconocido'}</span></span></div>
           `;
@@ -101,5 +101,6 @@
         });
     });
   </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>

@@ -46,6 +46,9 @@ function fetchApi(url, options) {
   options = options || {};
   options.headers = options.headers || {};
   options.headers['Content-Type'] = 'application/json';
+  if (options.body && typeof options.body === 'object') {
+    options.body = JSON.stringify(options.body);
+  }
   
   return fetch(API_URL + url, options)
     .then(function(response) {

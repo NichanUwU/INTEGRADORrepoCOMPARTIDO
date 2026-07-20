@@ -1,0 +1,113 @@
+/* ============================================================
+   SOFI · COMPONENTES DE DOMINIO
+   (timeline de pagos, mapa de lotes, ranking, simulador,
+    tarjetas de desarrollo, cargador de documentos)
+   ============================================================ */
+
+/* ---- TIMELINE DE PAGOS ---- */
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.tl-item { display: flex; gap: 14px; position: relative; padding-bottom: 20px; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--c-accent); flex-shrink: 0; margin-top: 4px;
+  position: relative; z-index: 1;
+}
+.tl-dot.paid    { background: var(--c-accent); }
+.tl-dot.pending { background: var(--c-warn); }
+.tl-dot.late    { background: var(--c-error); }
+.tl-line { position: absolute; left: 5px; top: 12px; bottom: 0; width: 2px; background: var(--c-border); }
+.tl-content { flex: 1; min-width: 0; }
+.tl-label { font-size: 13px; font-weight: 600; color: var(--c-primary); }
+.tl-meta { font-size: 11px; color: var(--c-muted); }
+
+/* ---- MAPA DE LOTES ---- */
+.lot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; }
+.lot-cell {
+  height: 64px; border-radius: 6px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; cursor: pointer; transition: .15s;
+  border: 2px solid transparent;
+}
+.lot-cell.available { background: #E8F7E8; color: #2E7D32; border-color: #A5D6A7; }
+.lot-cell.sold       { background: #FDECEA; color: #C62828; border-color: #EF9A9A; }
+.lot-cell.reserved   { background: #FFF3E0; color: #E65100; border-color: #FFCC80; }
+.lot-cell:hover { transform: scale(1.04); }
+.lot-cell:focus-visible { outline-offset: 0; }
+
+.lot-legend { display: flex; gap: 16px; font-size: 12px; color: var(--c-muted); margin-bottom: 12px; flex-wrap: wrap; }
+.lot-legend .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; margin-right: 4px; vertical-align: -1px; }
+
+/* ---- RANKING ---- */
+.ranking-list { display: flex; flex-direction: column; gap: 10px; }
+.ranking-item {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--c-light-bg); border-radius: var(--radius); padding: 10px 14px;
+}
+.rank-num {
+  font-family: var(--font-display); font-size: 20px; font-weight: 700;
+  color: var(--c-accent); width: 28px; text-align: center; flex-shrink: 0;
+}
+.rank-bar { flex: 1; height: 6px; background: var(--c-border); border-radius: 3px; overflow: hidden; min-width: 60px; }
+.rank-bar-fill { height: 100%; background: var(--c-accent); border-radius: 3px; }
+.rank-name { font-size: 13px; font-weight: 600; color: var(--c-primary); min-width: 110px; }
+.rank-value { font-size: 12px; color: var(--c-muted); flex-shrink: 0; }
+
+/* ---- SIMULADOR DE FINANCIAMIENTO ---- */
+.sim-result {
+  background: var(--c-light-bg); border-radius: var(--radius); padding: 16px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px;
+}
+.sim-item { display: flex; flex-direction: column; gap: 2px; }
+.sim-label { font-size: 11px; color: var(--c-muted); }
+.sim-val { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--c-primary); }
+
+/* ---- TARJETAS DE DESARROLLO ---- */
+.dev-map { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.dev-card {
+  background: var(--c-white); border-radius: var(--radius); box-shadow: var(--shadow);
+  overflow: hidden; cursor: pointer; transition: .2s;
+}
+.dev-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(15,59,92,.15); }
+.dev-card-thumb {
+  height: 100px;
+  background: linear-gradient(135deg, var(--c-primary), #1a5a8a);
+  display: flex; align-items: center; justify-content: center; font-size: 32px;
+}
+.dev-card-body { padding: 12px; }
+.dev-card-name { font-size: 14px; font-weight: 600; color: var(--c-primary); }
+.dev-card-meta { font-size: 11px; color: var(--c-muted); margin-top: 2px; }
+.dev-card-stats { display: flex; gap: 8px; margin-top: 8px; }
+.dev-stat {
+  display: flex; flex-direction: column; gap: 2px; flex: 1; align-items: center;
+  background: var(--c-light-bg); border-radius: 4px; padding: 5px;
+}
+.dev-stat-num { font-size: 14px; font-weight: 700; color: var(--c-primary); }
+.dev-stat-label { font-size: 9px; color: var(--c-muted); text-transform: uppercase; }
+
+/* ---- CARGADOR DE DOCUMENTOS ---- */
+.doc-zone {
+  border: 2px dashed var(--c-border); border-radius: var(--radius);
+  padding: 28px; text-align: center; background: var(--c-light-bg);
+  cursor: pointer; transition: .2s;
+}
+.doc-zone:hover { border-color: var(--c-accent); }
+.doc-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.doc-item {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--c-white); border: 1px solid var(--c-border);
+  border-radius: var(--radius); padding: 10px 14px;
+}
+.doc-icon { font-size: 20px; flex-shrink: 0; }
+.doc-name { font-size: 13px; color: var(--c-primary); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.doc-size { font-size: 11px; color: var(--c-muted); flex-shrink: 0; }
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 900px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .two-col, .three-col, .dev-map { grid-template-columns: 1fr; }
+  .sim-result { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+}
