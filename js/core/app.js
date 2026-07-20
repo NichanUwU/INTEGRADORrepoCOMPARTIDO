@@ -107,6 +107,33 @@
     user: null
   };
 
+  const permissions = window.SOFI_PERMISSIONS || null;
+
+  function getCurrentUserRole() {
+    return utils.getRole(state.user || getUserFromStorage());
+  }
+
+  function canPerformAction(action) {
+    if (permissions && typeof permissions.canPerformAction === 'function') {
+      return permissions.canPerformAction(getCurrentUserRole(), action);
+    }
+    return true;
+  }
+
+  function setVisibility(id, visible) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = visible ? '' : 'none';
+  }
+
+  function applyActionPermissions() {
+    setVisibility('btn-crear-cliente', canPerformAction('crear_cliente'));
+    setVisibility('btn-crear-contrato', canPerformAction('crear_contrato'));
+    setVisibility('btn-crear-lote', canPerformAction('crear_lote'));
+    setVisibility('btn-crear-desarrollo', canPerformAction('crear_desarrollo'));
+    setVisibility('btn-crear-usuario', canPerformAction('gestionar_usuarios'));
+  }
+
   // utilidades seguras
   const utils = {
     getElement: (id) => document.getElementById(id),
@@ -196,6 +223,13 @@
         html += '</a>';
       }
       nav.innerHTML = html;
+    },
+
+    isPageAllowed: (role, page) => {
+      if (permissions && typeof permissions.canAccessPage === 'function') {
+        return permissions.canAccessPage(role, page);
+      }
+      return true;
     }
   };
 
@@ -561,8 +595,16 @@
         if (loginScreen) loginScreen.style.display = 'none';
         if (appShell) appShell.style.display = 'flex';
         
+        const role = utils.getRole(user);
+        if (!navigation.isPageAllowed(role, page)) {
+          toast.show('No tienes permiso para acceder a esta sección', 'error');
+          window.location.href = 'dashboard.html';
+          return;
+        }
+
         state.user = user;
         uiUpdater.updateShell(user);
+        applyActionPermissions();
         pageLoader.loadPage(page);
       }
     }
@@ -577,6 +619,9 @@
   window.showModal = modal.show;
   window.closeModal = modal.close;
   window.marcarLeidas = alerts.markAsRead;
+  window.canPerformAction = canPerformAction;
+  window.getCurrentUserRole = getCurrentUserRole;
+  window.applyActionPermissions = applyActionPermissions;
   window.showToast = toast.show;
   window.abrirModal = modal.open;
   window.cerrarModal = modal.closeGeneric;

@@ -2,6 +2,8 @@ package com.sofi.controllers;
 
 import io.javalin.http.Context;
 import com.sofi.database.DatabaseConnection;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +11,21 @@ import java.util.Map;
 // En producción usar BCrypt, para escuela usamos SHA-256
 // NOTA: En un proyecto real, usar BCryptPasswordEncoder
 public class UsuarioController {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    private static Map<String, String> parseBody(Context ctx) {
+        try {
+            Map<String, Object> rawBody = OBJECT_MAPPER.readValue(ctx.body(), new TypeReference<Map<String, Object>>() {});
+            Map<String, String> normalizedBody = new HashMap<>();
+            for (Map.Entry<String, Object> entry : rawBody.entrySet()) {
+                normalizedBody.put(entry.getKey(), entry.getValue() == null ? "" : String.valueOf(entry.getValue()));
+            }
+            return normalizedBody;
+        } catch (Exception e) {
+            return new HashMap<>();
+        }
+    }
 
     // Hash simple para demo (en producción usar BCrypt)
     private static String hashPassword(String password) {
@@ -110,7 +127,7 @@ public class UsuarioController {
     }
 
     public static void login(Context ctx) {
-        Map<String, String> body = ctx.bodyAsClass(Map.class);
+        Map<String, String> body = parseBody(ctx);
         String username = obtenerUsername(body);
         String password = obtenerPassword(body);
 
@@ -154,7 +171,7 @@ public class UsuarioController {
 
     // Crear usuario (POST)
     public static void crear(Context ctx) {
-        Map<String, String> body = ctx.bodyAsClass(Map.class);
+        Map<String, String> body = parseBody(ctx);
         String username = body.get("NombreUsuario");
         String password = body.get("Contrasena");
         String rol = body.get("Rol");

@@ -23,6 +23,9 @@ function renderClientes(data) {
     return;
   }
   
+  var canEdit = typeof window.canPerformAction === 'function' ? window.canPerformAction('editar_cliente') : true;
+  var canDelete = typeof window.canPerformAction === 'function' ? window.canPerformAction('eliminar_cliente') : true;
+
   var html = '';
   for (var i = 0; i < data.length; i++) {
     var c = data[i];
@@ -36,8 +39,15 @@ function renderClientes(data) {
     html += '<td style="font-size:12px;font-family:monospace">' + (c.INE || '') + '</td>';
     html += '<td style="font-size:12px;font-family:monospace">' + (c.CURP || '') + '</td>';
     html += '<td style="display:flex;gap:6px;flex-wrap:wrap;">';
-    html += '<button class="btn-outline btn-sm" onclick="abrirModalEditarCliente(' + c.IdCliente + ')">✏ Editar</button>';
-    html += '<button class="btn-danger btn-sm" onclick="eliminarCliente(' + c.IdCliente + ')">🗑 Eliminar</button>';
+    if (canEdit) {
+      html += '<button class="btn-outline btn-sm" onclick="abrirModalEditarCliente(' + c.IdCliente + ')">✏ Editar</button>';
+    }
+    if (canDelete) {
+      html += '<button class="btn-danger btn-sm" onclick="eliminarCliente(' + c.IdCliente + ')">🗑 Eliminar</button>';
+    }
+    if (!canEdit && !canDelete) {
+      html += '<span style="color:var(--c-muted);font-size:12px;">Sin permisos</span>';
+    }
     html += '</td>';
     html += '</tr>';
   }
@@ -48,6 +58,11 @@ function renderClientes(data) {
 }
 
 function guardarClienteModal() {
+  if (!window.canPerformAction || !window.canPerformAction('crear_cliente')) {
+    showToast('No tienes permiso para crear clientes', 'error');
+    return;
+  }
+
   var nombre = document.getElementById('cli-nombre');
   var apellidos = document.getElementById('cli-apellidos');
   var direccion = document.getElementById('cli-direccion');
@@ -94,6 +109,11 @@ function guardarClienteModal() {
 }
 
 function abrirModalEditarCliente(id) {
+  if (!window.canPerformAction || !window.canPerformAction('editar_cliente')) {
+    showToast('No tienes permiso para editar clientes', 'error');
+    return;
+  }
+
   fetchApi('/clientes/' + id)
     .then(function(cliente) {
       document.getElementById('edit-cliente-id').value = cliente.IdCliente;
@@ -115,6 +135,11 @@ function abrirModalEditarCliente(id) {
 }
 
 function actualizarClienteModal() {
+  if (!window.canPerformAction || !window.canPerformAction('editar_cliente')) {
+    showToast('No tienes permiso para actualizar clientes', 'error');
+    return;
+  }
+
   var id = parseInt(document.getElementById('edit-cliente-id').value);
   var nombre = document.getElementById('edit-cli-nombre');
   var apellidos = document.getElementById('edit-cli-apellidos');
@@ -162,6 +187,11 @@ function actualizarClienteModal() {
 }
 
 function eliminarCliente(id) {
+  if (!window.canPerformAction || !window.canPerformAction('eliminar_cliente')) {
+    showToast('No tienes permiso para eliminar clientes', 'error');
+    return;
+  }
+
   if (!confirm('¿Eliminar este cliente?')) return;
   
   fetchApi('/clientes/' + id, {

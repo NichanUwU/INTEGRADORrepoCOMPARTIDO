@@ -4,74 +4,116 @@
    ============================================================ */
 
 function cargarDashboard() {
-  fetch('../json/dashboard-data.json')
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      // KPIs
-      var el = document.getElementById('total-clientes');
-      if (el) el.textContent = (data.kpis && data.kpis.clientes) || 0;
-      el = document.getElementById('total-lotes');
-      if (el) el.textContent = (data.kpis && data.kpis.lotes) || 0;
-      el = document.getElementById('total-contratos');
-      if (el) el.textContent = (data.kpis && data.kpis.contratos) || 0;
-      el = document.getElementById('total-desarrollos');
-      if (el) el.textContent = (data.kpis && data.kpis.desarrollos) || 0;
+  var hostname = window.location.hostname;
+  var apiUrl = window.API_URL || (hostname === '54.208.140.131' ? 'http://54.208.140.131:8080/api' : 'http://localhost:8080/api');
+  
+  // Fetch from API endpoints to get real data
+  Promise.all([
+    fetch(apiUrl + '/clientes').then(r => r.json()).catch(() => []),
+    fetch(apiUrl + '/lotes').then(r => r.json()).catch(() => []),
+    fetch(apiUrl + '/contratos').then(r => r.json()).catch(() => []),
+    fetch(apiUrl + '/desarrollos').then(r => r.json()).catch(() => [])
+  ]).then(function(results) {
+    var clientes = results[0] || [];
+    var lotes = results[1] || [];
+    var contratos = results[2] || [];
+    var desarrollos = results[3] || [];
+    var data = {};
+    
+    // Set KPI counts from API
+    var el = document.getElementById('total-clientes');
+    if (el) el.textContent = clientes.length;
+    el = document.getElementById('total-lotes');
+    if (el) el.textContent = lotes.length;
+    el = document.getElementById('total-contratos');
+    if (el) el.textContent = contratos.length;
+    el = document.getElementById('total-desarrollos');
+    if (el) el.textContent = desarrollos.length;
 
-      el = document.getElementById('trend-clientes');
-      if (el) el.textContent = (data.tendencias && data.tendencias.clientes) || '';
-      el = document.getElementById('trend-lotes');
-      if (el) el.textContent = (data.tendencias && data.tendencias.lotes) || '';
-      el = document.getElementById('trend-contratos');
-      if (el) el.textContent = (data.tendencias && data.tendencias.contratos) || '';
-      el = document.getElementById('trend-desarrollos');
-      if (el) el.textContent = (data.tendencias && data.tendencias.desarrollos) || '';
+    el = document.getElementById('trend-clientes');
+    if (el) el.textContent = '▲ ' + clientes.length + ' registrados';
+    el = document.getElementById('trend-lotes');
+    if (el) el.textContent = '▲ ' + lotes.length + ' lotes';
+    el = document.getElementById('trend-contratos');
+    if (el) el.textContent = '📋 ' + contratos.length + ' contratos';
+    el = document.getElementById('trend-desarrollos');
+    if (el) el.textContent = '🏘 ' + desarrollos.length + ' desarrollos';
 
       // Ranking de Vendedores
       var rankingContainer = document.getElementById('ranking-vendedores');
       if (rankingContainer) {
-        var vendedores = data.vendedores || [];
+        var rankingMap = {};
+        contratos.forEach(function(c) {
+          var vendedor = c.Vendedor || 'Sin vendedor';
+          if (!rankingMap[vendedor]) {
+            rankingMap[vendedor] = { nombre: vendedor, ventas: 0 };
+          }
+          rankingMap[vendedor].ventas += 1;
+        });
+        var rankingList = Object.values(rankingMap).sort(function(a, b) {
+          return b.ventas - a.ventas;
+        }).slice(0, 5);
         var rankingHtml = '';
-        for (var i = 0; i < vendedores.length; i++) {
-          var r = vendedores[i];
+        for (var i = 0; i < rankingList.length; i++) {
+          var r = rankingList[i];
+          var porcentaje = contratos.length ? Math.round((r.ventas / contratos.length) * 100) : 0;
           rankingHtml += '<div class="ranking-item">';
           rankingHtml += '<div class="rank-num">' + (i + 1) + '</div>';
           rankingHtml += '<div class="rank-name">' + r.nombre + '</div>';
-          rankingHtml += '<div class="rank-bar"><div class="rank-bar-fill" style="width:' + r.porcentaje + '%"></div></div>';
+          rankingHtml += '<div class="rank-bar"><div class="rank-bar-fill" style="width:' + porcentaje + '%"></div></div>';
           rankingHtml += '<div class="rank-value">' + r.ventas + '</div>';
           rankingHtml += '</div>';
         }
-        rankingContainer.innerHTML = rankingHtml;
+        rankingContainer.innerHTML = rankingHtml || '<p>No hay datos de vendedores aún.</p>';
       }
 
       // Mapa de Desarrollos (dashboard)
       var desarrollosContainer = document.getElementById('mapa-desarrollos');
       if (desarrollosContainer) {
-        var desarrollos = data.desarrollos || [];
+        var devStats = {};
+        lotes.forEach(function(l) {
+          var nombre = l.DesarrolloNombre || 'Sin desarrollo';
+          if (!devStats[nombre]) {
+            devStats[nombre] = { nombre: nombre, disponibles: 0, vendidos: 0, reservados: 0 };
+          }
+          if (l.Estado === 'Vendido') devStats[nombre].vendidos += 1;
+          else if (l.Estado === 'Reservado' || l.Estado === 'Apartado') devStats[nombre].reservados += 1;
+          else devStats[nombre].disponibles += 1;
+        });
+        var devList = Object.values(devStats).sort(function(a, b) {
+          return (b.disponibles + b.vendidos + b.reservados) - (a.disponibles + a.vendidos + a.reservados);
+        });
         var devHtml = '';
-        for (var j = 0; j < desarrollos.length; j++) {
-          var d = desarrollos[j];
-          devHtml += '<div class="dev-card" onclick="navigateTo(\'detalle-desarrollo?id=' + d.id + '\')">';
+        for (var j = 0; j < devList.length; j++) {
+          var d = devList[j];
+          devHtml += '<div class="dev-card">';
           devHtml += '<div class="dev-card-thumb">🏠</div>';
           devHtml += '<div class="dev-card-body">';
           devHtml += '<div class="dev-card-name">' + d.nombre + '</div>';
-          devHtml += '<div class="dev-card-meta">📍 ' + d.ubicacion + '</div>';
+          devHtml += '<div class="dev-card-meta">📍 ' + (d.nombre || 'Ubicación no disponible') + '</div>';
           devHtml += '<div class="dev-card-stats">';
           devHtml += '<div class="dev-stat"><div class="dev-stat-num" style="color:var(--c-accent)">' + d.disponibles + '</div><div class="dev-stat-label">Disponibles</div></div>';
           devHtml += '<div class="dev-stat"><div class="dev-stat-num" style="color:var(--c-error)">' + d.vendidos + '</div><div class="dev-stat-label">Vendidos</div></div>';
+          devHtml += '<div class="dev-stat"><div class="dev-stat-num" style="color:var(--c-warn)">' + d.reservados + '</div><div class="dev-stat-label">Reservados</div></div>';
           devHtml += '</div>';
           devHtml += '</div>';
           devHtml += '</div>';
         }
-        desarrollosContainer.innerHTML = devHtml;
+        desarrollosContainer.innerHTML = devHtml || '<p>No hay desarrollos configurados.</p>';
       }
 
       // GRÁFICO DE PASTEL
-      var distData = data.distribucionLotes || { labels: ["Disponibles", "Vendidos", "Reservados"], datos: [150, 80, 30], colors: ["#50A746", "#D94040", "#E09B30"] };
-      var totalDist = 0;
-      for (var k = 0; k < distData.datos.length; k++) {
-        totalDist += distData.datos[k];
-      }
-      var coloresDist = distData.colors || ["#50A746", "#D94040", "#E09B30"];
+      var disponiblesCount = lotes.filter(function(l) { return l.Estado === 'Disponible'; }).length;
+      var vendidosCount = lotes.filter(function(l) { return l.Estado === 'Vendido'; }).length;
+      var reservadosCount = lotes.filter(function(l) { return l.Estado === 'Reservado' || l.Estado === 'Apartado'; }).length;
+      var otrosCount = lotes.length - disponiblesCount - vendidosCount - reservadosCount;
+      var distData = {
+        labels: ["Disponibles", "Vendidos", "Reservados", "Otros"],
+        datos: [disponiblesCount, vendidosCount, reservadosCount, otrosCount],
+        colors: ["#50A746", "#D94040", "#E09B30", "#A9A9A9"]
+      };
+      var totalDist = distData.datos.reduce(function(sum, value) { return sum + value; }, 0);
+      var coloresDist = distData.colors;
 
       var chartPastel = document.getElementById('chart-pastel');
       if (chartPastel && totalDist > 0) {
@@ -115,7 +157,25 @@ function cargarDashboard() {
       }
 
       // GRÁFICO DE ÁREA
-      var areaData = data.clientesVsMorosos || { meses: [], alDia: [], morosos: [] };
+      var monthLabels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+      var monthCounts = Array(12).fill(0);
+      var monthMorosos = Array(12).fill(0);
+      contratos.forEach(function(c) {
+        if (!c.Fecha) return;
+        var parts = c.Fecha.split('-');
+        if (parts.length !== 3) return;
+        var monthIndex = parseInt(parts[1], 10) - 1;
+        if (monthIndex < 0 || monthIndex > 11) return;
+        monthCounts[monthIndex] += 1;
+        if (c.Estatus === 'Vencido' || c.Estatus === 'Atrasado') {
+          monthMorosos[monthIndex] += 1;
+        }
+      });
+      var areaData = {
+        meses: monthLabels,
+        alDia: monthCounts,
+        morosos: monthMorosos
+      };
       var meses = areaData.meses || [];
       var alDia = areaData.alDia || [];
       var morosos = areaData.morosos || [];
@@ -197,7 +257,17 @@ function cargarDashboard() {
       }
 
       // GRÁFICO DE LÍNEA
-      var lineaData = data.ventasMensuales || { meses: [], datos: [] };
+      var monthLineLabels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+      var monthlyLineCounts = Array(12).fill(0);
+      contratos.forEach(function(c) {
+        if (!c.Fecha) return;
+        var parts = c.Fecha.split('-');
+        if (parts.length !== 3) return;
+        var idx = parseInt(parts[1], 10) - 1;
+        if (idx < 0 || idx > 11) return;
+        monthlyLineCounts[idx] += 1;
+      });
+      var lineaData = { meses: monthLineLabels, datos: monthlyLineCounts };
       var mesesLinea = lineaData.meses || [];
       var datosLinea = lineaData.datos || [];
       var maxLinea = 1;
@@ -250,9 +320,10 @@ function cargarDashboard() {
       }
 
       var notif = document.getElementById('notif-count');
-      if (notif) notif.textContent = (data.alertas && data.alertas.length) || 0;
-    })
-    .catch(function() { showToast('Error cargando dashboard', 'error'); });
+      if (notif) notif.textContent = 0;
+    }).catch(function() { 
+      showToast('Error cargando dashboard', 'error'); 
+    });
 }
 
 window.cargarDashboard = cargarDashboard;

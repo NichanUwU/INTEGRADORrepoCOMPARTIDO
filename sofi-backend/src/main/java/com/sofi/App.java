@@ -17,9 +17,34 @@
                 port = 8080;
             }
 
-            Javalin app = Javalin.create().start(port);
+            Javalin app = null;
+            int selectedPort = port;
 
-            System.out.println("HOLA TILIN SOFI iniciado en http://localhost:" + port);
+            for (int candidate = port; candidate <= port + 10; candidate++) {
+                try {
+                    app = Javalin.create().start(candidate);
+                    selectedPort = candidate;
+                    break;
+                } catch (Exception e) {
+                    if (candidate == port + 10) {
+                        throw new RuntimeException("No se pudo iniciar el servidor en ningún puerto disponible", e);
+                    }
+                }
+            }
+
+            System.out.println("HOLA TILIN SOFI iniciado en http://localhost:" + selectedPort);
+
+            app.before(ctx -> {
+                ctx.header("Access-Control-Allow-Origin", "*");
+                ctx.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+                ctx.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
+
+                if (ctx.method().equals("OPTIONS")) {
+                    ctx.status(204).result("");
+                }
+            });
+
+            app.options("/*", ctx -> ctx.status(204));
 
             // AUTENTICACIÓN
             app.post("/api/login", UsuarioController::login);
@@ -57,6 +82,7 @@
             // CONTRATOS
             app.get("/api/contratos", ContratoController::obtenerTodos);
             app.get("/api/contratos/cliente/{clienteId}", ContratoController::obtenerPorCliente);
+            app.get("/api/contratos/{id}", ContratoController::obtenerPorId);
             app.post("/api/contratos", ContratoController::crear);
             app.put("/api/contratos/{id}", ContratoController::actualizar);
             app.delete("/api/contratos/{id}", ContratoController::eliminar);

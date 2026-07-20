@@ -11,18 +11,21 @@ const ROLES = {
 const getApiUrl = () => {
   const hostname = window.location.hostname;
   const isDev = hostname === 'localhost' || hostname === '127.0.0.1';
-  
+  const explicitApiUrl = window.ENV?.API_URL;
+
+  if (explicitApiUrl) {
+    return explicitApiUrl;
+  }
+
   if (isDev) {
     return 'http://localhost:8080/api';
   }
-  
-  // En AWS
-  if (hostname === '54.208.140.131') {
-    return 'http://54.208.140.131:8080/api';
+
+  if (window.location.protocol === 'https:') {
+    return 'https://' + hostname + '/api';
   }
-  
-  // En producción con dominio personalizado
-  return window.ENV?.API_URL || 'https://' + hostname + '/api';
+
+  return 'http://' + hostname + ':8080/api';
 };
 
 // CONFIGURACIÓN DE ROLES

@@ -41,7 +41,7 @@
       <main class="page-content" id="page-content">
         <div class="section-header">
           <div class="section-title">Desarrollos Inmobiliarios</div>
-          <button class="btn-accent" onclick="abrirModal('crear-desarrollo-modal')">Nuevo Desarrollo</button>
+          <button id="btn-crear-desarrollo" class="btn-accent" onclick="abrirModal('crear-desarrollo-modal')">Nuevo Desarrollo</button>
         </div>
         <div id="desarrollos-container" class="desarrollos-grid"></div>
       </main>
@@ -120,6 +120,7 @@
   <div id="modal-root"></div>
   <script src="../js/core/config.js"></script>
   <script src="../js/utils/helpers.js"></script>
+  <script src="../js/core/permissions.js"></script>
   <script src="../js/core/app.js"></script>
   <script src="../js/modules/desarrollos.js"></script>
 </body>

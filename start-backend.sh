@@ -4,8 +4,14 @@
 
 echo "🚀 Iniciando SOFI Backend..."
 
+export DB_URL="jdbc:mysql://54.208.140.131:3306/sofi_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+export DB_USER="sofi"
+export DB_PASSWORD="1234"
+export PORT="8080"
+
 # Detener cualquier instancia anterior
 pkill -f "sofi-backend.*jar" 2>/dev/null || true
+fuser -k 8080/tcp 2>/dev/null || true
 
 # Crear directorio de logs
 mkdir -p logs
