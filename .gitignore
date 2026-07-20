@@ -1,2 +1,3 @@
 target/
 *.class
+sofi2ssh.pem
