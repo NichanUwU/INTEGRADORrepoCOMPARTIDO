@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SOFI · Desarrollos</title>
-  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/styles.css?v=6">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="login-screen" style="display:none"></div>
@@ -29,12 +30,12 @@
     <div class="main-content">
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0">
-          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Desarrollos</span></div>
+          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">?</button>
+          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">•</span><span class="current">Desarrollos</span></div>
         </div>
         <div class="topbar-actions">
-          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
-          <button type="button" class="topbar-btn">⚙ Configuración</button>
+          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')"> Alertas <span class="badge-notif" id="notif-count">0</span></button>
+          <button type="button" class="topbar-btn" onclick="window.location.href='configuracion.html'"> Configuración</button>
         </div>
       </div>
 
@@ -71,7 +72,15 @@
             </select>
           </div>
           <div class="form-group full"><label>Descripción</label>
-            <textarea id="dev-descripcion" rows="3" placeholder="Describe el desarrollo…" style="resize:vertical;"></textarea>
+            <textarea id="dev-descripcion" rows="3" placeholder="Describe el desarrollo..." style="resize:vertical;"></textarea>
+          </div>
+          <div class="form-group"><label>Imagen Representativa</label>
+            <input id="dev-imagen" type="file" accept="image/*">
+            <small style="color:var(--c-muted); font-size:11px;">Recomendado: 800x600 px.</small>
+          </div>
+          <div class="form-group"><label>Plano del Desarrollo</label>
+            <input id="dev-plano" type="file" accept="image/*">
+            <small style="color:var(--c-muted); font-size:11px;">Imagen del plano (alta resolución recomendada).</small>
           </div>
         </div>
         <div class="form-actions">
@@ -106,7 +115,15 @@
             </select>
           </div>
           <div class="form-group full"><label>Descripción</label>
-            <textarea id="edit-dev-descripcion" rows="3" placeholder="Describe el desarrollo…" style="resize:vertical;"></textarea>
+            <textarea id="edit-dev-descripcion" rows="3" style="resize:vertical;"></textarea>
+          </div>
+          <div class="form-group"><label>Imagen Representativa</label>
+            <input id="edit-dev-imagen" type="file" accept="image/*">
+            <small style="color:var(--c-muted); font-size:11px;">Dejar vacío para conservar actual</small>
+          </div>
+          <div class="form-group"><label>Plano del Desarrollo</label>
+            <input id="edit-dev-plano" type="file" accept="image/*">
+            <small style="color:var(--c-muted); font-size:11px;">Dejar vacío para conservar actual</small>
           </div>
         </div>
         <div class="form-actions">
@@ -118,9 +135,11 @@
   </div>
 
   <div id="modal-root"></div>
-  <script src="../js/core/config.js"></script>
+  <script src="../js/core/config.js?v=4"></script>
   <script src="../js/utils/helpers.js"></script>
-  <script src="../js/core/app.js"></script>
+  <script src="../js/core/app.js?v=3"></script>
   <script src="../js/modules/desarrollos.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
+

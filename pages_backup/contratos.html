@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOFI � Contratos</title>
+  <link rel="stylesheet" href="../css/styles.css?v=6">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="login-screen" style="display:none"></div>
+  <div id="app-shell">
+    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()"></div>
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-logo"><div class="sidebar-logo-text">SOFI<span>.</span></div></div>
+      <div class="sidebar-role-badge" id="sb-role-badge"></div>
+      <div class="sidebar-nav" id="sb-nav"></div>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar" id="sb-avatar"></div>
+          <div class="sidebar-user-info">
+            <span class="sidebar-user-name" id="sb-name"></span>
+            <span class="sidebar-user-role" id="sb-role"></span>
+          </div>
+        </div>
+        <button type="button" class="sidebar-logout" onclick="doLogout()">Cerrar sesi�n</button>
+      </div>
+    </nav>
+
+    <div class="main-content">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0">
+          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">?</button>
+          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">�</span><span class="current">Contratos</span></div>
+        </div>
+        <div class="topbar-actions">
+          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')"> Alertas <span class="badge-notif" id="notif-count">0</span></button>
+          <button type="button" class="topbar-btn" onclick="window.location.href='configuracion.html'"> Configuraci�n</button>
+        </div>
+      </div>
+
+      <main class="page-content" id="page-content">
+        <div class="section-header">
+          <div class="section-title">Contratos</div>
+          <button class="btn-accent" onclick="abrirModal('crear-contrato-modal')">Nuevo Contrato</button>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <input id="search-contrato" class="search-input" placeholder="Buscar contrato..." style="max-width:240px" oninput="filtrarContratos()">
+            <select id="filter-contrato-desarrollo" class="filter-select" onchange="filtrarContratos()"><option value="">Todos los Desarrollos</option></select>
+            <select id="filter-contrato-estatus" class="filter-select" onchange="filtrarContratos()">
+              <option value="">Todos los estados</option>
+              <option value="Activo">Activo</option>
+              <option value="Vencido">Vencido</option>
+              <option value="Liquidado">Liquidado</option>
+            </select>
+            <button class="btn-outline btn-sm" style="margin-left:auto;" onclick="if(window.exportCurrentTable) window.exportCurrentTable()">Exportar CSV</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Lote</th>
+                <th>Vendedor</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Tipo Pago</th>
+                <th>Monto</th>
+                <th>Estatus</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-contratos-body"></tbody>
+          </table>
+          <div class="table-pagination">
+            <span id="contratos-paginacion">Cargando...</span>
+            <div style="display:flex;gap:4px" id="contratos-paginas"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL CREAR CONTRATO -->
+  <div id="crear-contrato-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:720px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">Nuevo Contrato</div>
+        <button onclick="cerrarModal('crear-contrato-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <form id="form-crear-contrato" onsubmit="event.preventDefault(); guardarContratoModal();">
+        <div class="form-grid">
+          <div class="form-group"><label>Cliente *</label>
+            <select id="ctr-cliente" required>
+              <option value="">Seleccionar…</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Lote *</label>
+            <select id="ctr-lote" onchange="seleccionarLotePrecio('crear')" required>
+              <option value="">Seleccionar…</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Vendedor *</label>
+            <select id="ctr-vendedor" required>
+              <option value="">Seleccionar…</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Fecha *</label><input id="ctr-fecha" type="date" required></div>
+          <div class="form-group"><label>Hora *</label><input id="ctr-hora" type="time" required></div>
+          <div class="form-group"><label>Tipo de Pago *</label>
+            <select id="ctr-tipopago" onchange="toggleFinanciamientoFields('crear')" required>
+              <option value="">Seleccionar…</option>
+              <option value="Contado">Contado</option>
+              <option value="Parcial">Parcial</option>
+              <option value="Financiamiento">Financiamiento</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Monto Fijo *</label><input id="ctr-monto" type="number" placeholder="0.00" oninput="recalcularMensualidad('crear')" required></div>
+          <div class="form-group financiamiento-field" style="display:none;"><label>Enganche</label><input id="ctr-enganche" type="number" placeholder="0.00" value="0" oninput="recalcularMensualidad('crear')"></div>
+          <div class="form-group financiamiento-field" style="display:none;"><label>Plazo (Meses)</label><input id="ctr-plazo" type="number" placeholder="0" value="0" oninput="recalcularMensualidad('crear')"></div>
+          <div class="form-group financiamiento-field" style="display:none;"><label>Mensualidad</label><input id="ctr-mensualidad" type="number" placeholder="0.00" value="0" readonly></div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('crear-contrato-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Crear Contrato</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR CONTRATO -->
+  <div id="editar-contrato-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:720px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="modal-title">Editar Contrato</div>
+        <button onclick="cerrarModal('editar-contrato-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+      </div>
+      <form id="form-editar-contrato" onsubmit="event.preventDefault(); actualizarContratoModal();">
+        <input type="hidden" id="edit-contrato-id">
+        <div class="form-grid">
+          <div class="form-group"><label>Cliente *</label>
+            <select id="edit-ctr-cliente" required>
+              <option value="">Seleccionar…</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Lote *</label>
+            <select id="edit-ctr-lote" onchange="seleccionarLotePrecio('editar')" required>
+              <option value="">Seleccionar…</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Vendedor *</label>
+            <select id="edit-ctr-vendedor" required>
+              <option value="">Seleccionar…</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Fecha *</label><input id="edit-ctr-fecha" type="date" required></div>
+          <div class="form-group"><label>Hora *</label><input id="edit-ctr-hora" type="time" required></div>
+          <div class="form-group"><label>Tipo de Pago *</label>
+            <select id="edit-ctr-tipopago" onchange="toggleFinanciamientoFields('editar')" required>
+              <option value="">Seleccionar…</option>
+              <option value="Contado">Contado</option>
+              <option value="Parcial">Parcial</option>
+              <option value="Financiamiento">Financiamiento</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Monto Fijo *</label><input id="edit-ctr-monto" type="number" placeholder="0.00" oninput="recalcularMensualidad('editar')" required></div>
+          <div class="form-group edit-financiamiento-field" style="display:none;"><label>Enganche</label><input id="edit-ctr-enganche" type="number" placeholder="0.00" value="0" oninput="recalcularMensualidad('editar')"></div>
+          <div class="form-group edit-financiamiento-field" style="display:none;"><label>Plazo (Meses)</label><input id="edit-ctr-plazo" type="number" placeholder="0" value="0" oninput="recalcularMensualidad('editar')"></div>
+          <div class="form-group edit-financiamiento-field" style="display:none;"><label>Mensualidad</label><input id="edit-ctr-mensualidad" type="number" placeholder="0.00" value="0" readonly></div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="cerrarModal('editar-contrato-modal')">Cancelar</button>
+          <button type="submit" class="btn-accent">Actualizar Contrato</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
+  <script src="../js/core/config.js?v=4"></script>
+  <script src="../js/utils/helpers.js"></script>
+  <script src="../js/core/app.js?v=3"></script>
+  <script src="../js/modules/contratos.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>

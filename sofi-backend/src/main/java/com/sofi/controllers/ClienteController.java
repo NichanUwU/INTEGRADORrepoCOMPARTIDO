@@ -10,15 +10,29 @@ import java.util.Map;
 public class ClienteController {
 
     // GET /api/clientes
+    // Devuelve la lista de clientes y, cuando aplica, el nombre de sus testigos asociados.
     public static void obtenerTodos(Context ctx) {
-        String sql = "SELECT * FROM CLIENTE";
+        String idEmpleadoParam = ctx.queryParam("IdEmpleado");
+        String sql = "SELECT c.*, GROUP_CONCAT(CONCAT(t.Nombre, ' ', t.Apellidos) SEPARATOR ', ') AS TestigoNombre " +
+                     "FROM CLIENTE c " +
+                     "LEFT JOIN TESTIGO t ON c.IdCliente = t.IdCliente";
+        
+        if (idEmpleadoParam != null && !idEmpleadoParam.isEmpty()) {
+            sql += " WHERE c.IdEmpleado = ?";
+        }
+        sql += " GROUP BY c.IdCliente";
+        
         ArrayList<Map<String, Object>> clientes = new ArrayList<>();
 
         try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            while (rs.next()) {
+            if (idEmpleadoParam != null && !idEmpleadoParam.isEmpty()) {
+                pstmt.setInt(1, Integer.parseInt(idEmpleadoParam));
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
                 Map<String, Object> cliente = new HashMap<>();
                 cliente.put("IdCliente", rs.getInt("IdCliente"));
                 cliente.put("Nombre", rs.getString("Nombre"));
@@ -33,9 +47,12 @@ public class ClienteController {
                 cliente.put("INE", rs.getString("INE"));
                 cliente.put("CURP", rs.getString("CURP"));
                 cliente.put("Estatus", rs.getString("Estatus"));
+                cliente.put("IdEmpleado", rs.getInt("IdEmpleado"));
+                cliente.put("TestigoNombre", rs.getString("TestigoNombre"));
                 clientes.add(cliente);
             }
             ctx.json(clientes);
+            } // CIERRE DEL INNER TRY (ResultSet)
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
@@ -69,9 +86,12 @@ public class ClienteController {
                     cliente.put("INE", rs.getString("INE"));
                     cliente.put("CURP", rs.getString("CURP"));
                     cliente.put("Estatus", rs.getString("Estatus"));
+                    cliente.put("IdEmpleado", rs.getInt("IdEmpleado"));
                     ctx.json(cliente);
                 } else {
-                    ctx.status(404).json("Cliente no encontrado");
+                    Map<String, Object> resp = new HashMap<>();
+                    resp.put("error", "Cliente no encontrado");
+                    ctx.status(404).json(resp);
                 }
             }
         } catch (Exception e) {
@@ -83,23 +103,30 @@ public class ClienteController {
 
     // POST /api/clientes
     public static void crear(Context ctx) {
-        Map<String, String> body = ctx.bodyAsClass(Map.class);
-        String sql = "INSERT INTO CLIENTE (Nombre, Apellidos, Direccion, Casa_Apartamento, Codigo_Postal, Ciudad, Estado, Telefono, Email, INE, CURP) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        Map<String, Object> bodyObj = ctx.bodyAsClass(Map.class); Map<String, String> body = new java.util.HashMap<>(); if(bodyObj != null) { for(Map.Entry<String, Object> e : bodyObj.entrySet()) { if(e.getValue() != null) body.put(e.getKey(), String.valueOf(e.getValue())); } }
+        String sql = "INSERT INTO CLIENTE (Nombre, Apellidos, Direccion, Casa_Apartamento, Codigo_Postal, Ciudad, Estado, Telefono, Email, INE, CURP, IdEmpleado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, body.get("Nombre"));
             pstmt.setString(2, body.get("Apellidos"));
-            pstmt.setString(3, body.get("Direccion"));
+            pstmt.setString(3, body.get("Direccion") != null ? body.get("Direccion") : body.get("Dirección"));
             pstmt.setString(4, body.get("Casa_Apartamento"));
             pstmt.setString(5, body.get("Codigo_Postal"));
             pstmt.setString(6, body.get("Ciudad"));
             pstmt.setString(7, body.get("Estado"));
-            pstmt.setString(8, body.get("Telefono"));
+            pstmt.setString(8, body.get("Telefono") != null ? body.get("Telefono") : body.get("Teléfono"));
             pstmt.setString(9, body.get("Email"));
             pstmt.setString(10, body.get("INE"));
             pstmt.setString(11, body.get("CURP"));
+            
+            String idEmpleado = body.get("IdEmpleado");
+            if (idEmpleado != null && !idEmpleado.isEmpty()) {
+                pstmt.setInt(12, Integer.parseInt(idEmpleado));
+            } else {
+                pstmt.setNull(12, java.sql.Types.INTEGER);
+            }
 
             pstmt.executeUpdate();
             Map<String, Object> response = new HashMap<>();
@@ -116,7 +143,7 @@ public class ClienteController {
     // PUT /api/clientes/{id}
     public static void actualizar(Context ctx) {
         int id = Integer.parseInt(ctx.pathParam("id"));
-        Map<String, String> body = ctx.bodyAsClass(Map.class);
+        Map<String, Object> bodyObj = ctx.bodyAsClass(Map.class); Map<String, String> body = new java.util.HashMap<>(); if(bodyObj != null) { for(Map.Entry<String, Object> e : bodyObj.entrySet()) { if(e.getValue() != null) body.put(e.getKey(), String.valueOf(e.getValue())); } }
         String sql = "UPDATE CLIENTE SET Nombre=?, Apellidos=?, Direccion=?, Casa_Apartamento=?, Codigo_Postal=?, Ciudad=?, Estado=?, Telefono=?, Email=?, INE=?, CURP=?, Estatus=? WHERE IdCliente=?";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -124,12 +151,12 @@ public class ClienteController {
 
             pstmt.setString(1, body.get("Nombre"));
             pstmt.setString(2, body.get("Apellidos"));
-            pstmt.setString(3, body.get("Direccion"));
+            pstmt.setString(3, body.get("Direccion") != null ? body.get("Direccion") : body.get("Dirección"));
             pstmt.setString(4, body.get("Casa_Apartamento"));
             pstmt.setString(5, body.get("Codigo_Postal"));
             pstmt.setString(6, body.get("Ciudad"));
             pstmt.setString(7, body.get("Estado"));
-            pstmt.setString(8, body.get("Telefono"));
+            pstmt.setString(8, body.get("Telefono") != null ? body.get("Telefono") : body.get("Teléfono"));
             pstmt.setString(9, body.get("Email"));
             pstmt.setString(10, body.get("INE"));
             pstmt.setString(11, body.get("CURP"));
@@ -137,7 +164,9 @@ public class ClienteController {
             pstmt.setInt(13, id);
 
             pstmt.executeUpdate();
-            ctx.json("Cliente actualizado con éxito");
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("mensaje", "Cliente actualizado con éxito");
+            ctx.json(resp);
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
@@ -156,7 +185,9 @@ public class ClienteController {
 
             pstmt.setInt(1, id);
             pstmt.executeUpdate();
-            ctx.json("Cliente eliminado con éxito");
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("mensaje", "Cliente eliminado con éxito");
+            ctx.json(resp);
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
@@ -165,3 +196,4 @@ public class ClienteController {
         }
     }
 }
+

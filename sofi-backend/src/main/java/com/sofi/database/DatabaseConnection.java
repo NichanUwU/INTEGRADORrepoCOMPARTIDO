@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
+    // Valores por defecto de desarrollo; en producción conviene sobrescribirlos con variables de entorno.
     private static final String URL = System.getenv().getOrDefault("DB_URL", "jdbc:mysql://localhost:3306/sofi_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC");
     private static final String USER = System.getenv().getOrDefault("DB_USER", "sofi");
     private static final String PASSWORD = System.getenv().getOrDefault("DB_PASSWORD", "1234");

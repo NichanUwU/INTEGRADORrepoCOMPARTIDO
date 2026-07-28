@@ -11,6 +11,8 @@ CREATE TABLE DESARROLLO (
     Descripcion TEXT,
     Estatus ENUM('Activo', 'Preventa', 'Cerrado') DEFAULT 'Activo',
     Fecha_inicio DATE,
+    ImagenBase64 LONGTEXT,
+    PlanoBase64 LONGTEXT,
     Fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     Fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_estatus (Estatus),
@@ -53,6 +55,10 @@ CREATE TABLE COLINDANCIA (
     Sur VARCHAR(255),
     Este VARCHAR(255),
     Oeste VARCHAR(255),
+    MedidaNorte VARCHAR(50),
+    MedidaSur VARCHAR(50),
+    MedidaEste VARCHAR(50),
+    MedidaOeste VARCHAR(50),
     IdLote INT NOT NULL UNIQUE,
     CONSTRAINT fk_colindancia_lote 
         FOREIGN KEY (IdLote) REFERENCES LOTE(IdLote)

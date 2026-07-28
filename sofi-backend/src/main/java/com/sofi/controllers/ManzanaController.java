@@ -55,7 +55,9 @@ public class ManzanaController {
                     manzana.put("DesarrolloNombre", rs.getString("DesarrolloNombre"));
                     ctx.json(manzana);
                 } else {
-                    ctx.status(404).json("Manzana no encontrada");
+                    Map<String, Object> resp = new HashMap<>();
+                    resp.put("error", "Manzana no encontrada");
+                    ctx.status(404).json(resp);
                 }
             }
         } catch (Exception e) {
@@ -95,13 +97,14 @@ public class ManzanaController {
 
     // POST /api/manzanas
     public static void crear(Context ctx) {
-        Map<String, String> body = ctx.bodyAsClass(Map.class);
+        Map<String, Object> bodyObj = ctx.bodyAsClass(Map.class); Map<String, String> body = new java.util.HashMap<>(); if(bodyObj != null) { for(Map.Entry<String, Object> e : bodyObj.entrySet()) { if(e.getValue() != null) body.put(e.getKey(), String.valueOf(e.getValue())); } }
         String sql = "INSERT INTO MANZANA (Numero, Calles_Colindantes, IdDesarrollo) VALUES (?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, Integer.parseInt(body.get("Numero")));
+            String numStr = body.get("Numero") != null ? body.get("Numero") : body.get("Número");
+            pstmt.setInt(1, Integer.parseInt(numStr));
             pstmt.setString(2, body.get("Calles_Colindantes"));
             pstmt.setInt(3, Integer.parseInt(body.get("IdDesarrollo")));
 
@@ -120,19 +123,22 @@ public class ManzanaController {
     // PUT /api/manzanas/{id}
     public static void actualizar(Context ctx) {
         int id = Integer.parseInt(ctx.pathParam("id"));
-        Map<String, String> body = ctx.bodyAsClass(Map.class);
+        Map<String, Object> bodyObj = ctx.bodyAsClass(Map.class); Map<String, String> body = new java.util.HashMap<>(); if(bodyObj != null) { for(Map.Entry<String, Object> e : bodyObj.entrySet()) { if(e.getValue() != null) body.put(e.getKey(), String.valueOf(e.getValue())); } }
         String sql = "UPDATE MANZANA SET Numero=?, Calles_Colindantes=?, IdDesarrollo=? WHERE IdManzana=?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, Integer.parseInt(body.get("Numero")));
+            String numStr = body.get("Numero") != null ? body.get("Numero") : body.get("Número");
+            pstmt.setInt(1, Integer.parseInt(numStr));
             pstmt.setString(2, body.get("Calles_Colindantes"));
             pstmt.setInt(3, Integer.parseInt(body.get("IdDesarrollo")));
             pstmt.setInt(4, id);
 
             pstmt.executeUpdate();
-            ctx.json("Manzana actualizada con éxito");
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("mensaje", "Manzana actualizada con éxito");
+            ctx.json(resp);
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
@@ -151,7 +157,9 @@ public class ManzanaController {
 
             pstmt.setInt(1, id);
             pstmt.executeUpdate();
-            ctx.json("Manzana eliminada con éxito");
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("mensaje", "Manzana eliminada con éxito");
+            ctx.json(resp);
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
@@ -160,3 +168,4 @@ public class ManzanaController {
         }
     }
 }
+

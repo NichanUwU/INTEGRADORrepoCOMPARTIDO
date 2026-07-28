@@ -1,12 +1,12 @@
-# 🎯 SOFI - Guía Rápida de Despliegue en AWS
+# SOFI - Guía Rápida de Despliegue en AWS
 
 Tu instancia está lista en: **54.208.140.131**
 
 ---
 
-## ⚡ LO MÁS RÁPIDO (3 pasos)
+## LO MÁS RÁPIDO (3 pasos)
 
-### 1️⃣ Desde tu máquina - Compilar y transferir
+### 1 Desde tu máquina - Compilar y transferir
 
 ```bash
 # Ir a la carpeta del proyecto
@@ -19,7 +19,7 @@ bash prepare-deploy.sh
 scp -r -i /ruta/a/tu/key.pem . ubuntu@54.208.140.131:~/integrador/SofiIntegrador
 ```
 
-### 2️⃣ En la instancia - Instalar y arrancar
+### 2 En la instancia - Instalar y arrancar
 
 ```bash
 # Conectar a la instancia
@@ -33,7 +33,7 @@ cd ~/integrador/SofiIntegrador
 bash start-backend.sh
 ```
 
-### 3️⃣ En otra terminal SSH - Servir el frontend
+### 3 En otra terminal SSH - Servir el frontend
 
 ```bash
 ssh -i /ruta/a/tu/key.pem ubuntu@54.208.140.131
@@ -51,9 +51,9 @@ python3 -m http.server 80
 ## 📝 URLs finales
 
 ```
-🌐 Frontend:  http://54.208.140.131
-🔌 API:       http://54.208.140.131:8080/api
-📊 Datos:     sofi_db en MySQL (localhost:3306)
+Frontend:  http://54.208.140.131
+API:       http://54.208.140.131:8080/api
+Datos:     sofi_db en MySQL (localhost:3306)
 ```
 
 ---
@@ -120,4 +120,4 @@ pkill -f "sofi-backend.*jar"
 
 ---
 
-**¡Listo para desplegar! 🚀**
+**¡Listo para desplegar!**

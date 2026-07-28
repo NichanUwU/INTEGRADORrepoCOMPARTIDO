@@ -11,10 +11,12 @@ public class LoteController {
 
     // GET /api/lotes
     public static void obtenerTodos(Context ctx) {
-        String sql = "SELECT l.*, m.Numero AS ManzanaNumero, d.Nombre AS DesarrolloNombre " +
+        String sql = "SELECT l.*, m.Numero AS ManzanaNumero, d.Nombre AS DesarrolloNombre, " +
+                     "c.Norte, c.Sur, c.Este, c.Oeste, c.MedidaNorte, c.MedidaSur, c.MedidaEste, c.MedidaOeste " +
                      "FROM LOTE l " +
                      "JOIN MANZANA m ON l.IdManzana = m.IdManzana " +
-                     "JOIN DESARROLLO d ON m.IdDesarrollo = d.IdDesarrollo";
+                     "JOIN DESARROLLO d ON m.IdDesarrollo = d.IdDesarrollo " +
+                     "LEFT JOIN COLINDANCIA c ON l.IdLote = c.IdLote";
         ArrayList<Map<String, Object>> lotes = new ArrayList<>();
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -31,6 +33,14 @@ public class LoteController {
                 lote.put("IdManzana", rs.getInt("IdManzana"));
                 lote.put("ManzanaNumero", rs.getInt("ManzanaNumero"));
                 lote.put("DesarrolloNombre", rs.getString("DesarrolloNombre"));
+                lote.put("Norte", rs.getString("Norte") != null ? rs.getString("Norte") : "");
+                lote.put("Sur", rs.getString("Sur") != null ? rs.getString("Sur") : "");
+                lote.put("Este", rs.getString("Este") != null ? rs.getString("Este") : "");
+                lote.put("Oeste", rs.getString("Oeste") != null ? rs.getString("Oeste") : "");
+                lote.put("MedidaNorte", rs.getString("MedidaNorte") != null ? rs.getString("MedidaNorte") : "");
+                lote.put("MedidaSur", rs.getString("MedidaSur") != null ? rs.getString("MedidaSur") : "");
+                lote.put("MedidaEste", rs.getString("MedidaEste") != null ? rs.getString("MedidaEste") : "");
+                lote.put("MedidaOeste", rs.getString("MedidaOeste") != null ? rs.getString("MedidaOeste") : "");
                 lotes.add(lote);
             }
             ctx.json(lotes);
@@ -45,10 +55,12 @@ public class LoteController {
     // GET /api/lotes/{id}
     public static void obtenerPorId(Context ctx) {
         int id = Integer.parseInt(ctx.pathParam("id"));
-        String sql = "SELECT l.*, m.Numero AS ManzanaNumero, d.Nombre AS DesarrolloNombre " +
+        String sql = "SELECT l.*, m.Numero AS ManzanaNumero, d.Nombre AS DesarrolloNombre, " +
+                     "c.Norte, c.Sur, c.Este, c.Oeste, c.MedidaNorte, c.MedidaSur, c.MedidaEste, c.MedidaOeste " +
                      "FROM LOTE l " +
                      "JOIN MANZANA m ON l.IdManzana = m.IdManzana " +
                      "JOIN DESARROLLO d ON m.IdDesarrollo = d.IdDesarrollo " +
+                     "LEFT JOIN COLINDANCIA c ON l.IdLote = c.IdLote " +
                      "WHERE l.IdLote = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -66,9 +78,19 @@ public class LoteController {
                     lote.put("IdManzana", rs.getInt("IdManzana"));
                     lote.put("ManzanaNumero", rs.getInt("ManzanaNumero"));
                     lote.put("DesarrolloNombre", rs.getString("DesarrolloNombre"));
+                    lote.put("Norte", rs.getString("Norte") != null ? rs.getString("Norte") : "");
+                    lote.put("Sur", rs.getString("Sur") != null ? rs.getString("Sur") : "");
+                    lote.put("Este", rs.getString("Este") != null ? rs.getString("Este") : "");
+                    lote.put("Oeste", rs.getString("Oeste") != null ? rs.getString("Oeste") : "");
+                    lote.put("MedidaNorte", rs.getString("MedidaNorte") != null ? rs.getString("MedidaNorte") : "");
+                    lote.put("MedidaSur", rs.getString("MedidaSur") != null ? rs.getString("MedidaSur") : "");
+                    lote.put("MedidaEste", rs.getString("MedidaEste") != null ? rs.getString("MedidaEste") : "");
+                    lote.put("MedidaOeste", rs.getString("MedidaOeste") != null ? rs.getString("MedidaOeste") : "");
                     ctx.json(lote);
                 } else {
-                    ctx.status(404).json("Lote no encontrado");
+                    Map<String, Object> resp = new HashMap<>();
+                    resp.put("error", "Lote no encontrado");
+                    ctx.status(404).json(resp);
                 }
             }
         } catch (Exception e) {
@@ -84,17 +106,25 @@ public class LoteController {
         String sql = "INSERT INTO LOTE (Numero, Medidas, Precio, Estado, IdManzana) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            pstmt.setString(1, body.get("Numero").toString()); // VARCHAR
-            pstmt.setString(2, body.get("Medidas").toString());
-            pstmt.setBigDecimal(3, new java.math.BigDecimal(body.get("Precio").toString()));
-            pstmt.setString(4, body.get("Estado") != null ? body.get("Estado").toString() : "Disponible");
-            pstmt.setInt(5, Integer.parseInt(body.get("IdManzana").toString()));
+            Object numVal = body.get("Numero") != null ? body.get("Numero") : body.get("Número");
+            pstmt.setString(1, numVal != null ? String.valueOf(numVal) : "");
+            pstmt.setString(2, String.valueOf(body.get("Medidas")));
+            pstmt.setBigDecimal(3, new java.math.BigDecimal(String.valueOf(body.get("Precio"))));
+            pstmt.setString(4, body.get("Estado") != null ? String.valueOf(body.get("Estado")) : "Disponible");
+            pstmt.setInt(5, Integer.parseInt(String.valueOf(body.get("IdManzana"))));
 
             pstmt.executeUpdate();
             Map<String, Object> response = new HashMap<>();
-            response.put("mensaje", "Lote registrado con éxito");
+            
+            try (java.sql.ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    response.put("IdLote", generatedKeys.getInt(1));
+                }
+            }
+            
+            response.put("mensaje", "Lote creado con éxito");
             ctx.status(201).json(response);
 
         } catch (Exception e) {
@@ -113,15 +143,18 @@ public class LoteController {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, body.get("Numero").toString());
-            pstmt.setString(2, body.get("Medidas").toString());
-            pstmt.setBigDecimal(3, new java.math.BigDecimal(body.get("Precio").toString()));
-            pstmt.setString(4, body.get("Estado").toString());
-            pstmt.setInt(5, Integer.parseInt(body.get("IdManzana").toString()));
+            Object numVal = body.get("Numero") != null ? body.get("Numero") : body.get("Número");
+            pstmt.setString(1, numVal != null ? String.valueOf(numVal) : "");
+            pstmt.setString(2, String.valueOf(body.get("Medidas")));
+            pstmt.setBigDecimal(3, new java.math.BigDecimal(String.valueOf(body.get("Precio"))));
+            pstmt.setString(4, String.valueOf(body.get("Estado")));
+            pstmt.setInt(5, Integer.parseInt(String.valueOf(body.get("IdManzana"))));
             pstmt.setInt(6, id);
 
             pstmt.executeUpdate();
-            ctx.json("Lote actualizado con éxito");
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("mensaje", "Lote actualizado con éxito");
+            ctx.json(resp);
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
@@ -140,7 +173,9 @@ public class LoteController {
 
             pstmt.setInt(1, id);
             pstmt.executeUpdate();
-            ctx.json("Lote eliminado con éxito");
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("mensaje", "Lote eliminado con éxito");
+            ctx.json(resp);
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
