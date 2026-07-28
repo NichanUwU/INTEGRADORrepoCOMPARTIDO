@@ -33,11 +33,10 @@
       { id: 'clientes', href: 'clientes.html', icon: '👥', label: 'Clientes' },
       { id: 'contratos', href: 'contratos.html', icon: '📄', label: 'Contratos' },
       { id: 'flujo', href: 'flujo.html', icon: '💰', label: 'Flujo' },
-      { id: 'empleados', href: 'empleados.html', icon: '📇', label: 'Empleados' },
       { id: 'usuarios', href: 'usuarios.html', icon: '👤', label: 'Usuarios' }
     ],
     vendedor: [
-      { id: 'dashboard', href: 'dashboard_vendedor.html', icon: '📊', label: 'Dashboard' },
+      { id: 'dashboard', href: 'dashboard.html', icon: '📊', label: 'Dashboard' },
       { id: 'clientes', href: 'clientes.html', icon: '👥', label: 'Clientes' },
       { id: 'contratos', href: 'contratos.html', icon: '📄', label: 'Contratos' },
       { id: 'lotes', href: 'lotes.html', icon: '🗂', label: 'Lotes' }
@@ -135,37 +134,6 @@
       if (!utils.isObject(user)) return CONFIG.defaultRole;
       const role = user.role || user.Rol || CONFIG.defaultRole;
       return String(role).toLowerCase();
-    },
-
-    exportToCSV: (data, filename) => {
-      if (!data || !data.length) {
-        toast.show('No hay datos para exportar', 'warn');
-        return;
-      }
-      
-      const keys = Object.keys(data[0]);
-      let csvContent = keys.join(',') + '\n';
-      
-      data.forEach(row => {
-        let values = keys.map(k => {
-          let val = row[k] === null || row[k] === undefined ? '' : row[k].toString();
-          val = val.replace(/"/g, '""');
-          if (val.search(/("|,|\n)/g) >= 0) {
-            val = `"${val}"`;
-          }
-          return val;
-        });
-        csvContent += values.join(',') + '\n';
-      });
-      
-      const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.setAttribute('download', filename || 'export.csv');
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast.show('Archivo CSV exportado exitosamente', 'success');
     }
   };
 
@@ -206,16 +174,9 @@
     },
 
     navigateTo: (page) => {
-      let baseUrl = page;
-      let query = '';
-      if (page.includes('?')) {
-        const parts = page.split('?');
-        baseUrl = parts[0];
-        query = '?' + parts[1];
-      }
       const current = navigation.getCurrentPage();
-      if (baseUrl === current && !query) return;
-      window.location.href = baseUrl + '.html' + query;
+      if (page === current) return;
+      window.location.href = page + '.html';
     },
 
     renderNav: (role) => {
@@ -280,14 +241,6 @@
           const page = navigation.getCurrentPage();
           current.textContent = pageLabels[page] || 'Inicio';
         }
-      }
-
-      // Hide creation buttons for Asistente
-      if (role === 'asistente') {
-          const createBtns = document.querySelectorAll('.section-header .btn-accent');
-          for(let i = 0; i < createBtns.length; i++) {
-              createBtns[i].style.display = 'none';
-          }
       }
 
       navigation.renderNav(role);
@@ -500,7 +453,6 @@
         // ✅ GUARDAR DATOS DEL USUARIO (NOMBRE DESDE BD)
         const userData = {
           id: data.IdUsuario,
-          IdEmpleado: data.IdEmpleado, // Recuperamos el IdEmpleado del backend
           username: data.NombreUsuario,
           role: (data.Rol || 'directivo').toLowerCase(),
           nombre: data.Nombre || '',
@@ -510,11 +462,7 @@
         };
         
         saveUserToStorage(userData);
-        if (userData.role === 'vendedor') {
-          window.location.href = 'dashboard_vendedor.html';
-        } else {
-          window.location.href = 'dashboard.html';
-        }
+        window.location.href = 'dashboard.html';
       })
       .catch((err) => {
         console.error('Login error:', err);
@@ -533,33 +481,6 @@
 
   // sistema de alertas
   const alerts = {
-    injectModal: () => {
-      if (document.getElementById('alertas-modal')) return;
-      const modalHtml = `
-      <div id="alertas-modal" class="modal-overlay" style="display:none;">
-        <div class="modal-box" style="width:400px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <div class="modal-title">Centro de Alertas</div>
-            <button onclick="cerrarModal('alertas-modal')" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:12px;max-height:300px;overflow-y:auto;padding-right:8px;">
-            <div style="padding:12px;background:var(--chip-warn-bg);border-left:4px solid var(--c-warn);border-radius:4px;">
-              <strong style="color:var(--c-warn);display:block;margin-bottom:4px;">Atención requerida</strong>
-              <span style="font-size:13px;color:var(--c-text);">Revisar contratos con pagos atrasados de este mes.</span>
-            </div>
-            <div style="padding:12px;background:var(--chip-blue-bg);border-left:4px solid var(--c-primary);border-radius:4px;">
-              <strong style="color:var(--c-primary);display:block;margin-bottom:4px;">Actualización de Sistema</strong>
-              <span style="font-size:13px;color:var(--c-text);">Nuevas gráficas en tiempo real activadas en Dashboard.</span>
-            </div>
-          </div>
-          <div style="margin-top:20px;text-align:right;">
-            <button class="btn-accent" onclick="marcarLeidas()">Marcar como leídas</button>
-          </div>
-        </div>
-      </div>`;
-      const root = document.getElementById('modal-root') || document.body;
-      root.insertAdjacentHTML('beforeend', modalHtml);
-    },
     markAsRead: () => {
       const notif = utils.getElement('notif-count');
       if (notif) {
@@ -567,7 +488,7 @@
         notif.style.background = 'var(--c-muted)';
       }
       toast.show('Alertas leídas', 'success');
-      setTimeout(() => modal.closeGeneric('alertas-modal'), 400);
+      setTimeout(modal.close, 400);
     }
   };
 
@@ -582,8 +503,7 @@
         'desarrollos': 'cargarDesarrollos',
         'detalle-desarrollo': 'cargarDetalleDesarrollo',
         'flujo': 'cargarFlujo',
-        'usuarios': 'cargarUsuarios',
-        'configuracion': 'cargarConfiguracion'
+        'usuarios': 'cargarUsuarios'
       };
 
       const loader = loaders[page];
@@ -610,8 +530,6 @@
       const loginScreen = utils.getElement('login-screen');
       const appShell = utils.getElement('app-shell');
 
-      alerts.injectModal();
-
       // Ocultar pantalla de carga
       if (loadingScreen) loadingScreen.style.display = 'none';
 
@@ -625,12 +543,7 @@
 
       // Si hay usuario y está en login → redirigir a dashboard
       if (user && isLogin) {
-        const userRole = (user.role || user.Rol || '').toLowerCase();
-        if (userRole === 'vendedor') {
-          window.location.href = 'dashboard_vendedor.html';
-        } else {
-          window.location.href = 'dashboard.html';
-        }
+        window.location.href = 'dashboard.html';
         return;
       }
 
@@ -671,7 +584,6 @@
   window.toast = toast;
   window.fetchApi = fetchApi;
   window.navigateTo = navigation.navigateTo;
-  window.exportToCSV = utils.exportToCSV;
 
   // iniciar aplicacion
   document.addEventListener('DOMContentLoaded', app.init);

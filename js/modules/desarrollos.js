@@ -9,7 +9,7 @@ function cargarDesarrollos() {
       renderDesarrollos(data);
     })
     .catch(function(error) {
-      container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">Ã¢Å¡Â Ã¯Â¸Â</div><div class="empty-title">Error: ' + error.message + '</div></div>';
+      container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">⚠️</div><div class="empty-title">Error: ' + error.message + '</div></div>';
       showToast('Error cargando desarrollos: ' + error.message, 'error');
     });
 }
@@ -19,7 +19,7 @@ function renderDesarrollos(data) {
   if (!container) return;
 
   if (!Array.isArray(data) || data.length === 0) {
-    container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">ðŸ—ï¸</div><div class="empty-title">No hay desarrollos registrados</div></div>';
+    container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">🏗️</div><div class="empty-title">No hay desarrollos registrados</div></div>';
     return;
   }
 
@@ -34,11 +34,7 @@ function renderDesarrollos(data) {
     else chipClass += 'chip-gray';
 
     html += '<div class="dev-card" onclick="navigateTo(\'detalle-desarrollo?id=' + d.IdDesarrollo + '\')" style="cursor:pointer;">';
-    if (d.ImagenBase64 && d.ImagenBase64.length > 10) {
-      html += '<div class="dev-card-thumb" style="background-image: url(\'' + d.ImagenBase64 + '\'); background-size: cover; background-position: center;"></div>';
-    } else {
-      html += '<div class="dev-card-thumb"> </div>';
-    }
+    html += '<div class="dev-card-thumb">🏠</div>';
     html += '<div class="dev-card-body">';
     html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;">';
     html += '<div class="dev-card-name">' + (d.Nombre || '') + '</div>';
@@ -47,10 +43,14 @@ function renderDesarrollos(data) {
     html += '<div class="dev-card-meta">📍 ' + (d.Ubicacion || '') + '</div>';
     html += '<div style="font-size:12px;color:var(--c-muted);margin:4px 0;">' + (d.Descripcion || '') + '</div>';
     html += '<div class="dev-card-stats">';
+    html += '<div class="dev-stat"><div class="dev-stat-num">-</div><div class="dev-stat-label">Lotes</div></div>';
+    html += '<div class="dev-stat"><div class="dev-stat-num">-</div><div class="dev-stat-label">Disponibles</div></div>';
+    html += '<div class="dev-stat"><div class="dev-stat-num">-</div><div class="dev-stat-label">Vendidos</div></div>';
+    html += '<div class="dev-stat"><div class="dev-stat-num">-</div><div class="dev-stat-label">Manzanas</div></div>';
     html += '</div>';
     html += '<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">';
-    html += '<button class="btn-outline btn-sm" onclick="event.stopPropagation(); abrirModalEditarDesarrollo(' + d.IdDesarrollo + ')">Editar</button>';
-    html += '<button class="btn-danger btn-sm" onclick="event.stopPropagation(); eliminarDesarrollo(' + d.IdDesarrollo + ')">Eliminar</button>';
+    html += '<button class="btn-outline btn-sm" onclick="event.stopPropagation(); abrirModalEditarDesarrollo(' + d.IdDesarrollo + ')">✏ Editar</button>';
+    html += '<button class="btn-danger btn-sm" onclick="event.stopPropagation(); eliminarDesarrollo(' + d.IdDesarrollo + ')">🗑 Eliminar</button>';
     html += '</div>';
     html += '</div>';
     html += '</div>';
@@ -75,7 +75,7 @@ function cargarDetalleDesarrollo() {
     });
 }
 
-function renderDetalleDesarrolloSoloInfo(desarrollo) {
+function renderDetalleDesarrollo(desarrollo) {
   var nombreEl = document.getElementById('detalle-nombre');
   var ubicacionEl = document.getElementById('detalle-ubicacion');
   var descripcionEl = document.getElementById('detalle-descripcion');
@@ -83,56 +83,6 @@ function renderDetalleDesarrolloSoloInfo(desarrollo) {
   if (nombreEl) nombreEl.textContent = desarrollo.Nombre || '';
   if (ubicacionEl) ubicacionEl.textContent = '📍 ' + (desarrollo.Ubicacion || '');
   if (descripcionEl) descripcionEl.textContent = desarrollo.Descripcion || '';
-}
-
-function abrirModalCrearLoteManzana(manzanaId) {
-  document.getElementById('form-crear-lote-manzana').reset();
-  document.getElementById('lote-manzana-id').value = manzanaId;
-  abrirModal('crear-lote-manzana-modal');
-}
-
-function guardarLoteExtraManzana() {
-  var idManzana = document.getElementById('lote-manzana-id').value;
-  var numero = document.getElementById('lote-extra-numero').value;
-  var medidas = document.getElementById('lote-extra-medidas').value;
-  var precio = document.getElementById('lote-extra-precio').value;
-  var estado = document.getElementById('lote-extra-estado').value;
-
-  var payload = {
-    Numero: parseInt(numero),
-    Medidas: medidas ? medidas + ' m²' : '0x0 m²',
-    Precio: parseFloat(precio || 0),
-    Estado: estado || 'Disponible',
-    IdManzana: parseInt(idManzana)
-  };
-
-  fetchApi('/lotes', {
-    method: 'POST',
-    body: JSON.stringify(payload)
-  })
-    .then(function(res) {
-      if (!res.IdLote) throw new Error("No se devolvió el IdLote");
-      var cPayload = {
-        Norte: document.getElementById('lote-extra-norte').value || '',
-        Sur: document.getElementById('lote-extra-sur').value || '',
-        Este: document.getElementById('lote-extra-este').value || '',
-        Oeste: document.getElementById('lote-extra-oeste').value || '',
-        IdLote: res.IdLote
-      };
-      return fetchApi('/colindancias', { method: 'POST', body: JSON.stringify(cPayload) });
-    })
-    .then(function() {
-      showToast('✅ Lote y colindancias creados exitosamente', 'success');
-      cerrarModal('crear-lote-manzana-modal');
-      cargarDetalleDesarrollo();
-    })
-    .catch(function(err) {
-      showToast('Error: ' + err.message, 'error');
-    });
-}
-
-function renderDetalleDesarrollo(desarrollo) {
-  renderDetalleDesarrolloSoloInfo(desarrollo);
 
   fetchApi('/manzanas/desarrollo/' + desarrollo.IdDesarrollo)
     .then(function(manzanas) {
@@ -140,7 +90,7 @@ function renderDetalleDesarrollo(desarrollo) {
     })
     .catch(function() {
       var container = document.getElementById('manzanas-container');
-      if (container) container.innerHTML = '<div class="empty-state"><div class="empty-icon">ðŸ“¦</div><div class="empty-title">No hay manzanas registradas</div></div>';
+      if (container) container.innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">No hay manzanas registradas</div></div>';
     });
 }
 
@@ -149,7 +99,7 @@ function renderManzanas(manzanas, desarrolloId) {
   if (!container) return;
 
   if (!Array.isArray(manzanas) || manzanas.length === 0) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon">ðŸ“¦</div><div class="empty-title">No hay manzanas registradas</div></div>';
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">No hay manzanas registradas</div></div>';
     return;
   }
 
@@ -161,9 +111,8 @@ function renderManzanas(manzanas, desarrolloId) {
     html += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:12px;">';
     html += '<div class="chart-title" style="margin-bottom:0;">Manzana ' + (manzana.Numero || '') + ' <span style="font-size:12px;font-weight:400;color:var(--c-muted);">' + (manzana.Calles_Colindantes || '') + '</span></div>';
     html += '<div style="display:flex;gap:6px;">';
-    html += '<button class="btn-accent btn-sm" onclick="abrirModalCrearLoteManzana(' + manzana.IdManzana + ')">+ Lote</button>';
-    html += '<button class="btn-outline btn-sm" onclick="abrirModalEditarManzana(' + desarrolloId + ', ' + manzana.IdManzana + ')">✏️ Editar</button>';
-    html += '<button class="btn-danger btn-sm" onclick="eliminarManzana(' + desarrolloId + ', ' + manzana.IdManzana + ')">🗑️ Eliminar</button>';
+    html += '<button class="btn-outline btn-sm" onclick="abrirModalEditarManzana(' + desarrolloId + ', ' + manzana.IdManzana + ')">✏ Editar</button>';
+    html += '<button class="btn-danger btn-sm" onclick="eliminarManzana(' + desarrolloId + ', ' + manzana.IdManzana + ')">🗑 Eliminar</button>';
     html += '</div>';
     html += '</div>';
 
@@ -202,7 +151,7 @@ function cargarLotesDeManzana(manzanaId) {
         else if (lote.Estado === 'Vendido') estadoClass = 'vendido';
         else estadoClass = 'disponible';
 
-        html += '<div class="lot-cell ' + estadoClass + '">';
+        html += '<div class="lot-cell ' + estadoClass + '" onclick="navigateTo(\'detalle-lote?id=' + lote.IdLote + '\')">';
         html += '<div style="font-weight:600;font-size:13px;">' + (lote.Numero || '') + '</div>';
         html += '<div style="font-size:10px;color:var(--c-muted);">' + (lote.Medidas || '') + '</div>';
         html += '<div style="font-size:10px;font-weight:600;">' + (lote.Estado || 'Disponible') + '</div>';
@@ -218,54 +167,10 @@ function cargarLotesDeManzana(manzanaId) {
     });
 }
 
-function resizeImageFile(file) {
-  return new Promise((resolve, reject) => {
-    if (!file) {
-      resolve('');
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 800;
-        const MAX_HEIGHT = 600;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > height) {
-          if (width > MAX_WIDTH) {
-            height *= MAX_WIDTH / width;
-            width = MAX_WIDTH;
-          }
-        } else {
-          if (height > MAX_HEIGHT) {
-            width *= MAX_HEIGHT / height;
-            height = MAX_HEIGHT;
-          }
-        }
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        // Reduce quality to 0.7 to save space
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-        resolve(dataUrl);
-      };
-      img.onerror = () => reject('Error loading image');
-      img.src = e.target.result;
-    };
-    reader.onerror = () => reject('Error reading file');
-    reader.readAsDataURL(file);
-  });
-}
-
 function guardarDesarrolloModal() {
   var nombre = document.getElementById('dev-nombre');
   var ubicacion = document.getElementById('dev-ubicacion');
   var estatus = document.getElementById('dev-estatus');
-  var fileInput = document.getElementById('dev-imagen');
 
   if (!nombre || !nombre.value.trim() || !ubicacion || !ubicacion.value.trim()) {
     showToast('Completa todos los campos requeridos (*)', 'error');
@@ -279,25 +184,18 @@ function guardarDesarrolloModal() {
     Descripcion: document.getElementById('dev-descripcion')?.value.trim() || ''
   };
 
-  const file = fileInput.files[0];
-  resizeImageFile(file).then(base64Str => {
-    if(base64Str) payload.ImagenBase64 = base64Str;
-    
-    fetchApi('/desarrollos', {
-      method: 'POST',
-      body: JSON.stringify(payload)
+  fetchApi('/desarrollos', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+    .then(function() {
+      showToast('✅ Desarrollo creado exitosamente', 'success');
+      cerrarModal('crear-desarrollo-modal');
+      cargarDesarrollos();
     })
-      .then(function() {
-        showToast('✅ Desarrollo creado exitosamente', 'success');
-        cerrarModal('crear-desarrollo-modal');
-        cargarDesarrollos();
-      })
-      .catch(function(error) {
-        showToast('Error: ' + error.message, 'error');
-      });
-  }).catch(err => {
-    showToast('Error procesando imagen', 'error');
-  });
+    .catch(function(error) {
+      showToast('Error: ' + error.message, 'error');
+    });
 }
 
 function abrirModalEditarDesarrollo(id) {
@@ -320,7 +218,6 @@ function actualizarDesarrolloModal() {
   var nombre = document.getElementById('edit-dev-nombre');
   var ubicacion = document.getElementById('edit-dev-ubicacion');
   var estatus = document.getElementById('edit-dev-estatus');
-  var fileInput = document.getElementById('edit-dev-imagen');
 
   if (!nombre || !nombre.value.trim() || !ubicacion || !ubicacion.value.trim()) {
     showToast('Completa todos los campos requeridos (*)', 'error');
@@ -334,35 +231,18 @@ function actualizarDesarrolloModal() {
     Descripcion: document.getElementById('edit-dev-descripcion')?.value.trim() || ''
   };
 
-  const file = fileInput.files[0];
-  resizeImageFile(file).then(base64Str => {
-    if(base64Str) {
-      payload.ImagenBase64 = base64Str;
-    } else {
-      // If no file was uploaded, fetch current info to retain old image
-      return fetchApi('/desarrollos/' + id).then(d => {
-        if(d.ImagenBase64) payload.ImagenBase64 = d.ImagenBase64;
-        return payload;
-      });
-    }
-    return payload;
+  fetchApi('/desarrollos/' + id, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
   })
-  .then(finalPayload => {
-    fetchApi('/desarrollos/' + id, {
-      method: 'PUT',
-      body: JSON.stringify(finalPayload)
+    .then(function() {
+      showToast('✅ Desarrollo actualizado', 'success');
+      cerrarModal('editar-desarrollo-modal');
+      cargarDesarrollos();
     })
-      .then(function() {
-        showToast('✅ Desarrollo actualizado', 'success');
-        cerrarModal('editar-desarrollo-modal');
-        cargarDesarrollos();
-      })
-      .catch(function(error) {
-        showToast('Error: ' + error.message, 'error');
-      });
-  }).catch(err => {
-    showToast('Error procesando imagen', 'error');
-  });
+    .catch(function(error) {
+      showToast('Error: ' + error.message, 'error');
+    });
 }
 
 function eliminarDesarrollo(id) {
@@ -372,7 +252,7 @@ function eliminarDesarrollo(id) {
     method: 'DELETE'
   })
     .then(function() {
-      showToast('âœ… Desarrollo eliminado', 'success');
+      showToast('✅ Desarrollo eliminado', 'success');
       cargarDesarrollos();
     })
     .catch(function(error) {
@@ -401,7 +281,7 @@ function guardarManzanaModal() {
     body: JSON.stringify(payload)
   })
     .then(function() {
-      showToast('âœ… Manzana creada exitosamente', 'success');
+      showToast('✅ Manzana creada exitosamente', 'success');
       cerrarModal('crear-manzana-modal');
       cargarDetalleDesarrollo();
     })
@@ -413,22 +293,10 @@ function guardarManzanaModal() {
 function abrirModalEditarManzana(desarrolloId, manzanaId) {
   fetchApi('/manzanas/' + manzanaId)
     .then(function(manzana) {
-      var idEl = document.getElementById('edit-manzana-id');
-      var devEl = document.getElementById('edit-desarrollo-nombre');
-      var numEl = document.getElementById('edit-manzana-numero');
-      var callesEl = document.getElementById('edit-manzana-calles');
-      var tituloEl = document.getElementById('editar-titulo');
-
-      if (!idEl) {
-        showToast('Por favor recarga la página (Ctrl + F5). La interfaz está desactualizada.', 'warning');
-        return;
-      }
-
-      idEl.value = manzanaId;
-      if (devEl) devEl.value = manzana.DesarrolloNombre || '';
-      if (numEl) numEl.value = manzana.Numero || '';
-      if (callesEl) callesEl.value = manzana.Calles_Colindantes || '';
-      if (tituloEl) tituloEl.textContent = 'Editar Manzana ' + (manzana.Numero || '');
+      document.getElementById('edit-desarrollo-nombre').value = manzana.DesarrolloNombre || '';
+      document.getElementById('edit-manzana-numero').value = manzana.Numero || '';
+      document.getElementById('edit-manzana-calles').value = manzana.Calles_Colindantes || '';
+      document.getElementById('editar-titulo').textContent = 'Editar Manzana ' + (manzana.Numero || '') + ' - ' + (manzana.DesarrolloNombre || '');
       abrirModal('editar-manzana-modal');
     })
     .catch(function(error) {
@@ -445,7 +313,7 @@ function actualizarManzanaModal() {
   var calles = document.getElementById('edit-manzana-calles');
 
   if (!numero || !numero.value) {
-    showToast('El nÃƒÂºmero de manzana es requerido', 'error');
+    showToast('El número de manzana es requerido', 'error');
     return;
   }
 
@@ -460,7 +328,7 @@ function actualizarManzanaModal() {
     body: JSON.stringify(payload)
   })
     .then(function() {
-      showToast('âœ… Manzana actualizada exitosamente', 'success');
+      showToast('✅ Manzana actualizada exitosamente', 'success');
       cerrarModal('editar-manzana-modal');
       cargarDetalleDesarrollo();
     })
@@ -470,13 +338,13 @@ function actualizarManzanaModal() {
 }
 
 function eliminarManzana(desarrolloId, manzanaId) {
-  if (!confirm('Ã‚¿Eliminar esta manzana y todos sus lotes?')) return;
+  if (!confirm('¿Eliminar esta manzana y todos sus lotes?')) return;
   
   fetchApi('/manzanas/' + manzanaId, {
     method: 'DELETE'
   })
     .then(function() {
-      showToast('âœ… Manzana eliminada', 'success');
+      showToast('✅ Manzana eliminada', 'success');
       cargarDetalleDesarrollo();
     })
     .catch(function(error) {
@@ -490,7 +358,7 @@ function cargarDesarrollosSelect() {
 
   fetchApi('/desarrollos')
     .then(function(data) {
-      var html = '<option value="">Seleccionar desarrolloÃ¢â‚¬Â¦</option>';
+      var html = '<option value="">Seleccionar desarrollo…</option>';
       for (var i = 0; i < data.length; i++) {
         html += '<option value="' + data[i].IdDesarrollo + '">' + data[i].Nombre + ' (' + data[i].Ubicacion + ')</option>';
       }

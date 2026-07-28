@@ -17,9 +17,7 @@
                 port = 8080;
             }
 
-            Javalin app = Javalin.create(config -> {
-                config.enableCorsForAllOrigins();
-            }).start(port);
+            Javalin app = Javalin.create().start(port);
 
             System.out.println("HOLA TILIN SOFI iniciado en http://localhost:" + port);
 
@@ -58,9 +56,6 @@
 
             // CONTRATOS
             app.get("/api/contratos", ContratoController::obtenerTodos);
-            app.get("/api/contratos/{id}", ContratoController::obtenerPorId);
-            app.get("/api/contratos/{id}/generar", ContratoController::generarDocumento);
-            app.get("/api/contratos/{id}/datos-impresion", ContratoController::obtenerDatosImpresion);
             app.get("/api/contratos/cliente/{clienteId}", ContratoController::obtenerPorCliente);
             app.post("/api/contratos", ContratoController::crear);
             app.put("/api/contratos/{id}", ContratoController::actualizar);
@@ -77,9 +72,6 @@
 
             // EMPLEADOS
             app.get("/api/empleados", EmpleadoController::obtenerTodos);
-            app.post("/api/empleados", EmpleadoController::crear);
-            app.put("/api/empleados/{id}", EmpleadoController::actualizar);
-            app.delete("/api/empleados/{id}", EmpleadoController::eliminar);
 
             System.out.println("   Todos los endpoints registrados correctamente");
             System.out.println("   Endpoints disponibles:");

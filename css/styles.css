@@ -970,7 +970,7 @@ tr:hover td {
   background: var(--c-white);
   border-radius: var(--radius-lg);
   padding: 28px;
-  width: 600px;
+  width: 420px;
   max-width: 100%;
   box-shadow: var(--shadow-lg);
   display: flex;

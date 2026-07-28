@@ -1,78 +1,191 @@
 /* ============================================================
-   SOFI MODULO LOTES (API)
+   SOFI — MÓDULO LOTES
+   CRUD completo de lotes
    ============================================================ */
+
+function cargarLotes() {
+  var data = JSON.parse(localStorage.getItem('sofi-lotes') || 'null');
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    fetch('../json/lotes-data.json')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        localStorage.setItem('sofi-lotes', JSON.stringify(data));
+        renderLotes(data);
+      })
+      .catch(function() {
+        var tbody = document.getElementById('tabla-lotes-body');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--c-error)">Error cargando lotes</td></tr>';
+      });
+  } else {
+    renderLotes(data);
+  }
+}
+
+function renderLotes(data) {
+  var tbody = document.getElementById('tabla-lotes-body');
+  if (!tbody) return;
+  if (!Array.isArray(data) || data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center">No hay lotes registrados.</td></tr>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < data.length; i++) {
+    var l = data[i];
+    var chipClass = 'chip ';
+    if (l.estatus === 'Disponible') chipClass += 'chip-green';
+    else if (l.estatus === 'Vendido') chipClass += 'chip-red';
+    else chipClass += 'chip-warn';
+    html += '<tr>';
+    html += '<td style="font-weight:600">' + (l.id || '') + '</td>';
+    html += '<td>' + (l.desarrollo || '') + '</td>';
+    html += '<td>' + (l.numero || '') + '</td>';
+    html += '<td>' + (l.medidas || '') + '</td>';
+    html += '<td style="font-weight:600">$' + new Intl.NumberFormat('es-MX').format(l.precio || 0) + '</td>';
+    html += '<td>' + (l.norte || '') + '</td>';
+    html += '<td>' + (l.sur || '') + '</td>';
+    html += '<td>' + (l.este || '') + '</td>';
+    html += '<td>' + (l.oeste || '') + '</td>';
+    html += '<td><span class="' + chipClass + '">' + (l.estatus || 'Desconocido') + '</span></td>';
+    html += '<td style="display:flex;gap:6px;flex-wrap:wrap;">';
+    html += '<button class="btn-outline btn-sm" onclick="abrirModalEditarLote(' + l.id + ')">✏ Editar</button>';
+    html += '<button class="btn-danger btn-sm" onclick="eliminarLote(' + l.id + ')">🗑 Eliminar</button>';
+    html += '</td>';
+    html += '</tr>';
+  }
+  tbody.innerHTML = html;
+  var pag = document.getElementById('lotes-paginacion');
+  if (pag) pag.textContent = 'Mostrando ' + data.length + ' lotes';
+}
+
+function guardarLoteModal() {
+  var desarrollo = document.getElementById('lote-desarrollo');
+  var numero = document.getElementById('lote-numero');
+  var medidas = document.getElementById('lote-medidas');
+  var precio = document.getElementById('lote-precio');
+  var estado = document.getElementById('lote-estado');
+
+  if (!desarrollo || !desarrollo.value || !numero || !numero.value.trim() || !medidas || !medidas.value ||
+      !precio || !precio.value || !estado || !estado.value) {
+    showToast('Completa todos los campos requeridos (*)', 'error');
+    return;
+  }
+
+  var lotes = JSON.parse(localStorage.getItem('sofi-lotes') || '[]');
+  var nuevoLote = {
+    id: lotes.length + 1,
+    desarrollo: desarrollo.value,
+    numero: numero.value.trim(),
+    medidas: medidas.value + ' m²',
+    precio: parseFloat(precio.value) || 0,
+    norte: document.getElementById('lote-norte')?.value.trim() || '',
+    sur: document.getElementById('lote-sur')?.value.trim() || '',
+    este: document.getElementById('lote-este')?.value.trim() || '',
+    oeste: document.getElementById('lote-oeste')?.value.trim() || '',
+    estatus: estado.value
+  };
+
+  lotes.push(nuevoLote);
+  localStorage.setItem('sofi-lotes', JSON.stringify(lotes));
+  cerrarModal('crear-lote-modal');
+  showToast('✅ Lote creado exitosamente', 'success');
+  cargarLotes();
+}
+
+function abrirModalEditarLote(id) {
+  var lotes = JSON.parse(localStorage.getItem('sofi-lotes') || '[]');
+  var lote = null;
+  for (var i = 0; i < lotes.length; i++) {
+    if (lotes[i].id === id) {
+      lote = lotes[i];
+      break;
+    }
+  }
+  if (!lote) {
+    showToast('Lote no encontrado', 'error');
+    return;
+  }
+
+  document.getElementById('edit-lote-id').value = lote.id;
+  document.getElementById('edit-lote-desarrollo').value = lote.desarrollo || '';
+  document.getElementById('edit-lote-numero').value = lote.numero || '';
+  document.getElementById('edit-lote-medidas').value = lote.medidas ? lote.medidas.replace(' m²', '') : '';
+  document.getElementById('edit-lote-precio').value = lote.precio || '';
+  document.getElementById('edit-lote-estado').value = lote.estatus || 'Disponible';
+  document.getElementById('edit-lote-norte').value = lote.norte || '';
+  document.getElementById('edit-lote-sur').value = lote.sur || '';
+  document.getElementById('edit-lote-este').value = lote.este || '';
+  document.getElementById('edit-lote-oeste').value = lote.oeste || '';
+  abrirModal('editar-lote-modal');
+}
+
+function actualizarLoteModal() {
+  var id = parseInt(document.getElementById('edit-lote-id').value);
+  var desarrollo = document.getElementById('edit-lote-desarrollo');
+  var numero = document.getElementById('edit-lote-numero');
+  var medidas = document.getElementById('edit-lote-medidas');
+  var precio = document.getElementById('edit-lote-precio');
+  var estado = document.getElementById('edit-lote-estado');
+
+  if (!desarrollo || !desarrollo.value || !numero || !numero.value.trim() || !medidas || !medidas.value ||
+      !precio || !precio.value || !estado || !estado.value) {
+    showToast('Completa todos los campos requeridos (*)', 'error');
+    return;
+  }
+
+  var lotes = JSON.parse(localStorage.getItem('sofi-lotes') || '[]');
+  for (var i = 0; i < lotes.length; i++) {
+    if (lotes[i].id === id) {
+      lotes[i].desarrollo = desarrollo.value;
+      lotes[i].numero = numero.value.trim();
+      lotes[i].medidas = medidas.value + ' m²';
+      lotes[i].precio = parseFloat(precio.value) || 0;
+      lotes[i].estatus = estado.value;
+      lotes[i].norte = document.getElementById('edit-lote-norte')?.value.trim() || '';
+      lotes[i].sur = document.getElementById('edit-lote-sur')?.value.trim() || '';
+      lotes[i].este = document.getElementById('edit-lote-este')?.value.trim() || '';
+      lotes[i].oeste = document.getElementById('edit-lote-oeste')?.value.trim() || '';
+      break;
+    }
+  }
+  localStorage.setItem('sofi-lotes', JSON.stringify(lotes));
+  cerrarModal('editar-lote-modal');
+  showToast('✅ Lote actualizado', 'success');
+  cargarLotes();
+}
+
+function eliminarLote(id) {
+  if (!confirm('¿Eliminar este lote?')) return;
+  var lotes = JSON.parse(localStorage.getItem('sofi-lotes') || '[]');
+  var nuevos = [];
+  for (var i = 0; i < lotes.length; i++) {
+    if (lotes[i].id !== id) {
+      nuevos.push(lotes[i]);
+    }
+  }// CRUD LOTES
 
 function cargarLotes() {
   fetchApi('/lotes')
     .then(function(data) {
-      window.allLotes = data || [];
-      filtrarLotes(); // This will apply initial empty filters and render
-      
-      try {
-        var user = JSON.parse(localStorage.getItem('sofi-user') || '{}');
-        var role = (user.role || user.Rol || '').toLowerCase().trim();
-        if (role === 'vendedor') {
-          var btnNuevo = document.getElementById('btn-nuevo-lote');
-          if (btnNuevo) btnNuevo.style.display = 'none';
-        }
-      } catch(e) {}
+      renderLotes(data);
     })
     .catch(function(error) {
       var tbody = document.getElementById('tabla-lotes-body');
-      if (tbody) tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--c-error)">Error: ' + error.message + '</td></tr>';
-    });
-    
-  // Populate Desarrollo Filter Dropdown
-  var filterDesarrollo = document.getElementById('filter-desarrollo');
-  if (filterDesarrollo && filterDesarrollo.options.length <= 1) {
-    fetchApi('/desarrollos').then(function(desarrollos) {
-      var html = '<option value="">Todos los Desarrollos</option>';
-      for (var i = 0; i < desarrollos.length; i++) {
-        html += '<option value="' + desarrollos[i].Nombre + '">' + desarrollos[i].Nombre + '</option>';
+      if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--c-error)">Error: ' + error.message + '</td></tr>';
       }
-      filterDesarrollo.innerHTML = html;
+      showToast('Error cargando lotes: ' + error.message, 'error');
     });
-  }
-}
-
-function filtrarLotes() {
-  if (!window.allLotes) return;
-  
-  var searchQuery = (document.getElementById('search-lote')?.value || '').toLowerCase();
-  var filterDev = document.getElementById('filter-desarrollo')?.value || '';
-  var filterStatus = document.getElementById('filter-estatus')?.value || '';
-  
-  var filtrados = window.allLotes.filter(function(l) {
-    var textMatch = true;
-    if (searchQuery) {
-      var searchStr = (l.Numero + ' ' + (l.DesarrolloNombre||'') + ' ' + (l.Medidas||'') + ' ' + l.IdLote).toLowerCase();
-      textMatch = searchStr.includes(searchQuery);
-    }
-    
-    var devMatch = true;
-    if (filterDev) {
-      devMatch = (l.DesarrolloNombre || l.Desarrollo) === filterDev;
-    }
-    
-    var statusMatch = true;
-    if (filterStatus) {
-      statusMatch = l.Estado === filterStatus;
-    }
-    
-    return textMatch && devMatch && statusMatch;
-  });
-  
-  renderLotes(filtrados);
 }
 
 function renderLotes(data) {
-  window.exportCurrentTable = () => window.exportToCSV ? window.exportToCSV(data, 'lotes.csv') : null;
   var tbody = document.getElementById('tabla-lotes-body');
   if (!tbody) return;
+  
   if (!Array.isArray(data) || data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="11"><div style="display:flex;flex-direction:column;align-items:center;padding:40px 0;color:var(--c-muted);"><div style="font-size:48px;margin-bottom:16px;">ðŸ—‚</div><div style="font-size:16px;font-weight:600;color:var(--c-primary);">No hay lotes registrados</div><div style="font-size:14px;margin-top:8px;">Haz clic en Nuevo Lote para comenzar.</div></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center">No hay lotes registrados.</td></tr>';
     return;
   }
+  
   var html = '';
   for (var i = 0; i < data.length; i++) {
     var l = data[i];
@@ -81,7 +194,7 @@ function renderLotes(data) {
     else if (l.Estado === 'Vendido') chipClass += 'chip-red';
     else if (l.Estado === 'Reservado') chipClass += 'chip-warn';
     else chipClass += 'chip-gray';
-
+    
     html += '<tr>';
     html += '<td style="font-weight:600">' + (l.IdLote || '') + '</td>';
     html += '<td>' + (l.DesarrolloNombre || l.Desarrollo || '') + '</td>';
@@ -93,180 +206,43 @@ function renderLotes(data) {
     html += '<td>' + (l.Este || '') + '</td>';
     html += '<td>' + (l.Oeste || '') + '</td>';
     html += '<td><span class="' + chipClass + '">' + (l.Estado || 'Disponible') + '</span></td>';
-    
-    var role = 'invitado';
-    try { var user = JSON.parse(localStorage.getItem('sofi-user') || '{}'); role = (user.role || user.Rol || '').toLowerCase().trim(); } catch(e) {}
     html += '<td style="display:flex;gap:6px;flex-wrap:wrap;">';
-    if (role === 'directivo' || role === 'admin' || role === 'administrador') {
-        html += '<button class="btn-outline btn-sm" onclick="abrirModalEditarLote(' + l.IdLote + ')">✏️ Editar</button>';
-        html += '<button class="btn-danger btn-sm" onclick="eliminarLote(' + l.IdLote + ')">🗑️ Eliminar</button>';
-    }
+    html += '<button class="btn-outline btn-sm" onclick="abrirModalEditarLote(' + l.IdLote + ')">✏ Editar</button>';
+    html += '<button class="btn-danger btn-sm" onclick="eliminarLote(' + l.IdLote + ')">🗑 Eliminar</button>';
     html += '</td>';
     html += '</tr>';
   }
   tbody.innerHTML = html;
-}
-
-function cargarManzanasDesarrollo(idDesarrollo, selectId, manzanaIdToSelect = null) {
-  var selectEl = document.getElementById(selectId);
-  if (!selectEl) return Promise.resolve();
-
-  if (!idDesarrollo) {
-    selectEl.innerHTML = '<option value="">Seleccione un desarrollo primero</option>';
-    return Promise.resolve();
-  }
-
-  return fetchApi('/manzanas/desarrollo/' + idDesarrollo)
-    .then(function(manzanas) {
-      if (!manzanas || manzanas.length === 0) {
-        selectEl.innerHTML = '<option value="">No hay manzanas (crear en Desarrollos)</option>';
-      } else {
-        var html = '<option value="">Seleccionar manzana...</option>';
-        for (var i = 0; i < manzanas.length; i++) {
-          html += '<option value="' + manzanas[i].IdManzana + '">Manzana ' + manzanas[i].Numero + '</option>';
-        }
-        selectEl.innerHTML = html;
-        if (manzanaIdToSelect) {
-          selectEl.value = manzanaIdToSelect;
-        }
-      }
-    })
-    .catch(function() {
-      selectEl.innerHTML = '<option value="">Error cargando manzanas</option>';
-    });
+  
+  var pag = document.getElementById('lotes-paginacion');
+  if (pag) pag.textContent = 'Mostrando ' + data.length + ' lotes';
 }
 
 function guardarLoteModal() {
-  var idManzana = document.getElementById('lote-manzana').value;
-  var numero = document.getElementById('lote-numero').value;
-  var medidas = document.getElementById('lote-medidas').value;
-  var precio = document.getElementById('lote-precio').value;
-  var estado = document.getElementById('lote-estado').value;
-
-  if (!idManzana || !numero || !medidas || !precio) {
-    showToast('Completa todos los campos requeridos (incluyendo Manzana)', 'error');
-    return;
-  }
-
-  crearLoteConManzana(idManzana, numero, medidas, precio, estado);
-}
-
-function crearLoteConManzana(idManzana, numero, medidas, precio, estado) {
-  var payload = {
-    Numero: numero,
-    Medidas: medidas + ' m²',
-    Precio: parseFloat(precio) || 0,
-    Estado: estado,
-    IdManzana: idManzana
-  };
-  fetchApi('/lotes', { method: 'POST', body: JSON.stringify(payload) })
-    .then(function(res) {
-      if (!res.IdLote) throw new Error("No se devolvió el IdLote del servidor");
-      var cPayload = {
-        Norte: document.getElementById('lote-norte').value || '',
-        Sur: document.getElementById('lote-sur').value || '',
-        Este: document.getElementById('lote-este').value || '',
-        Oeste: document.getElementById('lote-oeste').value || '',
-        IdLote: res.IdLote
-      };
-      return fetchApi('/colindancias', { method: 'POST', body: JSON.stringify(cPayload) });
-    })
-    .then(function() {
-      cerrarModal('crear-lote-modal');
-      showToast('Lote y colindancias creados exitosamente', 'success');
-      cargarLotes();
-    })
-    .catch(function(e) { showToast(e.message, 'error'); });
+  showToast('Función en desarrollo', 'info');
 }
 
 function abrirModalEditarLote(id) {
-  fetchApi('/lotes/' + id)
-    .then(function(lote) {
-      document.getElementById('edit-lote-id').value = lote.IdLote;
-      
-      // Determine Desarrollo from lote.DesarrolloNombre
-      fetchApi('/desarrollos').then(function(desarrollos) {
-         var idDesarrollo = '';
-         for(var i=0; i<desarrollos.length; i++){ 
-           if(desarrollos[i].Nombre === lote.DesarrolloNombre) {
-             idDesarrollo = desarrollos[i].IdDesarrollo; 
-             break;
-           }
-         }
-         document.getElementById('edit-lote-desarrollo').value = idDesarrollo;
-         
-         // Load Manzanas and set the current one
-         if (idDesarrollo) {
-           cargarManzanasDesarrollo(idDesarrollo, 'edit-lote-manzana', lote.IdManzana);
-         }
-      });
-
-      document.getElementById('edit-lote-numero').value = lote.Numero;
-      document.getElementById('edit-lote-medidas').value = (lote.Medidas||'').replace(' m²', '');
-      document.getElementById('edit-lote-precio').value = lote.Precio;
-      document.getElementById('edit-lote-estado').value = lote.Estado;
-      
-      document.getElementById('edit-lote-norte').value = lote.Norte || '';
-      document.getElementById('edit-lote-sur').value = lote.Sur || '';
-      document.getElementById('edit-lote-este').value = lote.Este || '';
-      document.getElementById('edit-lote-oeste').value = lote.Oeste || '';
-      
-      abrirModal('editar-lote-modal');
-    });
+  showToast('Función en desarrollo', 'info');
 }
 
 function actualizarLoteModal() {
-  var idLote = document.getElementById('edit-lote-id').value;
-  var idManzana = document.getElementById('edit-lote-manzana').value;
-  var numero = document.getElementById('edit-lote-numero').value;
-  var medidas = document.getElementById('edit-lote-medidas').value;
-  var precio = document.getElementById('edit-lote-precio').value;
-  var estado = document.getElementById('edit-lote-estado').value;
-
-  if (!idManzana) {
-    showToast('Selecciona una manzana', 'error');
-    return;
-  }
-
-  var payload = { Numero: numero, Medidas: medidas + ' m²', Precio: precio, Estado: estado, IdManzana: parseInt(idManzana) };
-  fetchApi('/lotes/' + idLote, { method: 'PUT', body: JSON.stringify(payload) })
-    .then(function() {
-      var cPayload = {
-        Norte: document.getElementById('edit-lote-norte').value || '',
-        Sur: document.getElementById('edit-lote-sur').value || '',
-        Este: document.getElementById('edit-lote-este').value || '',
-        Oeste: document.getElementById('edit-lote-oeste').value || '',
-        IdLote: idLote
-      };
-      return fetchApi('/colindancias', { method: 'POST', body: JSON.stringify(cPayload) })
-        .catch(function() {
-          return fetchApi('/colindancias/' + idLote, { method: 'PUT', body: JSON.stringify(cPayload) });
-        });
-    })
-    .then(function() {
-      cerrarModal('editar-lote-modal');
-      showToast('Lote actualizado', 'success');
-      cargarLotes();
-    })
-    .catch(function(e) { showToast('Error al actualizar', 'error'); });
+  showToast('Función en desarrollo', 'info');
 }
 
 function eliminarLote(id) {
-  if (!confirm('Ã‚¿Eliminar este lote?')) return;
-  fetchApi('/lotes/' + id, { method: 'DELETE' })
-    .then(function() { showToast('Lote eliminado', 'success'); cargarLotes(); })
-    .catch(function(e) { showToast(e.message, 'error'); });
-}
-
-function cargarDesarrollosSelect() {
-  fetchApi('/desarrollos').then(function(data) {
-     var html = '<option value="">SeleccionarÃ¢â‚¬Â¦</option>';
-     data.forEach(function(d) {
-       html += '<option value="'+d.IdDesarrollo+'">'+d.Nombre+'</option>';
-     });
-     if(document.getElementById('lote-desarrollo')) document.getElementById('lote-desarrollo').innerHTML = html;
-     if(document.getElementById('edit-lote-desarrollo')) document.getElementById('edit-lote-desarrollo').innerHTML = html;
-  });
+  if (!confirm('¿Eliminar este lote?')) return;
+  
+  fetchApi('/lotes/' + id, {
+    method: 'DELETE'
+  })
+    .then(function() {
+      showToast('✅ Lote eliminado', 'success');
+      cargarLotes();
+    })
+    .catch(function(error) {
+      showToast('Error: ' + error.message, 'error');
+    });
 }
 
 window.cargarLotes = cargarLotes;
@@ -274,7 +250,13 @@ window.guardarLoteModal = guardarLoteModal;
 window.abrirModalEditarLote = abrirModalEditarLote;
 window.actualizarLoteModal = actualizarLoteModal;
 window.eliminarLote = eliminarLote;
+  localStorage.setItem('sofi-lotes', JSON.stringify(nuevos));
+  showToast('✅ Lote eliminado', 'success');
+  cargarLotes();
+}
 
-document.addEventListener('DOMContentLoaded', function() {
-  cargarDesarrollosSelect();
-});
+window.cargarLotes = cargarLotes;
+window.guardarLoteModal = guardarLoteModal;
+window.abrirModalEditarLote = abrirModalEditarLote;
+window.actualizarLoteModal = actualizarLoteModal;
+window.eliminarLote = eliminarLote;

@@ -40,7 +40,7 @@ public class ColindanciaController {
 
     // POST /api/colindancias
     public static void crear(Context ctx) {
-        Map<String, Object> bodyObj = ctx.bodyAsClass(Map.class); Map<String, String> body = new java.util.HashMap<>(); if(bodyObj != null) { for(Map.Entry<String, Object> e : bodyObj.entrySet()) { if(e.getValue() != null) body.put(e.getKey(), String.valueOf(e.getValue())); } }
+        Map<String, String> body = ctx.bodyAsClass(Map.class);
         String sql = "INSERT INTO COLINDANCIA (Norte, Sur, Este, Oeste, IdLote) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -54,7 +54,7 @@ public class ColindanciaController {
 
             pstmt.executeUpdate();
             Map<String, Object> response = new HashMap<>();
-            response.put("mensaje", "Colindancia registrada con Ã©xito");
+            response.put("mensaje", "Colindancia registrada con éxito");
             ctx.status(201).json(response);
 
         } catch (Exception e) {
@@ -67,7 +67,7 @@ public class ColindanciaController {
     // PUT /api/colindancias/{id}
     public static void actualizar(Context ctx) {
         int id = Integer.parseInt(ctx.pathParam("id"));
-        Map<String, Object> bodyObj = ctx.bodyAsClass(Map.class); Map<String, String> body = new java.util.HashMap<>(); if(bodyObj != null) { for(Map.Entry<String, Object> e : bodyObj.entrySet()) { if(e.getValue() != null) body.put(e.getKey(), String.valueOf(e.getValue())); } }
+        Map<String, String> body = ctx.bodyAsClass(Map.class);
         String sql = "UPDATE COLINDANCIA SET Norte=?, Sur=?, Este=?, Oeste=? WHERE IdColindancia=?";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -80,9 +80,7 @@ public class ColindanciaController {
             pstmt.setInt(5, id);
 
             pstmt.executeUpdate();
-            Map<String, Object> resp = new HashMap<>();
-            resp.put("mensaje", "Colindancia actualizada con Ã©xito");
-            ctx.json(resp);
+            ctx.json("Colindancia actualizada con éxito");
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
@@ -91,4 +89,3 @@ public class ColindanciaController {
         }
     }
 }
-

@@ -10,15 +10,15 @@ const ROLES = {
 // CONFIGURACIÓN DE API
 const getApiUrl = () => {
   const hostname = window.location.hostname;
-  const isDev = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '' || window.location.protocol === 'file:';
+  const isDev = hostname === 'localhost' || hostname === '127.0.0.1';
   
   if (isDev) {
     return 'http://localhost:8080/api';
   }
   
   // En AWS
-  if (hostname === '98.89.60.250') {
-    return 'http://98.89.60.250:8080/api';
+  if (hostname === '54.208.140.131') {
+    return 'http://54.208.140.131:8080/api';
   }
   
   // En producción con dominio personalizado
@@ -59,11 +59,10 @@ const navConfig = {
     { id: 'clientes', label: 'Clientes', icon: '👥', href: 'clientes.html' },
     { id: 'contratos', label: 'Contratos', icon: '📄', href: 'contratos.html' },
     { id: 'flujo', label: 'Flujo de Efectivo', icon: '💰', href: 'flujo.html' },
-    { id: 'empleados', label: 'Empleados', icon: '📇', href: 'empleados.html' },
     { id: 'usuarios', label: 'Usuarios', icon: '👤', href: 'usuarios.html' },
   ],
   [ROLES.VENDEDOR]: [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊', href: 'dashboard_vendedor.html' },
+    { id: 'dashboard', label: 'Dashboard', icon: '📊', href: 'dashboard.html' },
     { id: 'clientes', label: 'Clientes', icon: '👥', href: 'clientes.html' },
     { id: 'contratos', label: 'Contratos', icon: '📄', href: 'contratos.html' },
     { id: 'lotes', label: 'Lotes', icon: '🏗️', href: 'lotes.html' },

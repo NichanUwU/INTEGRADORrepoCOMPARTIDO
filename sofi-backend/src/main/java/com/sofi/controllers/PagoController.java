@@ -47,7 +47,7 @@ public class PagoController {
 
     // POST /api/pagos
     public static void crear(Context ctx) {
-        Map<String, Object> bodyObj = ctx.bodyAsClass(Map.class); Map<String, String> body = new java.util.HashMap<>(); if(bodyObj != null) { for(Map.Entry<String, Object> e : bodyObj.entrySet()) { if(e.getValue() != null) body.put(e.getKey(), String.valueOf(e.getValue())); } }
+        Map<String, String> body = ctx.bodyAsClass(Map.class);
         String sql = "INSERT INTO PAGO (Monto, FechaPago, FechaCompromiso, MetodoPago, Referencia, Observaciones, Estatus, IdCliente, IdContrato) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -65,7 +65,7 @@ public class PagoController {
 
             pstmt.executeUpdate();
             Map<String, Object> response = new HashMap<>();
-            response.put("mensaje", "Pago registrado con Ã©xito");
+            response.put("mensaje", "Pago registrado con éxito");
             ctx.status(201).json(response);
 
         } catch (Exception e) {
@@ -75,4 +75,3 @@ public class PagoController {
         }
     }
 }
-
