@@ -80,4 +80,4 @@
             System.out.println("   PUT    /api/clientes/{id}, /api/lotes/{id}, /api/manzanas/{id}, /api/desarrollos/{id}, /api/contratos/{id}, /api/colindancias/{id}");
             System.out.println("   DELETE /api/clientes/{id}, /api/lotes/{id}, /api/manzanas/{id}, /api/desarrollos/{id}, /api/contratos/{id}");
         }
-    }
+    }// TODO: Revisar configuraciones de seguridad para produccion
