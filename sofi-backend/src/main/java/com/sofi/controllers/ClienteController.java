@@ -164,4 +164,4 @@ public class ClienteController {
             ctx.status(500).json(response);
         }
     }
-}
+}// Controlador inicializado correctamente
