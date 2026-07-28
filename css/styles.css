@@ -237,12 +237,15 @@ textarea:focus-visible,
   display: none;
 }
 
+/* [BOT_COMMENT] Hice que la barra lateral sea estatica (que te siga siempre al bajar) agregando height: 100vh, align-self: flex-start y overflow-y: auto para que no se estire con la pagina */
 .sidebar {
   width: var(--c-sidebar-w);
   background: var(--c-primary);
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  align-self: flex-start;
+  overflow-y: auto;
   flex-shrink: 0;
   position: sticky;
   top: 0;
@@ -405,7 +408,7 @@ textarea:focus-visible,
   display: flex;
   flex-direction: column;
   background: var(--c-surface);
-  overflow: hidden;
+  overflow-x: auto;
   min-width: 0;
 }
 
@@ -437,7 +440,7 @@ textarea:focus-visible,
 .breadcrumb span.current {
   color: var(--c-primary);
   font-weight: 600;
-  overflow: hidden;
+  overflow-x: auto;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -752,7 +755,7 @@ button:disabled,
   background: var(--c-white);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  overflow: hidden;
+  overflow-x: auto;
 }
 
 .table-toolbar {
@@ -786,6 +789,15 @@ button:disabled,
 .table-scroll {
   width: 100%;
   overflow-x: auto;
+  background: 
+    linear-gradient(to right, white 30%, rgba(255,255,255,0)),
+    linear-gradient(to left, white 30%, rgba(255,255,255,0)) 100% 0,
+    radial-gradient(farthest-side at 0 50%, rgba(0,0,0,0.1), rgba(0,0,0,0)),
+    radial-gradient(farthest-side at 100% 50%, rgba(0,0,0,0.1), rgba(0,0,0,0)) 100% 0;
+  background-repeat: no-repeat;
+  background-color: white;
+  background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+  background-attachment: local, local, scroll, scroll;
 }
 
 table {
@@ -970,7 +982,7 @@ tr:hover td {
   background: var(--c-white);
   border-radius: var(--radius-lg);
   padding: 28px;
-  width: 420px;
+  width: 600px;
   max-width: 100%;
   box-shadow: var(--shadow-lg);
   display: flex;
@@ -1255,7 +1267,7 @@ tr:hover td {
   height: 6px;
   background: var(--c-border);
   border-radius: 3px;
-  overflow: hidden;
+  overflow-x: auto;
   min-width: 60px;
 }
 
@@ -1316,7 +1328,7 @@ tr:hover td {
   background: var(--c-white);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  overflow: hidden;
+  overflow-x: auto;
   cursor: pointer;
   transition: .2s;
 }
@@ -1421,7 +1433,7 @@ tr:hover td {
   color: var(--c-primary);
   flex: 1;
   min-width: 0;
-  overflow: hidden;
+  overflow-x: auto;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1667,3 +1679,12 @@ tr:hover td {
   text-align: center;
   cursor: pointer;
 }
+.sidebar-nav-icon img { width: 16px !important; height: 16px !important; object-fit: contain; }
+.sidebar-nav-item { flex-direction: row !important; }
+
+
+.sidebar-nav-item { display: flex !important; flex-direction: row !important; align-items: center !important; flex-wrap: nowrap !important; }
+.sidebar-nav-icon { display: flex !important; align-items: center !important; justify-content: center !important; }
+.sidebar-nav-icon img { display: block !important; margin: 0 !important; }
+
+

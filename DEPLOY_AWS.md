@@ -1,4 +1,4 @@
-# 🚀 GUÍA DE DESPLIEGUE - SOFI en AWS
+# GUÍA DE DESPLIEGUE - SOFI en AWS
 
 ## Información de la Instancia
 - **IP Pública**: 54.208.140.131
@@ -71,11 +71,11 @@ cd sofi-backend
 java -jar target/sofi-backend-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
-Deberías ver:
-```
-🚀 Backend de SOFI iniciado en http://localhost:8080
-Todos los endpoints registrados correctamente
-```
+    Deberías ver:
+    ```
+    Backend de SOFI iniciado en http://localhost:8080
+    Todos los endpoints registrados correctamente
+    ```
 
 Verifica en otra terminal SSH:
 ```bash
@@ -266,4 +266,4 @@ sudo systemctl stop mysql
 4. Sirve frontend: `python3 -m http.server 80`
 5. Accede: `http://54.208.140.131`
 
-¡Listo! 🎉
+¡Listo!

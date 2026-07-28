@@ -63,76 +63,41 @@ public class UsuarioController {
 
     private static String obtenerPassword(Map<String, String> body) {
         String password = body.get("Contrasena");
+        if (password == null) password = body.get("Contraseña");
         if (password != null) {
             return password.trim();
         }
         return "";
     }
 
-    private static Map<String, Object> loginDemo(String username, String password) {
-        if (password == null || !password.trim().equals("1234")) {
-            return null;
-        }
-
-        String normalizedUsername = username == null ? "" : username.trim().toLowerCase();
-
-        if (normalizedUsername.equals("jose@sofi.mx") || normalizedUsername.equals("admin@sofi.mx") || normalizedUsername.equals("director@sofi.mx") || normalizedUsername.equals("directivo@sofi.mx")) {
-            Map<String, Object> usuarioLogueado = new HashMap<>();
-            usuarioLogueado.put("IdUsuario", 1);
-            usuarioLogueado.put("NombreUsuario", "jose@sofi.mx");
-            usuarioLogueado.put("Rol", "Directivo");
-            usuarioLogueado.put("Empleado", "José");
-            usuarioLogueado.put("status", "success");
-            return usuarioLogueado;
-        }
-
-        if (normalizedUsername.equals("ventas@sofi.mx") || normalizedUsername.equals("vendedor@sofi.mx") || normalizedUsername.equals("vendedor1@sofi.mx")) {
-            Map<String, Object> usuarioLogueado = new HashMap<>();
-            usuarioLogueado.put("IdUsuario", 2);
-            usuarioLogueado.put("NombreUsuario", "ventas@sofi.mx");
-            usuarioLogueado.put("Rol", "Vendedor");
-            usuarioLogueado.put("Empleado", "Vendedor");
-            usuarioLogueado.put("status", "success");
-            return usuarioLogueado;
-        }
-
-        if (normalizedUsername.equals("asistente@sofi.mx")) {
-            Map<String, Object> usuarioLogueado = new HashMap<>();
-            usuarioLogueado.put("IdUsuario", 3);
-            usuarioLogueado.put("NombreUsuario", "asistente@sofi.mx");
-            usuarioLogueado.put("Rol", "Asistente");
-            usuarioLogueado.put("Empleado", "Asistente");
-            usuarioLogueado.put("status", "success");
-            return usuarioLogueado;
-        }
-
-        return null;
-    }
-
     public static void login(Context ctx) {
-        Map<String, String> body = ctx.bodyAsClass(Map.class);
+        Map<String, Object> bodyObj = ctx.bodyAsClass(Map.class); Map<String, String> body = new java.util.HashMap<>(); if(bodyObj != null) { for(Map.Entry<String, Object> e : bodyObj.entrySet()) { if(e.getValue() != null) body.put(e.getKey(), String.valueOf(e.getValue())); } }
         String username = obtenerUsername(body);
         String password = obtenerPassword(body);
-
-        Map<String, Object> usuarioDemo = loginDemo(username, password);
-        if (usuarioDemo != null) {
-            ctx.json(usuarioDemo);
-            return;
-        }
         
-        String sql = "SELECT u.IdUsuario, u.NombreUsuario, u.Rol, e.Nombre AS NombreEmpleado, u.Contrasena " +
+        String sql = "SELECT u.IdUsuario, u.NombreUsuario, u.Rol, e.Nombre AS NombreEmpleado, u.Contrasena, e.Estatus, e.IdEmpleado " +
                      "FROM USUARIO u JOIN EMPLEADO e ON u.IdEmpleado = e.IdEmpleado " +
-                     "WHERE u.NombreUsuario = ?";
+                     "WHERE u.NombreUsuario = ? OR e.Email = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setString(1, username);
+            pstmt.setString(2, username);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next() && verificarPassword(username, password, rs.getString("Contrasena"))) {
+                    if ("Inactivo".equalsIgnoreCase(rs.getString("Estatus"))) {
+                        Map<String, Object> response = new HashMap<>();
+                        response.put("status", "error");
+                        response.put("mensaje", "Cuenta inactiva (Empleado dado de baja)");
+                        ctx.status(401).json(response);
+                        return;
+                    }
+                    
                     Map<String, Object> usuarioLogueado = new HashMap<>();
                     usuarioLogueado.put("IdUsuario", rs.getInt("IdUsuario"));
+                    usuarioLogueado.put("IdEmpleado", rs.getInt("IdEmpleado"));
                     usuarioLogueado.put("NombreUsuario", rs.getString("NombreUsuario"));
                     usuarioLogueado.put("Rol", rs.getString("Rol"));
                     usuarioLogueado.put("Empleado", rs.getString("NombreEmpleado"));
@@ -154,7 +119,7 @@ public class UsuarioController {
 
     // Crear usuario (POST)
     public static void crear(Context ctx) {
-        Map<String, String> body = ctx.bodyAsClass(Map.class);
+        Map<String, Object> bodyObj = ctx.bodyAsClass(Map.class); Map<String, String> body = new java.util.HashMap<>(); if(bodyObj != null) { for(Map.Entry<String, Object> e : bodyObj.entrySet()) { if(e.getValue() != null) body.put(e.getKey(), String.valueOf(e.getValue())); } }
         String username = body.get("NombreUsuario");
         String password = body.get("Contrasena");
         String rol = body.get("Rol");
@@ -184,4 +149,93 @@ public class UsuarioController {
             ctx.status(500).json(response);
         }
     }
+    // Obtener todos los usuarios (GET)
+    public static void obtenerTodos(Context ctx) {
+        String sql = "SELECT u.IdUsuario, u.NombreUsuario, u.Rol, u.Estatus, e.Nombre, e.Apellidos, e.IdEmpleado " +
+                     "FROM USUARIO u JOIN EMPLEADO e ON u.IdEmpleado = e.IdEmpleado";
+        java.util.ArrayList<Map<String, Object>> usuarios = new java.util.ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Map<String, Object> usuario = new HashMap<>();
+                usuario.put("IdUsuario", rs.getInt("IdUsuario"));
+                usuario.put("NombreUsuario", rs.getString("NombreUsuario"));
+                usuario.put("Rol", rs.getString("Rol"));
+                usuario.put("Estatus", rs.getString("Estatus"));
+                usuario.put("Nombre", rs.getString("Nombre"));
+                usuario.put("Apellidos", rs.getString("Apellidos"));
+                usuario.put("IdEmpleado", rs.getInt("IdEmpleado"));
+                usuarios.add(usuario);
+            }
+            ctx.json(usuarios);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            ctx.status(500).json(response);
+        }
+    }
+
+    // Actualizar usuario (PUT)
+    public static void actualizar(Context ctx) {
+        int id = Integer.parseInt(ctx.pathParam("id"));
+        try {
+            Map<String, Object> bodyObj = ctx.bodyAsClass(Map.class);
+            Map<String, String> body = new java.util.HashMap<>();
+            if (bodyObj != null) {
+                for (Map.Entry<String, Object> e : bodyObj.entrySet()) {
+                    if (e.getValue() != null) body.put(e.getKey(), String.valueOf(e.getValue()));
+                }
+            }
+            String username = body.get("NombreUsuario");
+            String rol = body.get("Rol");
+
+            String sql = "UPDATE USUARIO SET NombreUsuario = ?, Rol = ? WHERE IdUsuario = ?";
+            
+            try (Connection conn = DatabaseConnection.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                
+                pstmt.setString(1, username);
+                pstmt.setString(2, rol);
+                pstmt.setInt(3, id);
+                
+                pstmt.executeUpdate();
+                
+                Map<String, Object> response = new HashMap<>();
+                response.put("mensaje", "Usuario actualizado con éxito");
+                ctx.json(response);
+            }
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            ctx.status(500).json(response);
+        }
+    }
+
+    // Eliminar usuario (DELETE)
+    public static void eliminar(Context ctx) {
+        int id = Integer.parseInt(ctx.pathParam("id"));
+        // Borrado lógico cambiando el estatus del usuario
+        String sql = "UPDATE USUARIO SET Estatus = 'Inactivo' WHERE IdUsuario = ?";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, id);
+            pstmt.executeUpdate();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("mensaje", "Acceso de usuario dado de baja exitosamente");
+            ctx.json(response);
+            
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            ctx.status(500).json(response);
+        }
+    }
 }
+

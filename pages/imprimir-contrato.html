@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Imprimir Contrato - SOFI</title>
+  <style>
+    :root {
+      --c-text: #202224;
+      --c-bg: #f9fbfd;
+      --font-body: 'Inter', -apple-system, sans-serif;
+    }
+    body {
+      font-family: var(--font-body);
+      color: var(--c-text);
+      background: var(--c-bg);
+      margin: 0;
+      padding: 0;
+    }
+    .print-container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 60px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+    }
+    p {
+      line-height: 1.6;
+      font-size: 14px;
+      text-align: justify;
+      margin-bottom: 20px;
+    }
+    .signatures {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 60px;
+      gap: 40px;
+    }
+    .sig-box {
+      flex: 1;
+      text-align: center;
+    }
+    .sig-line {
+      border-bottom: 1px solid #000;
+      margin-bottom: 8px;
+      height: 40px;
+    }
+    .sig-title {
+      font-weight: bold;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+    .sig-name {
+      font-size: 13px;
+    }
+    
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 4px solid #eaeaea;
+      border-top-color: #2e6ff2;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    @media print {
+      body { background: #fff; }
+      .print-container {
+        margin: 0; padding: 0;
+        box-shadow: none; border-radius: 0;
+        max-width: 100%;
+      }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="loading-overlay" id="loading">
+    <div class="spinner"></div>
+    <p style="margin-top:16px;text-align:center;">Generando contrato...</p>
+  </div>
+
+  <div class="print-container" id="contrato-content" style="display:none;">
+    <div class="no-print" style="margin-bottom:20px; text-align:right;">
+      <button onclick="window.print()" style="padding:10px 20px; background:#2e6ff2; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">🖨️ Imprimir / Guardar PDF</button>
+    </div>
+
+    <h1>CONTRATO DE CESIÓN DE DERECHOS DE TERRENO EJIDAL</h1>
+    
+    <p>
+      En la ciudad de Villaflores, Chiapas, siendo las <span id="v_HORA">________</span> horas del día <span id="v_DIA">___</span> de <span id="v_MES_">________</span> del 2026 ante la presencia de los testigos que al final se suscriben, se celebra el presente contrato de cesión de derechos ejidales con pagos diferidos de un Lote de terreno rústico ubicado en el predio rincón horqueta, compareciendo por una parte el C. SAUL CRUZ TECO a quien en lo sucesivo se le denominará el CEDENTE y por otra parte el C. <strong id="v_NOMBRE_DEL_CLIENTE">_____________________</strong> a quien en lo sucesivo se le denominará el CESIONARIO, formalizando al tenor de las siguientes declaraciones y clausulas:
+    </p>
+
+    <p><strong>DECLARACIONES:</strong></p>
+    
+    <p>
+      <strong>PRIMERA.</strong> Declara el CEDENTE, C. SAUL CRUZ TECO, que cuenta con capacidad jurídica y tener la representación legal del <span id="v_NUMERO_DE_LOTE">_________</span>, de la <span id="v_NUMERO_DE_MANZANA">_________</span>, ubicado en el Predio Rincón Horqueta, en el ejido Villaflores del Estado de Chiapas, tal como lo acredita y ostenta la posesión material y jurídica, mediante cesión de derecho ejidal de fecha 19 de enero del 2026 y con autorización de fecha 29 de marzo del 2026.
+    </p>
+
+    <p>
+      <strong>SEGUNDA.</strong> El CESIONARIO, la C. <strong id="v_NOMBRE_DEL_CLIENTE2">_____________________</strong>, declara que cuenta con la capacidad jurídica, mental y económica. Además manifiesta su interés de adquirir el lote de terreno rústico, ubicado en el lado poniente del ejido Villaflores, del estado de Chiapas.
+    </p>
+
+    <p><strong>CLÁUSULAS:</strong></p>
+
+    <p>
+      <strong>PRIMERA.</strong> Declara el CEDENTE, C. SAUL CRUZ TECO, hacer entrega del <span id="v_NUMERO_DE_LOTE2">_________</span>, ubicado en la <span id="v_NUMERO_DE_MANZANA2">_________</span>, al CESIONARIO, C. <strong id="v_NOMBRE_DEL_CLIENTE3">_____________________</strong>, en las condiciones actuales que lo recibe, libre de todo gravamen y al corriente en el pago de sus contribuciones.
+    </p>
+
+    <p>
+      <strong>SEGUNDA. UBICACIÓN Y COLINDANCIAS DEL LOTE RÚSTICO:</strong> El <span id="v_NUMERO_DE_LOTE3">_________</span>, ubicado en la <span id="v_NUMERO_DE_MANZANA3">_________</span>, objeto del presente contrato, tiene las medidas y colindancias siguientes:<br><br>
+      Al Norte <span id="v_MEDIDA_AL_NORTE">___</span> metros, colinda con <span id="v_COLINDA_AL_NORTE">_____________________</span>.<br>
+      Al Sur <span id="v_MEDIDA_AL_SUR">___</span> metros, colinda con <span id="v_COLINDA_AL_SUR">_____________________</span>.<br>
+      Al Oriente <span id="v_MEDIDA_AL_ORIENTE">___</span> metros, colinda con <span id="v_COLINDA_AL_ORIENTE">_____________________</span>.<br>
+      Al Poniente <span id="v_MEDIDA_AL_PONIENTE">___</span> metros, colinda con <span id="v_COLINDA_AL_PONIENTE">_____________________</span>.
+    </p>
+
+    <p>
+      <strong>TERCERA. PRECIO Y FORMA DE PAGO:</strong> El precio pactado financiado del lote de terreno rústico ejidal es por la cantidad de $<span id="v_PRECIO_DE_VENTA">_______</span> (<span id="v_PRECIO_DE_VENTA_EN_LETRA">_____________________</span>), cuya cantidad será pagada de la siguiente manera:<br><br>
+      Se acuerda pagar la cantidad antes descrita en un total de <span id="v_NUMERO_DE_SEMANAS">___</span> semanas. Pagando por semana, la cantidad de $<span id="v_MONTO_DE_PAGO_SEMANAL">_______</span> (<span id="v_MONTO_DE_PAGO_CON_LETRA">_____________________</span>). Los Pagos serán efectuados de 16:00 a 18:00 horas de lunes a sábado, en la dirección que se proporcione al comprador en el momento de la firma del contrato de compra venta.
+    </p>
+
+    <p>
+      <strong>CUARTA. CUSTODIA DEL LOTE DE TERRENO:</strong> Al momento de la firma del contrato de cesión de derechos con pagos diferidos, el CEDENTE otorga al CESIONARIO únicamente la custodia y guarda del Lote de terreno rústico ejidal, para cuidado, limpieza y siembra de plantas y en caso de que el CESIONARIO desee realizar alguna construcción, deberá solicitar la autorización por escrito al CEDENTE. En caso de que el CESIONARIO por causas de ocupación o de fuerza mayor, no realice la limpieza correspondiente, deberá cubrir un salario mínimo vigente en la zona para mandar a limpiarlo a cuenta de él y evitar incidente o sanciones por parte de las autoridades. Las veces que sean necesarias.
+    </p>
+
+    <p>
+      <strong>QUINTA.</strong> El Lote de terreno rústico, cuenta con autorización de las autoridades ejidales, estos NO INCLUYEN servicios de agua y drenaje. En cuanto a la energía eléctrica, al finalizar la recuperación de pagos de todos los Lotes, se contará con postes y trasformadores, que se van a colocar en etapas.
+    </p>
+
+    <p>
+      <strong>SEXTA. RESCISIÓN DE CONTRATO:</strong> En caso de que el CESIONARIO incurra en faltas de pagos por un periodo de 4 semanas consecutivas, el presente contrato se dará por rescindido, perdiendo el derecho de exigir la devolución de los pagos realizados hasta la fecha de cancelación del contrato y el lote de terreno rústico quedará libre para su venta.
+    </p>
+
+    <p>
+      <strong>SÉPTIMA.</strong> En caso de causa de fuerza mayor o fortuito, en donde el CESIONARIO se encuentre imposibilitado para continuar con el pago del lote de terreno, éste deberá manifestar por escrito desde la primera semana de atraso al CEDENTE, para su análisis y en caso de aprobación al CESIONARIO, podrá acordar algún traspaso entre familiares o conocidos, en un plazo de 2 semanas como máximo, para que continúe con el plan de pagos. Esto con la finalidad de que el CESIONARIO pueda recuperar el monto de pago que hubiese realizado hasta la fecha de cancelación del contrato. Este movimiento de traspaso no podrá realizarse más de una vez.
+    </p>
+
+    <p>
+      <strong>OCTAVA. EN CASO DE FALLECIMIENTO:</strong> Acuerdan que en caso de fallecimiento del CESIONARIO, la persona que haya dejado como beneficiario deberá continuar con los pagos pendientes hasta la liquidación del mismo. Debiendo presentar el original del contrato de cesión de derechos con pagos diferidos y los recibos de pago, para la adjudicación.
+    </p>
+
+    <p>
+      <strong>NOVENA.</strong> Una vez que el CESIONARIO haya concluido con la totalidad de sus pagos sobre el Lote de terreno, el CEDENTE realizará las gestiones ante las autoridades ejidales para la obtención de la cesión de derecho ejidal, la cual será pagada en su totalidad por el CESIONARIO y será apegado al proceso de las autoridades ejidales.
+    </p>
+
+    <p>
+      <strong>DÉCIMA.</strong> Para todos los efectos del presente contrato, se someten expresamente a la jurisdicción del Tribunal Superior de Justicia en el Estado y que lo representa la Autoridad Judicial de este Distrito de Villaflores, Chiapas.
+    </p>
+
+    <p>
+      Leído el contenido del presente Contrato por cada una de las partes, manifiestan su conformidad con todo lo descrito, por no existir dolo, mala fe o vicio alguno de consentimiento que pudiera invalidarlo o nulificarlo, firmando al margen y al calce en presencia de los testigos, en la ciudad de Villaflores, Chiapas el día <span id="v_FECFHA_FIRMA_DEL_CONTRATO">________________________</span>.
+    </p>
+
+    <div class="signatures">
+      <div class="sig-box">
+        <div class="sig-title">CEDENTE</div>
+        <div class="sig-line"></div>
+        <div class="sig-name">C. SAUL CRUZ TECO</div>
+      </div>
+      <div class="sig-box">
+        <div class="sig-title">CESIONARIO</div>
+        <div class="sig-line"></div>
+        <div class="sig-name">C. <span id="v_NOMBRE_DEL_CLIENTE4">___________________</span></div>
+      </div>
+    </div>
+
+    <div class="signatures" style="margin-top: 40px;">
+      <div class="sig-box">
+        <div class="sig-title">TESTIGO</div>
+        <div class="sig-line"></div>
+        <div class="sig-name">C. VICTOR MANUEL SALAZAR MOLINA</div>
+      </div>
+      <div class="sig-box">
+        <div class="sig-title">TESTIGO</div>
+        <div class="sig-line"></div>
+        <div class="sig-name">C. <span id="v_NOMBRE_DEL_TESTIGO_2">___________________</span></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/core/config.js?v=5"></script>
+  <script>
+    // Convertir números a letras
+    function numeroALetras(num) {
+        var data = {
+            numero: num,
+            enteros: Math.floor(num),
+            centavos: (((Math.round(num * 100)) - (Math.floor(num) * 100))),
+            letrasCentavos: "",
+            letrasMonedaPlural: "PESOS",
+            letrasMonedaSingular: "PESO"
+        };
+        if (data.centavos > 0) {
+            data.letrasCentavos = "CON " + data.centavos + "/100 M.N.";
+        } else {
+            data.letrasCentavos = "00/100 M.N.";
+        }
+        if(data.enteros == 0) return "CERO " + data.letrasMonedaPlural + " " + data.letrasCentavos;
+        if (data.enteros == 1) return Millones(data.enteros) + " " + data.letrasMonedaSingular + " " + data.letrasCentavos;
+        else return Millones(data.enteros) + " " + data.letrasMonedaPlural + " " + data.letrasCentavos;
+    }
+    function Unidades(num){
+        switch(num) {
+            case 1: return "UN";
+            case 2: return "DOS";
+            case 3: return "TRES";
+            case 4: return "CUATRO";
+            case 5: return "CINCO";
+            case 6: return "SEIS";
+            case 7: return "SIETE";
+            case 8: return "OCHO";
+            case 9: return "NUEVE";
+        }
+        return "";
+    }
+    function Decenas(num){
+        var decena = Math.floor(num/10);
+        var unidad = num - (decena * 10);
+        switch(decena) {
+            case 1:
+                switch(unidad) {
+                    case 0: return "DIEZ";
+                    case 1: return "ONCE";
+                    case 2: return "DOCE";
+                    case 3: return "TRECE";
+                    case 4: return "CATORCE";
+                    case 5: return "QUINCE";
+                    default: return "DIECI" + Unidades(unidad);
+                }
+            case 2:
+                switch(unidad) {
+                    case 0: return "VEINTE";
+                    default: return "VEINTI" + Unidades(unidad);
+                }
+            case 3: return DecenasY("TREINTA", unidad);
+            case 4: return DecenasY("CUARENTA", unidad);
+            case 5: return DecenasY("CINCUENTA", unidad);
+            case 6: return DecenasY("SESENTA", unidad);
+            case 7: return DecenasY("SETENTA", unidad);
+            case 8: return DecenasY("OCHENTA", unidad);
+            case 9: return DecenasY("NOVENTA", unidad);
+            case 0: return Unidades(unidad);
+        }
+    }
+    function DecenasY(strSin, numUnidades) {
+        if (numUnidades > 0) return strSin + " Y " + Unidades(numUnidades);
+        return strSin;
+    }
+    function Centenas(num) {
+        var centenas = Math.floor(num / 100);
+        var decenas = num - (centenas * 100);
+        switch(centenas) {
+            case 1:
+                if (decenas > 0) return "CIENTO " + Decenas(decenas);
+                return "CIEN";
+            case 2: return "DOSCIENTOS " + Decenas(decenas);
+            case 3: return "TRESCIENTOS " + Decenas(decenas);
+            case 4: return "CUATROCIENTOS " + Decenas(decenas);
+            case 5: return "QUINIENTOS " + Decenas(decenas);
+            case 6: return "SEISCIENTOS " + Decenas(decenas);
+            case 7: return "SETECIENTOS " + Decenas(decenas);
+            case 8: return "OCHOCIENTOS " + Decenas(decenas);
+            case 9: return "NOVECIENTOS " + Decenas(decenas);
+        }
+        return Decenas(decenas);
+    }
+    function Seccion(num, divisor, strSingular, strPlural) {
+        var cientos = Math.floor(num / divisor);
+        var resto = num - (cientos * divisor);
+        var letras = "";
+        if (cientos > 0) {
+            if (cientos > 1) letras = Centenas(cientos) + " " + strPlural;
+            else letras = strSingular;
+        }
+        if (resto > 0) letras += "";
+        return letras;
+    }
+    function Miles(num) {
+        var divisor = 1000;
+        var cientos = Math.floor(num / divisor);
+        var resto = num - (cientos * divisor);
+        var strMiles = Seccion(num, divisor, "UN MIL", "MIL");
+        var strCentenas = Centenas(resto);
+        if(strMiles == "") return strCentenas;
+        return strMiles + " " + strCentenas;
+    }
+    function Millones(num) {
+        var divisor = 1000000;
+        var cientos = Math.floor(num / divisor);
+        var resto = num - (cientos * divisor);
+        var strMillones = Seccion(num, divisor, "UN MILLON DE", "MILLONES DE");
+        var strMiles = Miles(resto);
+        if(strMillones == "") return strMiles;
+        return strMillones + " " + strMiles;
+    }
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
+
+      if (!id) {
+        alert("ID de contrato no especificado.");
+        window.close();
+        return;
+      }
+
+      try {
+        // Usar la URL configurada globalmente o fallback a localhost:8080/api
+        const API_BASE = (window.CONFIG && window.CONFIG.API_URL) ? window.CONFIG.API_URL : 'http://localhost:8080/api';
+
+        // 1. Obtener Contrato (por ID -> por lista de API -> por localStorage)
+        let contrato = null;
+        try {
+          const resC = await fetch(`${API_BASE}/contratos/${id}`);
+          if (resC.ok) contrato = await resC.json();
+        } catch(e) {
+          console.warn("No se pudo obtener contrato por ID directo:", e);
+        }
+
+        if (!contrato || !contrato.IdContrato) {
+          try {
+            const resAll = await fetch(`${API_BASE}/contratos`);
+            if (resAll.ok) {
+              const list = await resAll.json();
+              contrato = list.find(c => c.IdContrato == id || c.id == id);
+            }
+          } catch(e) {}
+        }
+
+        if (!contrato || (!contrato.IdContrato && !contrato.id)) {
+          const contratosStr = localStorage.getItem('sofi-contratos');
+          if (contratosStr) {
+            const contratos = JSON.parse(contratosStr);
+            contrato = contratos.find(c => c.IdContrato == id || c.id == id);
+          }
+        }
+
+        if (!contrato) {
+          throw new Error("Contrato con ID " + id + " no fue encontrado en la base de datos.");
+        }
+
+        const idCliente = contrato.IdCliente || contrato.idCliente;
+        const idLote = contrato.IdLote || contrato.idLote;
+
+        // 2. Obtener Cliente
+        let cliente = {};
+        if (idCliente) {
+          try {
+            const resCl = await fetch(`${API_BASE}/clientes/${idCliente}`);
+            if (resCl.ok) cliente = await resCl.json();
+          } catch(e) {}
+        }
+        if (!cliente || (!cliente.Nombre && !cliente.NombreCliente)) {
+          try {
+            const resClAll = await fetch(`${API_BASE}/clientes`);
+            if (resClAll.ok) {
+              const listCl = await resClAll.json();
+              cliente = listCl.find(c => c.IdCliente == idCliente || c.id == idCliente) || {};
+            }
+          } catch(e) {}
+        }
+        if (!cliente || (!cliente.Nombre && !cliente.NombreCliente)) {
+          const clientes = JSON.parse(localStorage.getItem('sofi-clientes') || '[]');
+          cliente = clientes.find(c => (c.IdCliente == idCliente || c.id == idCliente)) || {};
+        }
+
+        // 3. Obtener Lote
+        let lote = {};
+        if (idLote) {
+          try {
+            const resL = await fetch(`${API_BASE}/lotes/${idLote}`);
+            if (resL.ok) lote = await resL.json();
+          } catch(e) {}
+        }
+        if (!lote || (!lote.Numero && !lote.Número)) {
+          try {
+            const resLAll = await fetch(`${API_BASE}/lotes`);
+            if (resLAll.ok) {
+              const listL = await resLAll.json();
+              lote = listL.find(l => l.IdLote == idLote || l.id == idLote) || {};
+            }
+          } catch(e) {}
+        }
+        if (!lote || (!lote.Numero && !lote.Número)) {
+          const lotes = JSON.parse(localStorage.getItem('sofi-lotes') || '[]');
+          lote = lotes.find(l => (l.IdLote == idLote || l.id == idLote)) || {};
+        }
+
+        // 4. Obtener Colindancias si no vienen directo en el lote
+        let colindancia = {};
+        if (idLote) {
+          try {
+            const resCol = await fetch(`${API_BASE}/colindancias/lote/${idLote}`);
+            if (resCol.ok) colindancia = await resCol.json();
+          } catch(e) {}
+        }
+
+        // 5. Nombre de Manzana
+        let manzanaStr = "Manzana Desconocida";
+        if (lote.ManzanaNumero || lote.ManzanaNúmero) {
+          manzanaStr = "Manzana " + (lote.ManzanaNumero || lote.ManzanaNúmero);
+        } else if (lote.IdManzana || lote.idManzana) {
+          const mId = lote.IdManzana || lote.idManzana;
+          try {
+            const resM = await fetch(`${API_BASE}/manzanas/${mId}`);
+            if (resM.ok) {
+              const m = await resM.json();
+              if (m.Numero || m.Número) manzanaStr = "Manzana " + (m.Numero || m.Número);
+            }
+          } catch(e) {}
+        }
+
+        // 6. Testigo
+        let testigoNombre = "______________________";
+        if (idCliente) {
+          try {
+            const resT = await fetch(`${API_BASE}/testigos`);
+            if (resT.ok) {
+              const testigos = await resT.json();
+              const test = testigos.find(t => t.IdCliente == idCliente || t.idCliente == idCliente);
+              if (test && (test.Nombre || test.Apellidos)) {
+                testigoNombre = ((test.Nombre || '') + " " + (test.Apellidos || '')).trim();
+              }
+            }
+          } catch(e) {}
+        }
+
+        // Fecha del contrato
+        let d = new Date();
+        if (contrato.Fecha) {
+          const parts = contrato.Fecha.split('-');
+          if (parts.length === 3) {
+            d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+          }
+        }
+        const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        const horaStr = contrato.Hora || (d.getHours().toString().padStart(2, '0') + ":" + d.getMinutes().toString().padStart(2, '0'));
+        const diaStr = d.getDate();
+        const mesStr = meses[d.getMonth()];
+        const anioStr = d.getFullYear();
+        
+        const cNom = (cliente.Nombre || cliente.NombreCliente || '').trim();
+        const cApe = (cliente.Apellidos || cliente.ApellidosCliente || '').trim();
+        const clienteNombreCompleto = (cNom + " " + cApe).trim().toUpperCase() || (contrato.Cliente ? contrato.Cliente.toUpperCase() : "______________________");
+
+        const loteNum = lote.Numero || lote.Número || contrato.Lote || "S/N";
+
+        // Medidas y Colindancias
+        const medNorte = lote.MedidaNorte || colindancia.MedidaNorte || '___';
+        const colNorte = lote.Norte || colindancia.Norte || '___';
+        const medSur = lote.MedidaSur || colindancia.MedidaSur || '___';
+        const colSur = lote.Sur || colindancia.Sur || '___';
+        const medEste = lote.MedidaEste || colindancia.MedidaEste || '___';
+        const colEste = lote.Este || colindancia.Este || '___';
+        const medOeste = lote.MedidaOeste || colindancia.MedidaOeste || '___';
+        const colOeste = lote.Oeste || colindancia.Oeste || '___';
+
+        // Pagos y semanas
+        const montoTotal = Number(contrato.MontoTotal || 0);
+        const enganche = Number(contrato.Enganche || 0);
+        const plazoMeses = Number(contrato.PlazoMeses || contrato.Plazo || 0);
+        const semanas = plazoMeses * 4;
+        
+        let pagoSemanal = Number(contrato.Mensualidad || 0);
+        if (semanas > 0 && pagoSemanal <= 0) {
+          pagoSemanal = (montoTotal - enganche) / semanas;
+        }
+
+        const dataImpresion = {
+          'HORA': horaStr,
+          'DIA': diaStr,
+          'MES_': mesStr,
+          'AÑO': anioStr,
+          'NOMBRE_DEL_CLIENTE': clienteNombreCompleto,
+          'NUMERO_DE_LOTE': "Lote " + loteNum,
+          'NUMERO_DE_MANZANA': manzanaStr,
+          'MEDIDA_AL_NORTE': medNorte,
+          'COLINDA_AL_NORTE': colNorte,
+          'MEDIDA_AL_SUR': medSur,
+          'COLINDA_AL_SUR': colSur,
+          'MEDIDA_AL_ORIENTE': medEste,
+          'COLINDA_AL_ORIENTE': colEste,
+          'MEDIDA_AL_PONIENTE': medOeste,
+          'COLINDA_AL_PONIENTE': colOeste,
+          'PRECIO_DE_VENTA': new Intl.NumberFormat('es-MX').format(montoTotal),
+          'PRECIO_DE_VENTA_EN_LETRA': numeroALetras(montoTotal),
+          'NUMERO_DE_SEMANAS': semanas || plazoMeses || 0,
+          'MONTO_DE_PAGO_SEMANAL': new Intl.NumberFormat('es-MX').format(pagoSemanal),
+          'MONTO_DE_PAGO_CON_LETRA': numeroALetras(pagoSemanal),
+          'FECFHA_FIRMA_DEL_CONTRATO': diaStr + " de " + mesStr + " del " + anioStr,
+          'NOMBRE_DEL_TESTIGO_2': testigoNombre.toUpperCase()
+        };
+
+        const fields = Object.keys(dataImpresion);
+        fields.forEach(field => {
+          const val = dataImpresion[field];
+          const els = document.querySelectorAll('#v_' + field + ', #v_' + field + '2, #v_' + field + '3, #v_' + field + '4');
+          els.forEach(el => el.textContent = val);
+        });
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('contrato-content').style.display = 'block';
+
+      } catch (err) {
+        console.error("Error al generar contrato:", err);
+        document.getElementById('loading').innerHTML = '<div style="text-align:center;padding:20px;"><p style="color:red;font-weight:bold;font-size:16px;">Error al generar contrato</p><p style="color:#555;">' + err.message + '</p></div>';
+      }
+    });
+  </script>
+</body>
+</html>
+

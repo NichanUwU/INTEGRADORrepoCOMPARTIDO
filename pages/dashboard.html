@@ -1,10 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es-MX">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SOFI · Dashboard</title>
-  <link rel="stylesheet" href="../css/styles.css">
+  <title>SOFI •Dashboard</title>
+  <link rel="stylesheet" href="../css/styles.css?v=6">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <!-- PANTALLA DE CARGA -->
@@ -15,7 +16,7 @@
 
   <!-- PANTALLA DE ERROR DE SESIÓN -->
   <div id="session-error" style="display:none;position:fixed;inset:0;background:#0F3B5C;display:none;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:24px;padding:24px;">
-    <div style="font-size:64px;">🔒</div>
+    <div style="font-size:64px;">??</div>
     <div style="font-family:var(--font-display);font-size:28px;font-weight:700;color:#fff;">Sesión no válida</div>
     <div style="color:rgba(255,255,255,0.7);font-size:14px;text-align:center;max-width:400px;">Tu sesión ha expirado o no has iniciado sesión correctamente.</div>
     <button onclick="window.location.href='login.html'" style="background:#50A746;color:#fff;border:none;padding:12px 32px;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:0.2s;">Ir al Login</button>
@@ -43,12 +44,12 @@
     <div class="main-content">
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0">
-          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">›</span><span class="current">Dashboard</span></div>
+          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">?</button>
+          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">•</span><span class="current">Dashboard</span></div>
         </div>
         <div class="topbar-actions">
-          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">🔔 Alertas <span class="badge-notif" id="notif-count">0</span></button>
-          <button type="button" class="topbar-btn">⚙ Configuración</button>
+          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')"> Alertas <span class="badge-notif" id="notif-count">0</span></button>
+          <button type="button" class="topbar-btn" onclick="window.location.href='configuracion.html'"> Configuración</button>
         </div>
       </div>
 
@@ -96,10 +97,6 @@
           <div class="ranking-list" id="ranking-vendedores"></div>
         </div>
 
-        <div class="chart-card" style="margin-top:16px;">
-          <div class="chart-title">Mapa de Desarrollos</div>
-          <div class="dev-map" id="mapa-desarrollos"></div>
-        </div>
       </main>
     </div>
   </div>
@@ -107,9 +104,11 @@
   <div id="modal-root"></div>
 
   <!-- SCRIPTS -->
-  <script src="../js/core/config.js"></script>
+  <script src="../js/core/config.js?v=4"></script>
   <script src="../js/utils/helpers.js"></script>
-  <script src="../js/core/app.js"></script>
+  <script src="../js/core/app.js?v=3"></script>
   <script src="../js/modules/dashboard.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
+

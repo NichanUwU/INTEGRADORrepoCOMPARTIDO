@@ -26,6 +26,8 @@ public class DesarrolloController {
                 d.put("Descripcion", rs.getString("Descripcion"));
                 d.put("Estatus", rs.getString("Estatus"));
                 d.put("Fecha_inicio", rs.getDate("Fecha_inicio"));
+                d.put("ImagenBase64", rs.getString("ImagenBase64"));
+                d.put("PlanoBase64", rs.getString("PlanoBase64"));
                 desarrollos.add(d);
             }
             ctx.json(desarrollos);
@@ -55,9 +57,13 @@ public class DesarrolloController {
                     d.put("Descripcion", rs.getString("Descripcion"));
                     d.put("Estatus", rs.getString("Estatus"));
                     d.put("Fecha_inicio", rs.getDate("Fecha_inicio"));
+                    d.put("ImagenBase64", rs.getString("ImagenBase64"));
+                    d.put("PlanoBase64", rs.getString("PlanoBase64"));
                     ctx.json(d);
                 } else {
-                    ctx.status(404).json("Desarrollo no encontrado");
+                    Map<String, Object> resp = new HashMap<>();
+                    resp.put("error", "Desarrollo no encontrado");
+                    ctx.status(404).json(resp);
                 }
             }
         } catch (Exception e) {
@@ -69,8 +75,8 @@ public class DesarrolloController {
 
     // POST /api/desarrollos
     public static void crear(Context ctx) {
-        Map<String, String> body = ctx.bodyAsClass(Map.class);
-        String sql = "INSERT INTO DESARROLLO (Nombre, Ubicacion, Descripcion, Estatus, Fecha_inicio) VALUES (?, ?, ?, ?, ?)";
+        Map<String, Object> bodyObj = ctx.bodyAsClass(Map.class); Map<String, String> body = new java.util.HashMap<>(); if(bodyObj != null) { for(Map.Entry<String, Object> e : bodyObj.entrySet()) { if(e.getValue() != null) body.put(e.getKey(), String.valueOf(e.getValue())); } }
+        String sql = "INSERT INTO DESARROLLO (Nombre, Ubicacion, Descripcion, Estatus, Fecha_inicio, ImagenBase64, PlanoBase64) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -80,6 +86,8 @@ public class DesarrolloController {
             pstmt.setString(3, body.get("Descripcion"));
             pstmt.setString(4, body.get("Estatus"));
             pstmt.setDate(5, body.get("Fecha_inicio") != null ? Date.valueOf(body.get("Fecha_inicio")) : null);
+            pstmt.setString(6, body.get("ImagenBase64"));
+            pstmt.setString(7, body.get("PlanoBase64"));
 
             pstmt.executeUpdate();
             Map<String, Object> response = new HashMap<>();
@@ -96,8 +104,8 @@ public class DesarrolloController {
     // PUT /api/desarrollos/{id}
     public static void actualizar(Context ctx) {
         int id = Integer.parseInt(ctx.pathParam("id"));
-        Map<String, String> body = ctx.bodyAsClass(Map.class);
-        String sql = "UPDATE DESARROLLO SET Nombre=?, Ubicacion=?, Descripcion=?, Estatus=?, Fecha_inicio=? WHERE IdDesarrollo=?";
+        Map<String, Object> bodyObj = ctx.bodyAsClass(Map.class); Map<String, String> body = new java.util.HashMap<>(); if(bodyObj != null) { for(Map.Entry<String, Object> e : bodyObj.entrySet()) { if(e.getValue() != null) body.put(e.getKey(), String.valueOf(e.getValue())); } }
+        String sql = "UPDATE DESARROLLO SET Nombre = ?, Ubicacion = ?, Descripcion = ?, Estatus = ?, Fecha_inicio = ?, ImagenBase64 = ?, PlanoBase64 = ? WHERE IdDesarrollo = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -107,10 +115,14 @@ public class DesarrolloController {
             pstmt.setString(3, body.get("Descripcion"));
             pstmt.setString(4, body.get("Estatus"));
             pstmt.setDate(5, body.get("Fecha_inicio") != null ? Date.valueOf(body.get("Fecha_inicio")) : null);
-            pstmt.setInt(6, id);
+            pstmt.setString(6, body.get("ImagenBase64"));
+            pstmt.setString(7, body.get("PlanoBase64"));
+            pstmt.setInt(8, id);
 
             pstmt.executeUpdate();
-            ctx.json("Desarrollo actualizado con éxito");
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("mensaje", "Desarrollo actualizado con éxito");
+            ctx.json(resp);
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
@@ -129,7 +141,9 @@ public class DesarrolloController {
 
             pstmt.setInt(1, id);
             pstmt.executeUpdate();
-            ctx.json("Desarrollo eliminado con éxito");
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("mensaje", "Desarrollo eliminado con éxito");
+            ctx.json(resp);
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
@@ -138,3 +152,4 @@ public class DesarrolloController {
         }
     }
 }
+

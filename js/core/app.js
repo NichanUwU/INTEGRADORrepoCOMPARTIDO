@@ -24,29 +24,30 @@
     return 'http://' + hostname + ':8080/api';
   }
 
-  // configuracion de navegacion por roles
   const navConfig = {
     directivo: [
-      { id: 'dashboard', href: 'dashboard.html', icon: '📊', label: 'Dashboard' },
-      { id: 'desarrollos', href: 'desarrollos.html', icon: '🏘', label: 'Desarrollos' },
-      { id: 'lotes', href: 'lotes.html', icon: '🗂', label: 'Lotes' },
-      { id: 'clientes', href: 'clientes.html', icon: '👥', label: 'Clientes' },
-      { id: 'contratos', href: 'contratos.html', icon: '📄', label: 'Contratos' },
-      { id: 'flujo', href: 'flujo.html', icon: '💰', label: 'Flujo' },
-      { id: 'usuarios', href: 'usuarios.html', icon: '👤', label: 'Usuarios' }
+      { id: 'dashboard', href: 'dashboard.html', icon: 'dashboard.svg', label: 'Dashboard' },
+      { id: 'desarrollos', href: 'desarrollos.html', icon: 'desarrollos.svg', label: 'Desarrollos' },
+      { id: 'lotes', href: 'lotes.html', icon: 'lotes.svg', label: 'Lotes' },
+      { id: 'clientes', href: 'clientes.html', icon: 'clientes.svg', label: 'Clientes' },
+      { id: 'contratos', href: 'contratos.html', icon: 'contratos.svg', label: 'Contratos' },
+      { id: 'flujo', href: 'flujo.html', icon: 'flujo.svg', label: 'Flujo' },
+      { id: 'empleados', href: 'empleados.html', icon: 'empleados.svg', label: 'Empleados' },
+      { id: 'usuarios', href: 'usuarios.html', icon: 'usuarios.svg', label: 'Usuarios' }
     ],
     vendedor: [
-      { id: 'dashboard', href: 'dashboard.html', icon: '📊', label: 'Dashboard' },
-      { id: 'clientes', href: 'clientes.html', icon: '👥', label: 'Clientes' },
-      { id: 'contratos', href: 'contratos.html', icon: '📄', label: 'Contratos' },
-      { id: 'lotes', href: 'lotes.html', icon: '🗂', label: 'Lotes' }
+      { id: 'dashboard', href: 'dashboard_vendedor.html', icon: 'dashboard.svg', label: 'Dashboard' },
+      { id: 'clientes', href: 'clientes.html', icon: 'clientes.svg', label: 'Clientes' },
+      { id: 'contratos', href: 'contratos.html', icon: 'contratos.svg', label: 'Contratos' },
+      { id: 'lotes', href: 'lotes.html', icon: 'lotes.svg', label: 'Lotes' }
     ],
-    asistente: [
-      { id: 'dashboard', href: 'dashboard.html', icon: '📊', label: 'Dashboard' },
-      { id: 'clientes', href: 'clientes.html', icon: '👥', label: 'Clientes' },
-      { id: 'desarrollos', href: 'desarrollos.html', icon: '🏘', label: 'Desarrollos' },
-      { id: 'contratos', href: 'contratos.html', icon: '📄', label: 'Contratos' },
-      { id: 'flujo', href: 'flujo.html', icon: '💰', label: 'Flujo' }
+    asistente:
+    [ 
+      { id: 'dashboard', href: 'dashboard.html', icon: 'dashboard.svg', label: 'Dashboard' },
+      { id: 'clientes', href: 'clientes.html', icon: 'clientes.svg', label: 'Clientes' },
+      { id: 'desarrollos', href: 'desarrollos.html', icon: 'desarrollos.svg', label: 'Desarrollos' },
+      { id: 'contratos', href: 'contratos.html', icon: 'contratos.svg', label: 'Contratos' },
+      { id: 'flujo', href: 'flujo.html', icon: 'flujo.svg', label: 'Flujo' }
     ]
   };
 
@@ -134,6 +135,37 @@
       if (!utils.isObject(user)) return CONFIG.defaultRole;
       const role = user.role || user.Rol || CONFIG.defaultRole;
       return String(role).toLowerCase();
+    },
+
+    exportToCSV: (data, filename) => {
+      if (!data || !data.length) {
+        toast.show('No hay datos para exportar', 'warn');
+        return;
+      }
+      
+      const keys = Object.keys(data[0]);
+      let csvContent = keys.join(',') + '\n';
+      
+      data.forEach(row => {
+        let values = keys.map(k => {
+          let val = row[k] === null || row[k] === undefined ? '' : row[k].toString();
+          val = val.replace(/"/g, '""');
+          if (val.search(/("|,|\n)/g) >= 0) {
+            val = `"${val}"`;
+          }
+          return val;
+        });
+        csvContent += values.join(',') + '\n';
+      });
+      
+      const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', filename || 'export.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.show('Archivo CSV exportado exitosamente', 'success');
     }
   };
 
@@ -174,9 +206,16 @@
     },
 
     navigateTo: (page) => {
+      let baseUrl = page;
+      let query = '';
+      if (page.includes('?')) {
+        const parts = page.split('?');
+        baseUrl = parts[0];
+        query = '?' + parts[1];
+      }
       const current = navigation.getCurrentPage();
-      if (page === current) return;
-      window.location.href = page + '.html';
+      if (baseUrl === current && !query) return;
+      window.location.href = baseUrl + '.html' + query;
     },
 
     renderNav: (role) => {
@@ -191,7 +230,7 @@
         const item = items[i];
         const activeClass = currentPage === item.id ? 'active' : '';
         html += `<a href="${item.href}" class="sidebar-nav-item ${activeClass}">`;
-        html += `<span class="sidebar-nav-icon">${item.icon}</span>`;
+        html += `<span class="sidebar-nav-icon"><img src="../iconos/${item.icon}" class="nav-svg-icon" alt="icon"></span>`;
         html += `<span>${item.label}</span>`;
         html += '</a>';
       }
@@ -205,33 +244,10 @@
       const role = utils.getRole(user);
       state.currentRole = role;
       
-      const badge = utils.getElement('sb-role-badge');
-      const avatar = utils.getElement('sb-avatar');
-      const nameEl = utils.getElement('sb-name');
-      const roleEl = utils.getElement('sb-role');
-
-      // Role badge
-      if (badge) {
-        badge.textContent = roleLabels[role] || 'Directivo';
-      }
-      
-      // Avatar (iniciales)
-      if (avatar && user) {
-        const nombre = user.nombre || user.Nombre || '';
-        const apellidos = user.apellidos || user.Apellidos || '';
-        const iniciales = (nombre.charAt(0) || '') + (apellidos.charAt(0) || '');
-        avatar.textContent = iniciales || 'U';
-      }
-      
-      // ✅ NOMBRE COMPLETO DESDE LA BD
-      if (nameEl) {
-        const nombreCompleto = user?.NombreCompleto || user?.Empleado || user?.nombreCompleto || 'Usuario';
-        nameEl.textContent = nombreCompleto;
-      }
-      
-      // Role text
-      if (roleEl) {
-        roleEl.textContent = roleLabels[role] || 'Directivo';
+      // Eliminar el footer de la barra lateral porque ahora el usuario está en el topbar
+      const sidebarFooter = document.querySelector('.sidebar-footer');
+      if (sidebarFooter) {
+        sidebarFooter.remove();
       }
 
       const breadcrumb = utils.getElement('breadcrumb');
@@ -241,6 +257,57 @@
           const page = navigation.getCurrentPage();
           current.textContent = pageLabels[page] || 'Inicio';
         }
+      }
+
+      // Hide creation buttons for Asistente
+      if (role === 'asistente') {
+          const createBtns = document.querySelectorAll('.section-header .btn-accent');
+          for(let i = 0; i < createBtns.length; i++) {
+              createBtns[i].style.display = 'none';
+          }
+      }
+
+      // Reemplazar barra superior con info del usuario
+      const topbarActions = document.querySelector('.topbar-actions');
+      if (topbarActions) {
+        const nombreCompleto = user?.NombreCompleto || user?.Empleado || user?.nombreCompleto || 'Usuario';
+        
+        // Calcular iniciales para el avatar
+        const nombreStr = user?.NombreCompleto || user?.Empleado || user?.nombreCompleto || 'Usuario';
+        const parts = nombreStr.trim().split(/\\s+/);
+        const iniciales = (parts[0] ? parts[0].charAt(0) : '') + (parts.length > 1 ? parts[parts.length - 1].charAt(0) : '');
+        const avatarText = iniciales.toUpperCase() || 'U';
+
+        const userMenuHtml = `
+          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')"> Alertas <span class="badge-notif" id="notif-count">0</span></button>
+          
+          <div style="position:relative; display:inline-block;">
+             <button type="button" class="topbar-btn" style="display:flex; align-items:center; gap:8px; padding:4px 12px; border-radius:24px; background:var(--c-background); border:1px solid var(--c-border);" onclick="document.getElementById('user-menu-dropdown').style.display = document.getElementById('user-menu-dropdown').style.display === 'block' ? 'none' : 'block'">
+                <div style="width:26px; height:26px; border-radius:50%; background:var(--c-primary); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">${avatarText}</div>
+                <span style="font-weight:500; font-size:13px; color:var(--c-text);">${nombreCompleto}</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5; margin-left:2px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+             </button>
+             <div id="user-menu-dropdown" style="display:none; position:absolute; top:120%; right:0; background:var(--c-surface); border:1px solid var(--c-border); box-shadow:0 4px 12px rgba(0,0,0,0.1); border-radius:6px; min-width:200px; z-index:100; overflow:hidden;">
+                 <div style="padding:16px 12px; border-bottom:1px solid var(--c-border); background:var(--c-background); display:flex; align-items:center; gap:10px;">
+                     <div style="width:36px; height:36px; border-radius:50%; background:var(--c-primary); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700;">${avatarText}</div>
+                     <div>
+                         <div style="font-weight:600; font-size:13px; color:var(--c-text);">${nombreCompleto}</div>
+                         <div style="font-size:11px; color:var(--c-muted); text-transform:uppercase; margin-top:2px;">${roleLabels[role] || role}</div>
+                     </div>
+                 </div>
+                 <a href="configuracion.html" style="display:flex; align-items:center; gap:8px; padding:12px 16px; color:var(--c-text); text-decoration:none; font-size:13px; transition:background 0.2s;" onmouseover="this.style.background='var(--c-background)'" onmouseout="this.style.background='transparent'">
+                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.7;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                     Configuración
+                 </a>
+             </div>
+          </div>
+          
+          <button type="button" class="topbar-btn" style="color:var(--c-error); font-weight:600; display:flex; align-items:center; gap:6px;" onclick="doLogout()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Cerrar sesión
+          </button>
+        `;
+        topbarActions.innerHTML = userMenuHtml;
       }
 
       navigation.renderNav(role);
@@ -320,36 +387,7 @@
     },
 
     showAlertModal: () => {
-      Promise.all([
-        fetchApi('/clientes').catch(() => []),
-        fetchApi('/contratos').catch(() => [])
-      ])
-      .then((results) => {
-        const clientes = results[0];
-        const contratos = results[1];
-        const alertas = [];
-        
-        if (utils.isArray(clientes)) {
-          const inactivos = clientes.filter(c => c.Estatus === 'Inactivo');
-          if (inactivos.length > 0) {
-            alertas.push({
-              titulo: 'Clientes inactivos',
-              descripcion: inactivos.length + ' cliente(s) con estatus inactivo',
-              tipo: 'warn'
-            });
-          }
-        }
-        
-        if (utils.isArray(contratos)) {
-          const atrasados = contratos.filter(c => c.Estatus === 'Atrasado');
-          if (atrasados.length > 0) {
-            alertas.push({
-              titulo: 'Contratos atrasados',
-              descripcion: atrasados.length + ' contrato(s) con pagos atrasados',
-              tipo: 'error'
-            });
-          }
-        }
+      alerts.getAlertsData().then((alertas) => {
         
         if (alertas.length === 0) {
           alertas.push({
@@ -362,8 +400,8 @@
         let html = '';
         html += '<div class="modal-box" style="max-width:600px;">';
         html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">';
-        html += `<div class="modal-title">🔔 Alertas <span style="background:var(--c-error);color:#fff;border-radius:50%;padding:2px 8px;font-size:12px;margin-left:8px;">${alertas.length}</span></div>`;
-        html += '<button onclick="window.modal.close()" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>';
+        html += `<div class="modal-title"> Alertas <span style="background:var(--c-error);color:#fff;border-radius:50%;padding:2px 8px;font-size:12px;margin-left:8px;">${alertas.length}</span></div>`;
+        html += '<button onclick="window.modal.close()" style="font-size:20px;background:none;border:none;cursor:pointer;color:var(--c-text);">✕</button>';
         html += '</div>';
         html += '<div style="display:flex;flex-direction:column;gap:10px;max-height:400px;overflow-y:auto;">';
         
@@ -379,9 +417,6 @@
         }
         
         html += '</div>';
-        html += '<div class="modal-actions" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--c-border);">';
-        html += '<button class="btn-outline" onclick="window.modal.close()">Cerrar</button>';
-        html += '</div>';
         html += '</div>';
         
         modal.render(html);
@@ -392,7 +427,7 @@
       .catch((err) => {
         console.error('Error loading alerts:', err);
         toast.show('Error al cargar las alertas', 'error');
-        const html = '<div class="modal-box"><div class="modal-title">🔔 Alertas</div><div class="modal-body">No se pudieron cargar las alertas.</div><div class="modal-actions"><button class="btn-outline" onclick="window.modal.close()">Cerrar</button></div></div>';
+        const html = '<div class="modal-box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><div class="modal-title"> Alertas</div><button onclick="window.modal.close()" style="font-size:20px;background:none;border:none;cursor:pointer;color:var(--c-text);">✕</button></div><div class="modal-body">No se pudieron cargar las alertas.</div></div>';
         modal.render(html);
       });
     },
@@ -453,16 +488,21 @@
         // ✅ GUARDAR DATOS DEL USUARIO (NOMBRE DESDE BD)
         const userData = {
           id: data.IdUsuario,
+          IdEmpleado: data.IdEmpleado,
           username: data.NombreUsuario,
           role: (data.Rol || 'directivo').toLowerCase(),
           nombre: data.Nombre || '',
           apellidos: data.Apellidos || '',
-          NombreCompleto: data.NombreCompleto || (data.Nombre || '') + ' ' + (data.Apellidos || ''),
-          Empleado: data.NombreCompleto || (data.Nombre || '') + ' ' + (data.Apellidos || '')
+          NombreCompleto: data.Empleado || data.NombreCompleto || '',
+          Empleado: data.Empleado || data.NombreCompleto || ''
         };
         
         saveUserToStorage(userData);
-        window.location.href = 'dashboard.html';
+        if (userData.role === 'vendedor') {
+          window.location.href = 'dashboard_vendedor.html';
+        } else {
+          window.location.href = 'dashboard.html';
+        }
       })
       .catch((err) => {
         console.error('Login error:', err);
@@ -481,6 +521,56 @@
 
   // sistema de alertas
   const alerts = {
+    getAlertsData: () => {
+      return Promise.all([
+        fetchApi('/clientes').catch(() => []),
+        fetchApi('/contratos').catch(() => [])
+      ]).then((results) => {
+        const clientes = results[0];
+        const contratos = results[1];
+        const alertas = [];
+        
+        if (utils.isArray(clientes)) {
+          const inactivos = clientes.filter(c => c.Estatus === 'Inactivo');
+          if (inactivos.length > 0) {
+            alertas.push({ titulo: 'Clientes inactivos', descripcion: inactivos.length + ' cliente(s) con estatus inactivo', tipo: 'warn' });
+          }
+          let role = '';
+          try { const user = JSON.parse(localStorage.getItem('sofi-user') || '{}'); role = (user.role || user.Rol || '').toLowerCase().trim(); } catch(e) {}
+          if (role === 'admin' || role === 'administrador' || role === 'directivo') {
+            const sinTestigo = clientes.filter(c => !c.TestigoNombre);
+            if (sinTestigo.length > 0) {
+              alertas.push({ titulo: 'Clientes sin testigo', descripcion: sinTestigo.length + ' cliente(s) no tienen testigo asignado', tipo: 'error' });
+            }
+          }
+        }
+        
+        if (utils.isArray(contratos)) {
+          const atrasados = contratos.filter(c => c.Estatus === 'Atrasado');
+          if (atrasados.length > 0) {
+            alertas.push({ titulo: 'Contratos atrasados', descripcion: atrasados.length + ' contrato(s) con pagos atrasados', tipo: 'error' });
+          }
+        }
+        return alertas;
+      });
+    },
+    updateCount: () => {
+      alerts.getAlertsData().then(alertas => {
+        const badge = utils.getElement('sb-role-badge');
+        if (badge) {
+          badge.remove();
+        }
+        const notif = utils.getElement('notif-count');
+        if (notif) {
+          notif.textContent = alertas.length;
+          if (alertas.length > 0) {
+            notif.style.background = 'var(--c-error)';
+          } else {
+            notif.style.background = 'var(--c-muted)';
+          }
+        }
+      });
+    },
     markAsRead: () => {
       const notif = utils.getElement('notif-count');
       if (notif) {
@@ -488,7 +578,7 @@
         notif.style.background = 'var(--c-muted)';
       }
       toast.show('Alertas leídas', 'success');
-      setTimeout(modal.close, 400);
+      setTimeout(() => window.modal.close(), 400);
     }
   };
 
@@ -503,7 +593,8 @@
         'desarrollos': 'cargarDesarrollos',
         'detalle-desarrollo': 'cargarDetalleDesarrollo',
         'flujo': 'cargarFlujo',
-        'usuarios': 'cargarUsuarios'
+        'usuarios': 'cargarUsuarios',
+        'configuracion': 'cargarConfiguracion'
       };
 
       const loader = loaders[page];
@@ -521,6 +612,14 @@
   // inicializacion de la aplicacion
   const app = {
     init: () => {
+      // Cerrar menu de usuario al hacer click fuera
+      window.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('user-menu-dropdown');
+        if (dropdown && !e.target.closest('.topbar-actions')) {
+          dropdown.style.display = 'none';
+        }
+      });
+
       const user = getUserFromStorage();
       const page = navigation.getCurrentPage();
       const isLogin = page === 'login';
@@ -529,6 +628,7 @@
       const sessionError = utils.getElement('session-error');
       const loginScreen = utils.getElement('login-screen');
       const appShell = utils.getElement('app-shell');
+
 
       // Ocultar pantalla de carga
       if (loadingScreen) loadingScreen.style.display = 'none';
@@ -543,7 +643,12 @@
 
       // Si hay usuario y está en login → redirigir a dashboard
       if (user && isLogin) {
-        window.location.href = 'dashboard.html';
+        const userRole = (user.role || user.Rol || '').toLowerCase();
+        if (userRole === 'vendedor') {
+          window.location.href = 'dashboard_vendedor.html';
+        } else {
+          window.location.href = 'dashboard.html';
+        }
         return;
       }
 
@@ -563,6 +668,7 @@
         
         state.user = user;
         uiUpdater.updateShell(user);
+        alerts.updateCount();
         pageLoader.loadPage(page);
       }
     }
@@ -584,6 +690,7 @@
   window.toast = toast;
   window.fetchApi = fetchApi;
   window.navigateTo = navigation.navigateTo;
+  window.exportToCSV = utils.exportToCSV;
 
   // iniciar aplicacion
   document.addEventListener('DOMContentLoaded', app.init);

@@ -26,4 +26,4 @@ for f in 01-tokens.css 02-base.css 03-login.css 04-shell.css \
 done
 
 # ---- JS ----
-echo "✓ JS compartido listo: js/app.js usa el flujo funcional para las páginas HTML reales."
+echo "JS compartido listo: js/app.js usa el flujo funcional para las páginas HTML reales."

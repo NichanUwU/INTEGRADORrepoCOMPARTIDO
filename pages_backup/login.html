@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOFI Login</title>
+  <link rel="stylesheet" href="../css/styles.css?v=6">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="login-logo"><span class="s1">SOFI</span><span class="s2">.</span></div>
+      <p class="login-subtitle">Software Operativo para Fincas e Inmuebles</p>
+
+      <form class="login-form" onsubmit="event.preventDefault(); doLogin();">
+        <div class="login-error" id="login-error" role="alert"></div>
+        <div class="form-field">
+          <label for="login-email">Correo electrónico</label>
+          <input id="login-email" type="email" placeholder="usuario@empresa.com" autocomplete="username">
+        </div>
+        <div class="form-field">
+          <label for="login-password">Contraseña</label>
+          <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-primary">Ingresar al sistema</button>
+      </form>
+
+      <p class="login-footnote">v2.4.1  2025 SOFI Inmobiliaria</p>
+    </div>
+  </div>
+
+  <div id="app-shell">
+    <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar()"></div>
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-logo"><div class="sidebar-logo-text">SOFI<span>.</span></div></div>
+      <div class="sidebar-role-badge" id="sb-role-badge"></div>
+      <div class="sidebar-nav" id="sb-nav"></div>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar" id="sb-avatar"></div>
+          <div class="sidebar-user-info">
+            <span class="sidebar-user-name" id="sb-name"></span>
+            <span class="sidebar-user-role" id="sb-role"></span>
+          </div>
+        </div>
+        <button type="button" class="sidebar-logout" onclick="doLogout()">Cerrar sesión</button>
+      </div>
+    </nav>
+    <div class="main-content">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0">
+          <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">?</button>
+          <div class="breadcrumb" id="breadcrumb"><span>SOFI</span><span class="sep">·</span><span class="current">Dashboard</span></div>
+        </div>
+        <div class="topbar-actions">
+          <button type="button" class="topbar-btn" onclick="showModal('alertas-modal')">?? Alertas <span class="badge-notif" id="notif-count">0</span></button>
+          <button type="button" class="topbar-btn" onclick="window.location.href='configuracion.html'">? Configuración</button>
+        </div>
+      </div>
+      <main class="page-content" id="page-content"></main>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
+  <script src="../js/core/config.js?v=4"></script>
+  <script src="../js/utils/helpers.js"></script>
+  <script src="../js/core/app.js?v=3"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>

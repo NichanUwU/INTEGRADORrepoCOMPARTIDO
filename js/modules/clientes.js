@@ -1,7 +1,15 @@
 // CRUD CLIENTES
 
 function cargarClientes() {
-  fetchApi('/clientes')
+  let url = '/clientes';
+  try {
+    const user = JSON.parse(localStorage.getItem('sofi-user') || '{}');
+    if ((user.Rol || user.role || '').toLowerCase().trim() === 'vendedor' && user.IdEmpleado) {
+      url += '?IdEmpleado=' + user.IdEmpleado;
+    }
+  } catch(e) {}
+
+  fetchApi(url)
     .then(function(data) {
       renderClientes(data);
     })
@@ -15,11 +23,12 @@ function cargarClientes() {
 }
 
 function renderClientes(data) {
+  window.exportCurrentTable = () => window.exportToCSV ? window.exportToCSV(data, 'clientes.csv') : null;
   var tbody = document.getElementById('tabla-clientes-body');
   if (!tbody) return;
   
   if (!Array.isArray(data) || data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center">No hay clientes registrados.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9"><div style="display:flex;flex-direction:column;align-items:center;padding:40px 0;color:var(--c-muted);"><div style="font-size:48px;margin-bottom:16px;"></div><div style="font-size:16px;font-weight:600;color:var(--c-primary);">No hay clientes registrados</div><div style="font-size:14px;margin-top:8px;">Haz clic en Nuevo Cliente para comenzar.</div></div></td></tr>';
     return;
   }
   
@@ -30,14 +39,27 @@ function renderClientes(data) {
     html += '<td style="font-weight:600">' + (c.IdCliente || '') + '</td>';
     html += '<td>' + (c.Nombre || '') + '</td>';
     html += '<td>' + (c.Apellidos || '') + '</td>';
-    html += '<td>' + (c.Telefono || '') + '</td>';
+    html += '<td>' + (c.Telefono || c.Teléfono || '') + '</td>';
     html += '<td>' + (c.Ciudad || '') + '</td>';
     html += '<td>' + (c.Estado || '') + '</td>';
+    var testigoBadge = '';
+    if (c.TestigoNombre) {
+      testigoBadge = '<span class="chip chip-green">Asignado</span>';
+    } else {
+      testigoBadge = '<span class="chip chip-red">Sin Asignar</span>';
+    }
+    html += '<td>' + testigoBadge + '</td>';
     html += '<td style="font-size:12px;font-family:monospace">' + (c.INE || '') + '</td>';
     html += '<td style="font-size:12px;font-family:monospace">' + (c.CURP || '') + '</td>';
-    html += '<td style="display:flex;gap:6px;flex-wrap:wrap;">';
-    html += '<button class="btn-outline btn-sm" onclick="abrirModalEditarCliente(' + c.IdCliente + ')">✏ Editar</button>';
-    html += '<button class="btn-danger btn-sm" onclick="eliminarCliente(' + c.IdCliente + ')">🗑 Eliminar</button>';
+    var role = 'invitado';
+    try { var user = JSON.parse(localStorage.getItem('sofi-user') || '{}'); role = (user.role || user.Rol || '').toLowerCase().trim(); } catch(e) {}
+    html += '<td style="display:flex;gap:6px;flex-wrap:wrap; position: sticky; right: 0; background: var(--c-white); z-index: 1; box-shadow: -2px 0 5px rgba(0,0,0,0.05);">';
+    if (role === 'directivo' || role === 'vendedor' || role === 'admin' || role === 'administrador' || role === 'asistente') {
+        html += '<button class="btn-outline btn-sm" onclick="abrirModalEditarCliente(' + c.IdCliente + ')">Editar</button>';
+    }
+    if (role === 'directivo' || role === 'admin' || role === 'administrador' || role === 'asistente') {
+        html += '<button class="btn-danger btn-sm" onclick="eliminarCliente(' + c.IdCliente + ')">Eliminar</button>';
+    }
     html += '</td>';
     html += '</tr>';
   }
@@ -79,6 +101,13 @@ function guardarClienteModal() {
     CURP: curp.value.trim()
   };
 
+  try {
+    const user = JSON.parse(localStorage.getItem('sofi-user') || '{}');
+    if (user.IdEmpleado) {
+      payload.IdEmpleado = user.IdEmpleado;
+    }
+  } catch(e) {}
+
   fetchApi('/clientes', {
     method: 'POST',
     body: JSON.stringify(payload)
@@ -99,12 +128,12 @@ function abrirModalEditarCliente(id) {
       document.getElementById('edit-cliente-id').value = cliente.IdCliente;
       document.getElementById('edit-cli-nombre').value = cliente.Nombre || '';
       document.getElementById('edit-cli-apellidos').value = cliente.Apellidos || '';
-      document.getElementById('edit-cli-direccion').value = cliente.Direccion || '';
+      document.getElementById('edit-cli-direccion').value = cliente.Direccion || cliente.Dirección || '';
       document.getElementById('edit-cli-casa').value = cliente.Casa_Apartamento || '';
       document.getElementById('edit-cli-cp').value = cliente.Codigo_Postal || '';
       document.getElementById('edit-cli-ciudad').value = cliente.Ciudad || '';
       document.getElementById('edit-cli-estado').value = cliente.Estado || '';
-      document.getElementById('edit-cli-telefono').value = cliente.Telefono || '';
+      document.getElementById('edit-cli-telefono').value = cliente.Telefono || cliente.Teléfono || '';
       document.getElementById('edit-cli-ine').value = cliente.INE || '';
       document.getElementById('edit-cli-curp').value = cliente.CURP || '';
       abrirModal('editar-cliente-modal');
@@ -168,7 +197,7 @@ function eliminarCliente(id) {
     method: 'DELETE'
   })
     .then(function() {
-      showToast('✅ Cliente eliminado', 'success');
+      showToast('Cliente eliminado', 'success');
       cargarClientes();
     })
     .catch(function(error) {
