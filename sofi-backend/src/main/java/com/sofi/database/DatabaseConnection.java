@@ -13,4 +13,4 @@ public class DatabaseConnection {
         Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
-}
+}// Nota: Valores por defecto de desarrollo configurados
